@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0a0b89e0717e38ddee94ff8c7e5bea2c",
+    "hash": "7ec2a61b495ac8465b58ab4b1092e93b",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -348,12 +348,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "f01833bedb3237a7e9af373fb5a747b5172604ca"
+                "reference": "15bcc46932bf2d11a6e4b8e208c10301ed5d9d46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/f01833bedb3237a7e9af373fb5a747b5172604ca",
-                "reference": "f01833bedb3237a7e9af373fb5a747b5172604ca",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/15bcc46932bf2d11a6e4b8e208c10301ed5d9d46",
+                "reference": "15bcc46932bf2d11a6e4b8e208c10301ed5d9d46",
                 "shasum": ""
             },
             "require": {
@@ -455,7 +455,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-11-04 21:27:54"
+            "time": "2014-11-07 02:06:31"
         },
         {
             "name": "league/event",
@@ -2730,7 +2730,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "illuminate/html": 20,
-        "lucadegasperi/oauth2-server-laravel": 20
+        "lucadegasperi/oauth2-server-laravel": 20,
+        "league/oauth2-server": 20
     },
     "prefer-stable": false,
     "platform": [],
