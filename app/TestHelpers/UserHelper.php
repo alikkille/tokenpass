@@ -57,14 +57,14 @@ class UserHelper
         return $user;
     }
 
-    public function login($app, $user_override_vars = [])
+    public function loginWithForm($app, $user_override_vars = [])
     {
         $user = null;
 
         // get the response
         $response = $this->sendLoginRequest($app, null, $user_override_vars);
 
-        // get the session
+        // get the user id
         $auth = $app['auth'];
         $user_id = $auth->id();
 
@@ -76,6 +76,12 @@ class UserHelper
 
         return $user;
     }
+
+    public function loginUser($app, $user)
+    {
+        $app['auth']->login($user);
+    }
+
 
     public function sendLoginRequest($app, $session=null, $user_override_vars = []) {
         $user_vars = array_merge($this->defaultUserVars(), $user_override_vars);

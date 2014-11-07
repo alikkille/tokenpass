@@ -19,7 +19,7 @@ class LoginTest extends TestCase {
         $this->assertNotNull($user);
 
         // login
-        $user = $user_helper->login($this->app);
+        $user = $user_helper->loginWithForm($this->app);
         $this->assertNotNull($user);
 
         // check session
@@ -70,7 +70,7 @@ class LoginTest extends TestCase {
         $this->assertNotNull($user);
 
         // login
-        $user = $user_helper->login($this->app);
+        $user = $user_helper->loginWithForm($this->app);
         $this->assertNotNull($user);
 
         // can get to dashboard

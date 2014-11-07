@@ -16,7 +16,7 @@ class DashboardTest extends TestCase {
 
         // create a new user and login
         $user = $user_helper->createNewUser();
-        $user = $user_helper->login($this->app);
+        $user = $user_helper->loginWithForm($this->app);
 
         // can get to dashboard
         $response = $this->call('GET', '/user/dashboard');
