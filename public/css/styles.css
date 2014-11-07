@@ -1,0 +1,48 @@
+/* globals */
+.spacer1 {
+  height: 14px;
+}
+.spacer2 {
+  height: 28px;
+}
+.spacer3 {
+  height: 42px;
+}
+.spacer4 {
+  height: 56px;
+}
+.spacer5 {
+  height: 70px;
+}
+.spacer6 {
+  height: 84px;
+}
+/* structure */
+body {
+  line-height: 1;
+}
+div#wrapper {
+  margin: 0 auto -48px;
+  /* the bottom margin is the negative value of the footer's height */
+  min-height: 100%;
+}
+/* footer */
+footer {
+  background-color: #143325;
+  height: 48px;
+}
+footer div.contents {
+  margin: 0;
+  font-weight: 300;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+footer div.contents a {
+  color: white;
+  text-decoration: underline;
+}
+footer div.contents ul {
+  margin: 0;
+  padding: 14px 24px;
+  font-size: 0.8rem;
+}
