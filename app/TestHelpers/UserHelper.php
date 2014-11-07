@@ -87,6 +87,7 @@ class UserHelper
         // Request::create($uri, $method, $parameters, $cookies, $files, $server, $content)
         $request = Request::create('/auth/login', 'POST', array_merge($form_vars, ['_token' => true]));
 
+        // ensure session
         if (!$session) {
             $session = $this->session_manager->driver();
             $session->start();
