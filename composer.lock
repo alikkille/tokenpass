@@ -665,16 +665,16 @@
         },
         {
             "name": "lucadegasperi/oauth2-server-laravel",
-            "version": "dev-master",
+            "version": "dev-fix/errors-as-middleware",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deweller/oauth2-server-laravel.git",
-                "reference": "79b392eda12abde6113cd4421366e44a4328b1f0"
+                "reference": "2bd457f934385dcd961505fdf63289e5c412af7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deweller/oauth2-server-laravel/zipball/79b392eda12abde6113cd4421366e44a4328b1f0",
-                "reference": "79b392eda12abde6113cd4421366e44a4328b1f0",
+                "url": "https://api.github.com/repos/deweller/oauth2-server-laravel/zipball/2bd457f934385dcd961505fdf63289e5c412af7f",
+                "reference": "2bd457f934385dcd961505fdf63289e5c412af7f",
                 "shasum": ""
             },
             "require": {
@@ -724,9 +724,9 @@
                 "server"
             ],
             "support": {
-                "source": "https://github.com/deweller/oauth2-server-laravel/tree/master"
+                "source": "https://github.com/deweller/oauth2-server-laravel/tree/fix/errors-as-middleware"
             },
-            "time": "2014-10-16 14:36:12"
+            "time": "2014-10-23 16:12:42"
         },
         {
             "name": "monolog/monolog",
