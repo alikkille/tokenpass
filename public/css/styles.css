@@ -26,6 +26,10 @@ div#wrapper {
   /* the bottom margin is the negative value of the footer's height */
   min-height: 100%;
 }
+/* page-elements */
+.clientName {
+  font-weight: 500;
+}
 /* footer */
 footer {
   background-color: #143325;
