@@ -5,7 +5,7 @@ namespace TKAccounts\Http\Controllers\OAuth;
 use TKAccounts\Repositories\UserRepository;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +18,7 @@ use LucaDegasperi\OAuth2Server\Authorizer;
  * @Middleware("csrf", except={"postAccessToken"})
  * @Middleware("auth", only={"getAuthorize","postAuthorize"})
  */
-class OAuthController extends Controller
+class OAuthController extends BaseController
 {
     protected $authorizer;
 

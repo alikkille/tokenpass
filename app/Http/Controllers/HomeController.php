@@ -1,10 +1,10 @@
 <?php namespace TKAccounts\Http\Controllers;
 
-use Illuminate\Routing\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class HomeController extends Controller {
+class HomeController extends BaseController {
 
 	/**
 	 * @Get("/")
