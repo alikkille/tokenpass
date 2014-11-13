@@ -26,20 +26,33 @@ div#wrapper {
   /* the bottom margin is the negative value of the footer's height */
   min-height: 100%;
 }
-/* page-elements */
-.clientName {
-  font-weight: 500;
+header {
+  margin-bottom: 24px;
 }
-/* footer */
+.top-bar-section ul li > span.informational {
+  display: block;
+  width: 100%;
+  color: white;
+  padding-left: 15px;
+  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: normal;
+  text-transform: none;
+}
+.top-bar-section ul li > span.informational a {
+  color: white;
+  text-decoration: underline;
+  padding-left: 0 !important;
+}
 footer {
-  background-color: #143325;
+  background-color: #cccccc;
   height: 48px;
 }
 footer div.contents {
   margin: 0;
-  font-weight: 300;
+  font-weight: 400;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(0, 0, 0, 0.45);
 }
 footer div.contents a {
   color: white;
@@ -49,4 +62,8 @@ footer div.contents ul {
   margin: 0;
   padding: 14px 24px;
   font-size: 0.8rem;
+}
+/* page-elements */
+.clientName {
+  font-weight: 500;
 }

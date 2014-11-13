@@ -11,6 +11,11 @@
 <body>
 	<div id="wrapper">
 
+		@section('header')
+		@include('partials.header')
+		@show
+
+
 		@yield('body', '')
 
 		@section('javascriptIncludes')

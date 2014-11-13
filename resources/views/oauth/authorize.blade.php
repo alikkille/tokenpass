@@ -20,7 +20,7 @@
 
             {!! Form::open(['route' => 'oauth.authorize', 'method' => 'post', 'url' => Request::fullUrl()]) !!}
 
-            {!! Form::submit('Grant Access', ['name' => 'approve', 'class' => 'button']) !!}
+            {!! Form::submit('Grant Access', ['name' => 'approve', 'class' => 'success button']) !!}
             {!! Form::submit('Deny Access', ['name' => 'deny', 'class' => 'secondary button']) !!}
 
             {!! Form::close() !!}

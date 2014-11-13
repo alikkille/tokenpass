@@ -18,8 +18,11 @@
             <a class="small button" href="/auth/logout">Logout</a>
         </div>
         @else
-        <p>It looks like you are new here or haven't signed in for a while.  Please login now.</p>
-        <div><a class="small button" href="/user/dashboard">Login</a></div>
+        <p>It looks like you are new here or haven't signed in for a while.</p>
+        <div>
+            <a class="small button" href="/auth/register">Sign Up</a>
+            <a class="small button" href="/auth/login">Login</a>
+        </div>
         @endif
 
 

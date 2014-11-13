@@ -22,7 +22,8 @@
             {!! Form::label('password_confirmation', 'Confirm Password', []) !!}
             {!! Form::password('password_confirmation') !!}
 
-            {!! Form::submit('Register', ['class' => 'button']) !!}
+            {!! Form::submit('Register', ['class' => 'success button']) !!}
+            <a href="/" class="secondary button right">Cancel</a>
 
             {!! Form::close() !!}
 

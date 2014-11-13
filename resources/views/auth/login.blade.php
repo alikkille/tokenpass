@@ -18,7 +18,8 @@
             {!! Form::password('password') !!}
 
 
-            {!! Form::submit('Login', ['class' => 'button']) !!}
+            {!! Form::submit('Login', ['class' => 'success button']) !!}
+            <a href="/" class="secondary button right">Cancel</a>
 
             {!! Form::close() !!}
 
