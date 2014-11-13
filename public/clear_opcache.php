@@ -2,7 +2,7 @@
 
 header('content-type: application/json');
 
-if (!strlen($_GET['k']) OR $_GET['k'] != getenv('OPCACHE_KEY')) {
+if (!strlen($_GET['k']) OR $_GET['k'] != getenv('CLEAR_OPCACHE_KEY')) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'invalid key', 'timestamp' => time()], 192);
     exit();
