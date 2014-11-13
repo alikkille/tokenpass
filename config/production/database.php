@@ -8,8 +8,7 @@ return [
 
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => getenv('DB_PORT_3306_TCP_ADDR') ?: 'localhost',
-            'port'      => getenv('DB_PORT_3306_TCP_PORT') ?: '3306',
+            'host'      => 'mariadb',
             'database'  => 'tokenly_accounts_prod',
             'username'  => getenv('DB_USERNAME') ?: 'root',
             'password'  => getenv('DB_PASSWORD') ?: '',
