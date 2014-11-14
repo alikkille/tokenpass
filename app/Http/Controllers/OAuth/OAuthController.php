@@ -64,7 +64,10 @@ class OAuthController extends BaseController
      */
     public function getAuthorize()
     {
-        return View::make('oauth.authorize', $this->authorizer->getAuthCodeRequestParams());
+        return View::make('oauth.authorize', array_merge(
+            $this->authorizer->getAuthCodeRequestParams(),
+            ['currentUser' => Auth::user()])
+        );
     }
 
     /**
