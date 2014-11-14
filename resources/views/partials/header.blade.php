@@ -15,7 +15,7 @@
                 @if (isset($currentUser) AND $currentUser)
                 <li class="">
                     <span class="informational">
-                        Welcome, user.
+                        Welcome, {{ $currentUser->username }}.
                         <a href="/auth/logout">Logout</a>
                     </span>
                 </li>
