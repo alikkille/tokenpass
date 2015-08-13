@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Rhumsaa\Uuid\Uuid;
 
 class OAuthClientsTableSeeder extends DatabaseSeeder {
 
@@ -27,6 +28,7 @@ class OAuthClientsTableSeeder extends DatabaseSeeder {
                 'name' => 'client1',
                 'created_at' => $datetime,
                 'updated_at' => $datetime,
+                'uuid' => Uuid::uuid4()->toString(),
             ],
             [
                 'id' => 'client2id',
@@ -34,6 +36,7 @@ class OAuthClientsTableSeeder extends DatabaseSeeder {
                 'name' => 'client2',
                 'created_at' => $datetime,
                 'updated_at' => $datetime,
+                'uuid' => Uuid::uuid4()->toString(),
             ],
         ];
 

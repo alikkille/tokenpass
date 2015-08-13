@@ -2,7 +2,7 @@
 
 @section('body')
 
-<h1>Register a New Tokenly Account</h1>
+<h1>Login with Your Tokenly Account</h1>
 
 @include('partials.errors', ['errors' => $errors])
 
@@ -12,8 +12,8 @@
     {!! csrf_field() !!}
 
     <div class="form-group">
-        <label for="Email">Email Address</label>
-        <input required="required" name="email" type="email" class="form-control" id="Email" placeholder="youremail@yourwebsite.com" value="{{ old('email') }}">
+        <label for="Username">Username</label>
+        <input required="required" name="username" type="text" class="form-control" id="Username" placeholder="satoshi" value="{{ old('username') }}">
     </div>
 
     <div class="form-group">

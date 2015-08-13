@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \TKAccounts\Console\Commands\Inspire::class,
+        \Tokenly\LaravelApiProvider\Commands\MakeAPIModelCommand::class,
+        \Tokenly\LaravelApiProvider\Commands\MakeAPIRespositoryCommand::class,
     ];
 
     /**

@@ -38,5 +38,8 @@ class Kernel extends HttpKernel
         'oauth'                      => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
         'oauth-owner'                => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
         'check-authorization-params' => \LucaDegasperi\OAuth2Server\Middleware\CheckAuthCodeRequestMiddleware::class,
+
+        // require admin
+        'admin'                      => \TKAccounts\Http\Middleware\AdminAuthenticate::class,
     ];
 }

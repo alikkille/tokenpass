@@ -37,12 +37,19 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
 
 
     public function findByAPIToken($api_token) {
-        return null;
-        // return call_user_func([$this->model_type, 'where'], 'username', $username)->first();
+        return call_user_func([$this->model_type, 'where'], 'username', $username)->first();
     }
 
     protected function modifyAttributesBeforeCreate($attributes) {
         $token_generator = new TokenGenerator();
+
+        // create a token
+        if (!isset($attributes['apitoken'])) {
+            $attributes['apitoken'] = $token_generator->generateToken(16, 'T');
+        }
+        if (!isset($attributes['apisecretkey'])) {
+            $attributes['apisecretkey'] = $token_generator->generateToken(40, 'K');
+        }
 
         // hash any password
         if (isset($attributes['password']) AND strlen($attributes['password'])) {

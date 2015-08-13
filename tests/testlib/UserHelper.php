@@ -41,7 +41,7 @@ class UserHelper
         $user_id = $auth->id();
 
         // get the user just created
-        $user = User::find($user_id);
+        $user = app('TKAccounts\Repositories\UserRepository')->findByID($user_id);
         if (!$user OR !$user->getKey()) {
             return null;
         }
@@ -52,11 +52,8 @@ class UserHelper
     public function createNewUser($user_override_vars = []) {
         $user_vars = array_merge($this->defaultUserVars(), $user_override_vars);
 
-        // hash the password
-        $user_vars['password'] = bcrypt($user_vars['password']);
-
-        // create the user
-        $user = User::create($user_vars);
+        // create the user (this also hashes the password)
+        $user = app('TKAccounts\Repositories\UserRepository')->create($user_vars);
         if (!$user->getKey()) { return null; }
 
         // get the user just created
@@ -75,7 +72,7 @@ class UserHelper
         $user_id = $auth->id();
 
         // get the user just created
-        $user = User::find($user_id);
+        $user = app('TKAccounts\Repositories\UserRepository')->findByID($user_id);
         if (!$user OR !$user->getKey()) {
             return null;
         }
@@ -127,7 +124,7 @@ class UserHelper
 
 
     public function userExistsInDB(User $user) {
-        $loaded_user = User::find($user->getKey());
+        $loaded_user = app('TKAccounts\Repositories\UserRepository')->findByID($user->getKey());
         return ($loaded_user->getKey() AND $loaded_user->getKey() == $user->getKey());
     }
 

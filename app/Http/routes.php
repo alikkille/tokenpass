@@ -29,6 +29,16 @@ Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 
+
+// -------------------------------------------------------------------------
+// Admin routes
+
+Route::get('admin', ['middleware' => 'auth', function() {
+    return view('admin.index');
+}]);
+Route::resource('admin/oauthclients', 'Admin\OAuthClientsController');
+
+
 // -------------------------------------------------------------------------
 // User routes
 

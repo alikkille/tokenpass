@@ -4,6 +4,7 @@ var path = require('path');
 var browserify = require('browserify');
 var watchify = require('watchify');
 var coffee_reactify = require('coffee-reactify');
+var uglify = require('gulp-uglify');
 
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
@@ -50,6 +51,12 @@ gulp.task('js', function() {
 
   // browserify
   browserifyBundle(b);
+
+  // copy bootstrap js
+  gulp.src('node_modules/bootstrap/js/*.js')
+    .pipe(uglify({preserveComments: 'all'}))
+    .pipe(gulp.dest('../../public/js/bootstrap'));
+
 });
 
 gulp.task('less', function () {
