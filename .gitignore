@@ -1,8 +1,4 @@
-/.idea
 /vendor
 /node_modules
+Homestead.yaml
 .env
-.DS_Store
-Thumbs.db
-composer.phar
-laravel-version-upgrade.sh

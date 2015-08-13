@@ -1,40 +1,30 @@
-<?php namespace TKAccounts\Console;
+<?php
 
-use Exception;
+namespace TKAccounts\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
-class Kernel extends ConsoleKernel {
+class Kernel extends ConsoleKernel
+{
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        \TKAccounts\Console\Commands\Inspire::class,
+    ];
 
-	/**
-	 * The Artisan commands provided by your application.
-	 *
-	 * @var array
-	 */
-	protected $commands = [
-		'TKAccounts\Console\Commands\InspireCommand',
-	];
-
-	/**
-	 * Run the console application.
-	 *
-	 * @param  \Symfony\Component\Console\Input\InputInterface  $input
-	 * @param  \Symfony\Component\Console\Output\OutputInterface  $output
-	 * @return int
-	 */
-	public function handle($input, $output = null)
-	{
-		try
-		{
-			return parent::handle($input, $output);
-		}
-		catch (Exception $e)
-		{
-			$this->reportException($e);
-
-			$this->renderException($output, $e);
-
-			return 1;
-		}
-	}
-
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        $schedule->command('inspire')
+                 ->hourly();
+    }
 }

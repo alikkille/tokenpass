@@ -1,40 +1,17 @@
-<?php namespace TKAccounts\Http\Middleware;
+<?php
 
-use Closure;
-use Illuminate\Contracts\Routing\Middleware;
-use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Facades\Log;
+namespace TKAccounts\Http\Middleware;
 
-class VerifyCsrfToken implements Middleware {
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
 
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
-	 * @return mixed
-	 *
-	 * @throws TokenMismatchException
-	 */
-	public function handle($request, Closure $next)
-	{
-		if ($request->method() == 'GET' || $this->tokensMatch($request))
-		{
-			return $next($request);
-		}
-
-		throw new TokenMismatchException;
-	}
-
-	/**
-	 * Determine if the session and input CSRF tokens match.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return bool
-	 */
-	protected function tokensMatch($request)
-	{
-		return $request->session()->token() == $request->input('_token');
-	}
-
+class VerifyCsrfToken extends BaseVerifier
+{
+    /**
+     * The URIs that should be excluded from CSRF verification.
+     *
+     * @var array
+     */
+    protected $except = [
+        //
+    ];
 }

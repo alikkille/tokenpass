@@ -1,27 +1,39 @@
-@extends('layouts.one-column')
+@extends('layouts.base')
 
-@section('htmlTitle', 'Login')
+@section('body')
 
-@section('pageTitle', 'Login Using your Tokenly Account')
+<h1>Register a New Tokenly Account</h1>
 
-
-@section('bodyContent')
-
-            @include('partials.errors')
-
-            {!! Form::open(['url' => '/auth/login', 'method' => 'post']) !!}
-            
-            {!! Form::label('email', 'E-Mail Address', []) !!}
-            {!! Form::email('email') !!}
-
-            {!! Form::label('password', 'Password', []) !!}
-            {!! Form::password('password') !!}
+@include('partials.errors', ['errors' => $errors])
 
 
-            {!! Form::submit('Login', ['class' => 'success button']) !!}
-            <a href="/" class="secondary button right">Cancel</a>
+<form method="POST" action="/auth/login">
 
-            {!! Form::close() !!}
+    {!! csrf_field() !!}
+
+    <div class="form-group">
+        <label for="Email">Email Address</label>
+        <input required="required" name="email" type="email" class="form-control" id="Email" placeholder="youremail@yourwebsite.com" value="{{ old('email') }}">
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <input required="required" name="password" type="password" class="form-control" id="Password" name="password">
+    </div>
 
 
-@stop
+    <div class="checkbox">
+      <label>
+          <input type="checkbox" name="remember" id="RememberMe"> Remember Me
+      </label>
+    </div>
+
+
+    <div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+
+</form>
+
+@endsection
+

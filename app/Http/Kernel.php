@@ -1,46 +1,42 @@
-<?php namespace TKAccounts\Http;
+<?php
 
-use Exception;
+namespace TKAccounts\Http;
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
-class Kernel extends HttpKernel {
+class Kernel extends HttpKernel
+{
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * @var array
+     */
+    protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \TKAccounts\Http\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
 
-	/**
-	 * The application's HTTP middleware stack.
-	 *
-	 * @var array
-	 */
-	protected $middleware = [
-		'TKAccounts\Http\Middleware\UnderMaintenance',
-		'Illuminate\Cookie\Middleware\EncryptCookies',
-		'Illuminate\Cookie\Middleware\AddQueuedCookiesToRequest',
-		'Illuminate\Session\Middleware\ReadSession',
-		'Illuminate\Session\Middleware\WriteSession',
-		'Illuminate\View\Middleware\ShareErrorsFromSession',
-		// 'TKAccounts\Http\Middleware\VerifyCsrfToken',
+        // handle oAuth exceptions
+        \LucaDegasperi\OAuth2Server\Middleware\OAuthExceptionHandlerMiddleware::class,
+    ];
 
-		// custom
-        // 'TKAccounts\Http\Middleware\ReplaceTestVars',
-	];
+    /**
+     * The application's route middleware.
+     *
+     * @var array
+     */
+    protected $routeMiddleware = [
+        'auth'                       => \TKAccounts\Http\Middleware\Authenticate::class,
+        'auth.basic'                 => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'guest'                      => \TKAccounts\Http\Middleware\RedirectIfAuthenticated::class,
 
-	/**
-	 * Handle an incoming HTTP request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function handle($request)
-	{
-		try
-		{
-			return parent::handle($request);
-		}
-		catch (Exception $e)
-		{
-			$this->reportException($e);
+        // must be enabled on a per-route basis
+        'csrf'                       => \TKAccounts\Http\Middleware\VerifyCsrfToken::class,
 
-			return $this->renderException($request, $e);
-		}
-	}
-
+        'oauth'                      => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
+        'oauth-owner'                => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
+        'check-authorization-params' => \LucaDegasperi\OAuth2Server\Middleware\CheckAuthCodeRequestMiddleware::class,
+    ];
 }

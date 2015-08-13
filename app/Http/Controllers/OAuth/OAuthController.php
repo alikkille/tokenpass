@@ -2,99 +2,88 @@
 
 namespace TKAccounts\Http\Controllers\OAuth;
 
-use TKAccounts\Repositories\UserRepository;
-use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
-use LucaDegasperi\OAuth2Server\Authorizer;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
+use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Repositories\UserRepository;
 
 /**
- * @Middleware("csrf", except={"postAccessToken"})
- * @Middleware("auth", only={"getAuthorize","postAuthorize"})
  */
-class OAuthController extends BaseController
+class OAuthController extends Controller
 {
     protected $authorizer;
 
-    public function __construct(Authorizer $authorizer, Guard $laravel_auth)
+    public function __construct()
     {
-        $this->authorizer = $authorizer;
-        $this->laravel_auth = $laravel_auth;
 
         // $this->beforeFilter('auth', ['only' => ['getAuthorize', 'postAuthorize']]);
 
-        $this->middleware('oauth2.error');
-        $this->middleware('oauth2.check-authorization-params', ['only' => ['getAuthorize', 'postAuthorize']]);
+        // $this->middleware('oauth2.error');
+        // $this->middleware('oauth2.check-authorization-params', ['only' => ['getAuthorize', 'postAuthorize']]);
 
-        $this->beforeFilter('oauth', ['only' => ['getUser']]);
+        // $this->beforeFilter('oauth', ['only' => ['getUser']]);
 
     }
 
     /**
      * Issue the Access Token
      * 
-     * @Post("oauth/access-token", as="oauth.accesstoken")
-     * 
      * @return Response
      */
     public function postAccessToken()
     {
-        // Log::info('postAccessToken');
+        Log::debug("postAccessToken called");
         try {
-            return $this->authorizer->issueAccessToken();
+            return Response::json(Authorizer::issueAccessToken());
         } catch (\Exception $e) {
             Log::error("Exception: ".get_class($e).' '.$e->getMessage());
             throw $e;
         }
-         // return Response::json($this->authorizer->issueAccessToken());
     }
 
     /**
      * Show the authorization form
      * 
-     * @Get("oauth/authorize", as="oauth.authorize")
-     * 
      * @return Response
      */
-    public function getAuthorize()
+    public function getAuthorizeForm()
     {
-        return View::make('oauth.authorize', array_merge(
-            $this->authorizer->getAuthCodeRequestParams(),
-            ['currentUser' => Auth::user()])
-        );
+        $authParams = Authorizer::getAuthCodeRequestParams();
+        $formParams = array_except($authParams,'client');
+        $formParams['client_id'] = $authParams['client']->getId();
+        return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$authParams['scopes']]);
     }
 
     /**
      * Process the authorization form
      * 
-     * @Post("oauth/authorize", as="oauth.authorize")
-     * 
      * @return Response
      */
-    public function postAuthorize()
+    public function postAuthorizeForm()
     {
 
-        // get the user id
-        $params['user_id'] = $this->laravel_auth->user()->id;
+        $params = Authorizer::getAuthCodeRequestParams();
+        $params['user_id'] = Auth::user()->id;
+        $redirect_uri = '';
 
-        $redirectUri = '';
 
-
+        // if the user has allowed the client to access its data, redirect back to the client with an auth code
         if (Input::get('approve') !== null) {
-            $redirectUri = $this->authorizer->issueAuthCode('user', $params['user_id'], $params);
+            $redirect_uri = Authorizer::issueAuthCode('user', $params['user_id'], $params);
         }
 
+        // if the user has denied the client to access its data, redirect back to the client with an error message
         if (Input::get('deny') !== null) {
-            $redirectUri = $this->authorizer->authCodeRequestDeniedRedirectUri();
+            $redirect_uri = Authorizer::authCodeRequestDeniedRedirectUri();
         }
 
-        return Redirect::to($redirectUri);
+        return Redirect::to($redirect_uri);
     }
 
     /**
@@ -102,15 +91,15 @@ class OAuthController extends BaseController
      * @GET("oauth/user", as="oauth.user")
      * @return Response
      */
-    public function getUser(Authorizer $authorizer, UserRepository $user_repository) {
-        $owner_id = $authorizer->getResourceOwnerId();
-        // Log::info('getUser \$owner_id='.json_encode($owner_id, 192));
+    public function getUser(UserRepository $user_repository) {
+        $owner_id = Authorizer::getResourceOwnerId();
 
         $user = $user_repository->findById($owner_id);
         // Log::info('getUser returning '.json_encode($user, 192));
 
         return [
             'id'       => $user['id'],
+            'name'     => $user['name'],
             'username' => $user['username'],
             'email'    => $user['email'],
         ];

@@ -1,0 +1,29 @@
+{
+  "name": "tokenly-accounts-assets",
+  "version": "0.0.1",
+  "description": "Tokenly Accounts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "bootstrap": "^3.3.5",
+    "browserify": "^11.0.1",
+    "coffee-reactify": "^4.0.0",
+    "coffeeify": "^1.1.0",
+    "flux": "^2.0.3",
+    "flux-dispatcher": "^1.0.6",
+    "gulp": "^3.9.0",
+    "gulp-less": "^3.0.3",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-util": "^3.0.6",
+    "lodash.assign": "^3.2.0",
+    "numeral": "^1.5.3",
+    "object-assign": "^3.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.3.1"
+  }
+}

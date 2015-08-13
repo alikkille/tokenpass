@@ -1,31 +1,50 @@
-@extends('layouts.one-column')
+@extends('layouts.base')
 
-@section('htmlTitle', 'Register')
+@section('body')
 
-@section('pageTitle', 'Register a Tokenly Account')
+<h1>Register a New Tokenly Account</h1>
 
-@section('bodyContent')
+@include('partials.errors', ['errors' => $errors])
 
-            @include('partials.errors')
+<div class="spacer2"></div>
 
-            {!! Form::open(['url' => '/auth/register', 'method' => 'post']) !!}
-            
-            {!! Form::label('email', 'E-Mail Address', []) !!}
-            {!! Form::email('email') !!}
+<form method="POST" action="/auth/register">
 
-            {!! Form::label('username', 'Username', []) !!}
-            {!! Form::text('username') !!}
+    {!! csrf_field() !!}
 
-            {!! Form::label('password', 'Password', []) !!}
-            {!! Form::password('password') !!}
+    <div class="form-group">
+        <label for="Name">Name</label>
+        <input required="required" name="name" type="text" class="form-control" id="Name" placeholder="Satoshi Nakamoto" value="{{ old('name') }}">
+    </div>
 
-            {!! Form::label('password_confirmation', 'Confirm Password', []) !!}
-            {!! Form::password('password_confirmation') !!}
+    <div class="form-group">
+        <label for="Name">Username</label>
+        <input required="required" name="username" type="text" class="form-control" id="Name" placeholder="satoshi" value="{{ old('username') }}">
+    </div>
 
-            {!! Form::submit('Register', ['class' => 'success button']) !!}
-            <a href="/" class="secondary button right">Cancel</a>
+    <div class="form-group">
+        <label for="Email">Email address</label>
+        <input required="required" name="email" type="email" class="form-control" id="Email" placeholder="youremail@yourwebsite.com" value="{{ old('email') }}">
+    </div>
 
-            {!! Form::close() !!}
+    <div class="spacer1"></div>
 
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <input required="required" type="password" class="form-control" id="Password" name="password">
+    </div>
 
-@stop
+    <div class="form-group">
+        <label for="Password">Confirm Password</label>
+        <input required="required" type="password" class="form-control" id="Password" name="password_confirmation">
+    </div>
+
+    <div class="spacer2"></div>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </div>
+
+</form>
+
+@endsection

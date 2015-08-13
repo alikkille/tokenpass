@@ -1,40 +1,20 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-	<meta charset="UTF-8">
-	<title>Tokenly | @yield('htmlTitle', 'Welcome')</title>
-	<link rel="stylesheet" href="/css/foundation/foundation.css">
-	<link rel="stylesheet" href="/css/styles.css">
-
-	<script src="/js/vendor/modernizr.js"></script>
+    <meta charset=utf-8 />
+    <title>Tokenly Accounts</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
+    <!--[if IE]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 </head>
 <body>
-	<div id="wrapper">
 
-		@section('header')
-		@include('partials.header')
-		@show
+<div class="container">
 
+@yield('body')
 
-		@yield('body', '')
-
-		@section('javascriptIncludes')
-		<script src="/js/vendor/jquery.js"></script>
-		<script src="/js/foundation.min.js"></script>
-		@show
-
-	</div>
-
-
-	@section('footer')
-	@include('partials.footer')
-	@show
-
-	<script>
-	@section('foundation_init')
-	$(document).foundation();
-	@show
-	</script>
-
+</div>
+ 
 </body>
 </html>

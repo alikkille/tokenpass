@@ -1,0 +1,5 @@
+suites:
+    main:
+        namespace: TKAccounts
+        psr4_prefix: TKAccounts
+        src_path: app
