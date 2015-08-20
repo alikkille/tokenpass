@@ -33,16 +33,25 @@ Route::post('auth/register', 'Auth\AuthController@postRegister');
 Route::get('auth/update', 'Auth\AuthController@getUpdate');
 Route::post('auth/update', 'Auth\AuthController@postUpdate');
 
-// Send email confirmation...
+// Email confirmations...
 Route::get('auth/sendemail', 'Auth\EmailConfirmationController@getSendEmail');
 Route::post('auth/sendemail', 'Auth\EmailConfirmationController@postSendEmail');
 Route::get('auth/verify/{token}', ['as' => 'auth.verify', 'uses' => 'Auth\EmailConfirmationController@verifyEmail']);
+
+// Password reset link request routes...
+Route::get('password/email', 'Auth\PasswordController@getEmail');
+Route::post('password/email', 'Auth\PasswordController@postEmail');
+
+// Password reset routes...
+Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
+Route::post('password/reset', 'Auth\PasswordController@postReset');
+
 
 
 // -------------------------------------------------------------------------
 // Admin routes
 
-Route::get('admin', ['middleware' => 'auth', function() {
+Route::get('admin', ['middleware' => ['auth','admin',], function() {
     return view('admin.index');
 }]);
 Route::resource('admin/oauthclients', 'Admin\OAuthClientsController');

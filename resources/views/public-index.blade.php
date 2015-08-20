@@ -1,6 +1,6 @@
-@extends('layouts.base')
+@extends('layouts.guest')
 
-@section('body')
+@section('body_content')
 
 <h1>Welcome to Tokenly Accounts</h1>
 

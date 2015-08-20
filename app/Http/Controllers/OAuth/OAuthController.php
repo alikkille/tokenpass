@@ -96,10 +96,11 @@ class OAuthController extends Controller
         // Log::info('getUser returning '.json_encode($user, 192));
 
         return [
-            'id'       => $user['uuid'],
-            'name'     => $user['name'],
-            'username' => $user['username'],
-            'email'    => $user['email'],
+            'id'                 => $user['uuid'],
+            'name'               => $user['name'],
+            'username'           => $user['username'],
+            'email'              => $user['email'],
+            'email_is_confirmed' => $user->emailIsConfirmed(),
         ];
     }
 }

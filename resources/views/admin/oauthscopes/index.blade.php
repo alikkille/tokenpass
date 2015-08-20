@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('body')
+@section('body_content')
 
 <h1>OAuth Scopes</h1>
 

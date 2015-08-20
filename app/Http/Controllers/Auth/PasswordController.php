@@ -2,8 +2,10 @@
 
 namespace TKAccounts\Http\Controllers\Auth;
 
-use TKAccounts\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Support\Facades\Auth;
+use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Repositories\UserRepository;
 
 class PasswordController extends Controller
 {
@@ -20,13 +22,36 @@ class PasswordController extends Controller
 
     use ResetsPasswords;
 
+    protected $redirectTo = '/dashboard';
+
     /**
      * Create a new password controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserRepository $user_repository)
     {
+        $this->user_repository = $user_repository;
+
         $this->middleware('guest');
     }
+
+
+
+    /**
+     * Reset the given user's password.
+     *
+     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
+     * @param  string  $password
+     * @return void
+     */
+    protected function resetPassword($user, $password)
+    {
+        // update the user (the repository will hash the password)
+        $this->user_repository->update($user, ['password' => $password]);
+
+        // login the user
+        Auth::login($user);
+    }
+
 }

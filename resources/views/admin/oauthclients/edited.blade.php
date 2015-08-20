@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('body')
+@section('body_content')
 
 <h1>OAuth Client Updated</h1>
 

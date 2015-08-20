@@ -2,19 +2,24 @@
 
 namespace TKAccounts\Http\Controllers\Auth;
 
+use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use InvalidArgumentException;
+use TKAccounts\Commands\ImportCMSAccount;
+use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
+use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
 use Validator;
-use Exception;
-use InvalidArgumentException;
 
 class AuthController extends Controller
 {
@@ -29,6 +34,7 @@ class AuthController extends Controller
     |
     */
 
+    use DispatchesJobs;
     use ThrottlesLogins;
 
     use AuthenticatesUsers, RegistersUsers {
@@ -53,6 +59,93 @@ class AuthController extends Controller
 
     }
 
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function postRegister(Request $request)
+    {
+        $register_vars = $request->all();
+        $register_vars['slug'] = Util::slugify(isset($register_vars['username']) ? $register_vars['username'] : '');
+
+        $validator = $this->validator($register_vars);
+
+        if ($validator->fails()) {
+            $this->throwValidationException(
+                $request, $validator
+            );
+        }
+
+        // we can't create a new user with an existing LTB username
+        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        if ($loader->usernameExists($register_vars['username'])) {
+            $register_error = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
+            throw new HttpResponseException($this->buildFailedValidationResponse($request, ['username' => $register_error]));
+        }
+
+
+        Auth::login($this->create($request->all()));
+
+        return redirect($this->redirectPath());
+    }
+
+
+    public function postLogin(Request $request, UserRepository $user_repository) {
+        $this->validate($request, [
+            $this->loginUsername() => 'required', 'password' => 'required',
+        ]);
+
+        if ($this->hasTooManyLoginAttempts($request)) {
+            return $this->sendLockoutResponse($request);
+        }
+
+        $credentials = $this->getCredentials($request);
+
+
+        $login_error = null;
+        $second_time = false;
+        while (true) {
+            // try authenticating with our local database
+            if (Auth::attempt($credentials, $request->has('remember'))) {
+                return $this->handleUserWasAuthenticated($request, true);
+            }
+
+            if ($second_time) { break; }
+
+            // never try to import a CMS user if the username exists in our database
+            $existing_user = $user_repository->findBySlug(Util::slugify($this->username));
+            if ($existing_user) { break; }
+
+            // try importing a user with CMS credentials
+            $imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+            if (!$imported_new_account) {
+                // failed to import. See if there was an ltb username
+                $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+                if ($loader->usernameExists($credentials['username'])) {
+                    $login_error = 'This username was found at LetsTalkBitcoin.com but the password was incorrect.  Please try again.';
+                }
+
+
+                break;
+            }
+
+            $second_time = true;
+        }
+
+        // throttle
+        $this->incrementLoginAttempts($request);
+
+        // failed login
+        if ($login_error === null) { $login_error = $this->getFailedLoginMessage(); }
+        return redirect($this->loginPath())
+            ->withInput($request->only($this->loginUsername(), 'remember'))
+            ->withErrors([
+                $this->loginUsername() => $login_error,
+            ]);
+    }
+
 
     public function getUpdate(Request $request)
     {
@@ -60,7 +153,7 @@ class AuthController extends Controller
 
         $flashable = [];
         foreach ($current_user->updateableFields() as $field_name) {
-            $flashable[$field_name] = $current_user[$field_name];
+            $flashable[$field_name] = Session::hasOldInput($field_name) ? Session::getOldInput($field_name) : $current_user[$field_name];
         }
         $request->getSession()->flashInput($flashable);
 
@@ -97,7 +190,9 @@ class AuthController extends Controller
             // check existing password
             $password_matched = $current_user->passwordMatches($request_params['password']);
             if (!$password_matched) {
-                throw new InvalidArgumentException("Please provide the correct password to make changes.", 1);
+                $error_text = 'Please provide the correct password to make changes.';
+                Log::debug("\$request->input()=".json_encode($request->input(), 192));
+                throw new HttpResponseException($this->buildFailedValidationResponse($request, ['password' => $error_text]));
             }
 
 
@@ -122,6 +217,13 @@ class AuthController extends Controller
 
             // update the user
             $user_repository->update($current_user, $update_vars);
+
+            // if the email changed, send a confirmation email
+            if (isset($update_vars['email']) AND strlen($update_vars['email']) AND $update_vars['email'] != $current_user['confirmed_email']) {
+                Log::debug("\$update_vars['email']=".json_encode($update_vars['email'], 192));
+                $this->dispatch(new SendUserConfirmationEmail($current_user));
+            }
+
 
             return redirect($this->redirectPath());
 
@@ -149,6 +251,7 @@ class AuthController extends Controller
         return Validator::make($data, [
             'name'     => 'required|max:255',
             'username' => 'required|max:255|unique:users',
+            'slug'     => 'required|max:255|unique:users',
             'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|confirmed|min:6',
         ]);
@@ -191,4 +294,13 @@ class AuthController extends Controller
         }
 
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
+    // Desc
+    
+    protected function importCMSAccount($username, $password) {
+        return $this->dispatch(new ImportCMSAccount($username, $password));
+    }
+    
 }

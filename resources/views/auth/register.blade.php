@@ -1,10 +1,13 @@
-@extends('layouts.base')
+@extends('layouts.guest')
 
-@section('body')
+@section('body_content')
+
 
 <h1>Register a New Tokenly Account</h1>
 
 @include('partials.errors', ['errors' => $errors])
+
+<p><strong>Note:</strong> If you already have an existing <a href="https://letstalkbitcoin.com">LetsTalkBitcoin.com</a> username and password, please <a href="/auth/login">login with those credentials</a> to create your new Tokenly account.</p>
 
 <div class="spacer2"></div>
 

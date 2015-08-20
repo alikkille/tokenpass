@@ -33,7 +33,7 @@ class SendUserConfirmationEmail extends Command implements SelfHandling
         $this->resetEmailConfirmationCode();
 
         Mail::send('emails.activate', ['user' => $this->user, 'token' => $this->user['confirmation_code']], function($message) {
-            $message->to($this->user['email'], $this->user['name'])->subject('Activate Your Tokenly Account');
+            $message->to($this->user['email'], $this->user['name'])->subject('Verify Your Tokenly Account');
         });
     }
 

@@ -18,6 +18,7 @@ class OAuthClientsController extends Controller
         $this->repository = $repository;
 
         $this->middleware('auth');
+        $this->middleware('admin');
     }
 
     /**

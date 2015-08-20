@@ -2,7 +2,7 @@
 
 @section('accounts_content')
 
-<h1>Edit My Tokenly Account</h1>
+<h1>Update My Tokenly Account</h1>
 
 @include('partials.errors', ['errors' => $errors])
 
@@ -44,7 +44,7 @@
     <div class="spacer2"></div>
 
 
-    <p>Verify your current password to save your changes</p>
+    <p>Please verify your current password to save your changes</p>
 
     <div class="form-group">
         <label for="Password">Current Password</label>

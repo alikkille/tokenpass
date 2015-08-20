@@ -5,6 +5,7 @@ namespace TKAccounts\Http\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Log;
+use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 
 class AdminAuthenticate
 {

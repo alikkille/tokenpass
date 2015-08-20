@@ -7,6 +7,10 @@
 @include('partials.errors', ['errors' => $errors])
 
 
+<p>You can login using your existing <a href="https://letstalkbitcoin.com">LetsTalkBitcoin.com</a> username and password or you can <a href="/auth/register">create a new Tokenly account</a>.</p>
+
+<div class="spacer1"></div>
+
 <form method="POST" action="/auth/login">
 
     {!! csrf_field() !!}
@@ -35,6 +39,9 @@
 
 </form>
 
+
+<div class="spacer4"></div>
+<p><a href="/password/email">Forgot your password?</a></p>
 
 <div class="spacer4"></div>
 <p>Don't have an account yet?  <a href="/auth/register">Register</a></p>

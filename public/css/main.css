@@ -6788,6 +6788,74 @@ button.close {
     display: none !important;
   }
 }
+.navbar-default {
+  background-color: #2e4790;
+  border-color: #304b9a;
+}
+.navbar-default .navbar-brand {
+  color: #f3f5f9;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #f3f5f9;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #f3f5f9;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #304b9a;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #304b9a;
+}
+.navbar-default .navbar-toggle {
+  border-color: #304b9a;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #304b9a;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #f3f5f9;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #f3f5f9;
+}
+.navbar-default .navbar-link {
+  color: #f3f5f9;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #f3f5f9;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #304b9a;
+  }
+}
 .green {
   color: #2ecc71;
 }
@@ -6802,6 +6870,13 @@ button.close {
 }
 h1 {
   color: #333333;
+}
+html {
+  background: #ffffff;
+}
+body {
+  min-height: 300px;
+  background: linear-gradient(172deg, #dae0eb 0%, #ffffff 64%, #ffffff 100%);
 }
 .application-name {
   font-weight: 700;

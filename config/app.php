@@ -151,6 +151,7 @@ return [
         TKAccounts\Providers\AppServiceProvider::class,
         TKAccounts\Providers\EventServiceProvider::class,
         TKAccounts\Providers\RouteServiceProvider::class,
+        TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
 
     ],
 

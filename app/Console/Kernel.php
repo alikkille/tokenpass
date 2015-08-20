@@ -15,6 +15,9 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \Tokenly\LaravelApiProvider\Commands\MakeAPIModelCommand::class,
         \Tokenly\LaravelApiProvider\Commands\MakeAPIRespositoryCommand::class,
+
+        \TKAccounts\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
+        \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
     ];
 
     /**
@@ -25,7 +28,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')
-                 ->hourly();
+        // $schedule->command('inspire')->hourly();
     }
 }

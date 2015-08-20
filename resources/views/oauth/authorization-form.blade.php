@@ -1,6 +1,6 @@
-@extends('layouts.base')
+@extends('layouts.authorize')
 
-@section('body')
+@section('body_content')
 
 <h1>Authorization Requested Application</h1>
 

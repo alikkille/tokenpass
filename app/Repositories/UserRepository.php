@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use TKAccounts\Providers\CMSAuth\Util;
 use Tokenly\LaravelApiProvider\Contracts\APIUserRepositoryContract;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenly\TokenGenerator\TokenGenerator;
@@ -36,6 +37,10 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         return call_user_func([$this->model_type, 'where'], 'username', $username)->first();
     }
 
+    public function findBySlug($slug) {
+        return call_user_func([$this->model_type, 'where'], 'slug', $slug)->first();
+    }
+
 
     public function findByAPIToken($api_token) {
         return call_user_func([$this->model_type, 'where'], 'apitoken', $api_token)->first();
@@ -64,6 +69,11 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         } else {
             // un-guessable random password
             $attributes['password'] = Hash::make($token_generator->generateToken(34));
+        }
+
+        // slugify username
+        if (!isset($attributes['slug'])) {
+            $attributes['slug'] = Util::slugify($attributes['username']);
         }
 
         return $attributes;
