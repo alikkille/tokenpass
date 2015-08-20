@@ -9,6 +9,8 @@ class OAuthClient extends APIModel {
 
     protected $table = 'oauth_clients';
 
-    protected $api_attributes = ['id',];
+    public $incrementing = false;
+
+    protected $api_attributes = ['id','name'];
 
 }

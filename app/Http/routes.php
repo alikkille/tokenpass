@@ -11,9 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [
+    'as'   => 'welcome',
+    'uses' => 'WelcomeController@index'
+]);
 
 
 // -------------------------------------------------------------------------
@@ -28,6 +29,14 @@ Route::get('auth/logout', 'Auth\AuthController@getLogout');
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
+// Update routes...
+Route::get('auth/update', 'Auth\AuthController@getUpdate');
+Route::post('auth/update', 'Auth\AuthController@postUpdate');
+
+// Send email confirmation...
+Route::get('auth/sendemail', 'Auth\EmailConfirmationController@getSendEmail');
+Route::post('auth/sendemail', 'Auth\EmailConfirmationController@postSendEmail');
+Route::get('auth/verify/{token}', ['as' => 'auth.verify', 'uses' => 'Auth\EmailConfirmationController@verifyEmail']);
 
 
 // -------------------------------------------------------------------------
@@ -37,6 +46,7 @@ Route::get('admin', ['middleware' => 'auth', function() {
     return view('admin.index');
 }]);
 Route::resource('admin/oauthclients', 'Admin\OAuthClientsController');
+Route::resource('admin/oauthscopes', 'Admin\OAuthScopesController');
 
 
 // -------------------------------------------------------------------------
@@ -44,6 +54,7 @@ Route::resource('admin/oauthclients', 'Admin\OAuthClientsController');
 
 // User routes...
 Route::get('dashboard', [
+    'as'         => 'user.dashboard',
     'middleware' => 'auth',
     'uses'       => 'Accounts\DashboardController@getDashboard'
 ]);

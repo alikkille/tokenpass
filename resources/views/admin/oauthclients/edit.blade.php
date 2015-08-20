@@ -28,6 +28,12 @@
     <p class="form-control-static">{{$model['secret']}}</p>
 </div>
 
+<div class="form-group">
+    {!! Form::label('endpoints', 'Client Endpoints', ['class' => 'control-label']) !!} <small class="pull-right">One per line</small>
+    {!! Form::textarea('endpoints', null, ['class' => 'form-control']) !!}
+</div>
+
+
 
 {!! Form::submit('Update OAuth Client', ['class' => 'btn btn-primary']) !!}
 

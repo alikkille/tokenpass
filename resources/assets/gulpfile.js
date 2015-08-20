@@ -62,7 +62,7 @@ gulp.task('js', function() {
 gulp.task('less', function () {
   return gulp.src('./less/*.less')
     .pipe(less({
-      paths: [ path.join(__dirname, 'less', 'includes') ]
+      paths: [ path.join(__dirname, 'less', 'includes'), path.join(__dirname, 'less', 'app') ]
     }))
     .pipe(gulp.dest('../../public/css'));
 });
@@ -72,15 +72,15 @@ gulp.task('watch', function() {
     // Watch .less files
     gulp.watch('./less/**/*.less', ['less']);
 
-    // decorate browserify with watchify
-    var b = watchify(browserify(opts)); 
+    // // decorate browserify with watchify
+    // var b = watchify(browserify(opts)); 
 
-    // add transformations
-    b.transform(coffee_reactify);
+    // // add transformations
+    // b.transform(coffee_reactify);
 
-    b.on('update', function() { browserifyBundle(b); }); // on any dep update, runs the bundler
-    b.on('log', gutil.log); // output build logs to terminal
+    // b.on('update', function() { browserifyBundle(b); }); // on any dep update, runs the bundler
+    // b.on('log', gutil.log); // output build logs to terminal
 
-    browserifyBundle(b);
+    // browserifyBundle(b);
 });
 

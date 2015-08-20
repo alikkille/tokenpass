@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Rhumsaa\Uuid\Uuid;
 
 class OAuthScopesTableSeeder extends DatabaseSeeder {
 
@@ -26,12 +27,14 @@ class OAuthScopesTableSeeder extends DatabaseSeeder {
                 'description' => 'View Your Email',
                 'created_at' => $datetime,
                 'updated_at' => $datetime,
+                'uuid' => Uuid::uuid4()->toString(),
             ],
             [
                 'id' => 'user',
                 'description' => 'View Your Username',
                 'created_at' => $datetime,
                 'updated_at' => $datetime,
+                'uuid' => Uuid::uuid4()->toString(),
             ],
         ];
 

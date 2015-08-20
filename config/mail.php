@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'from' => ['address' => null, 'name' => null],
+    'from' => ['address' => env('EMAIL_FROM_EMAIL', 'no-reply@tokenly.co'), 'name' => env('EMAIL_FROM_NAME', 'Tokenly Accounts')],
 
     /*
     |--------------------------------------------------------------------------

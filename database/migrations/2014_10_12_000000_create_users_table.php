@@ -26,6 +26,10 @@ class CreateUsersTable extends Migration
 
             $table->text('privileges')->nullable();
 
+            $table->string('confirmed_email')->nullable();
+            $table->string('confirmation_code')->nullable()->unique();
+            $table->timestamp('confirmation_code_expires_at')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

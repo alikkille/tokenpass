@@ -6800,36 +6800,13 @@ button.close {
 .yellow {
   color: #f1c40f;
 }
-.swap-row {
-  border-bottom: 1px dotted #dddddd;
-}
-.available-swap {
-  padding: 10px 0;
-}
-.available-swap .details {
-  position: relative;
-  margin-left: 75px;
-  min-height: 75px;
-}
-.available-swap .logo {
-  width: 75px;
-  height: 75px;
-  float: left;
-  margin-right: 8px;
-  line-height: 75px;
-}
-.available-swap .logo img {
-  width: 68px;
-  height: 68px;
-}
-.available-swap .name {
-  font-weight: bold;
-  font-size: 1.6rem;
-}
-.available-swap .name a {
+h1 {
   color: #333333;
 }
-.available-swap .username {
-  color: #999999;
-  font-size: 1.3rem;
+.application-name {
+  font-weight: 700;
+}
+ul.grant-list li {
+  font-weight: 700;
+  color: #333333;
 }

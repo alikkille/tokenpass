@@ -2,12 +2,13 @@
 
 namespace TKAccounts\Repositories;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
-use Tokenly\LaravelApiProvider\Repositories\APIRepository;
+use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Contracts\APIUserRepositoryContract;
+use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenly\TokenGenerator\TokenGenerator;
-use Exception;
 
 /*
 * UserRepository
@@ -37,8 +38,14 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
 
 
     public function findByAPIToken($api_token) {
-        return call_user_func([$this->model_type, 'where'], 'username', $username)->first();
+        return call_user_func([$this->model_type, 'where'], 'apitoken', $api_token)->first();
     }
+
+
+    public function findByConfirmationCode($confirmation_code) {
+        return call_user_func([$this->model_type, 'where'], 'confirmation_code', $confirmation_code)->first();
+    }
+
 
     protected function modifyAttributesBeforeCreate($attributes) {
         $token_generator = new TokenGenerator();
@@ -57,6 +64,15 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         } else {
             // un-guessable random password
             $attributes['password'] = Hash::make($token_generator->generateToken(34));
+        }
+
+        return $attributes;
+    }
+
+    protected function modifyAttributesBeforeUpdate($attributes, Model $model) {
+        // hash any password
+        if (isset($attributes['password']) AND strlen($attributes['password'])) {
+            $attributes['password'] = Hash::make($attributes['password']);
         }
 
         return $attributes;

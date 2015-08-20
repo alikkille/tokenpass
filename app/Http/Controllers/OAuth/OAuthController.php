@@ -38,7 +38,6 @@ class OAuthController extends Controller
      */
     public function postAccessToken()
     {
-        Log::debug("postAccessToken called");
         try {
             return Response::json(Authorizer::issueAccessToken());
         } catch (\Exception $e) {
@@ -67,7 +66,6 @@ class OAuthController extends Controller
      */
     public function postAuthorizeForm()
     {
-
         $params = Authorizer::getAuthCodeRequestParams();
         $params['user_id'] = Auth::user()->id;
         $redirect_uri = '';
@@ -98,7 +96,7 @@ class OAuthController extends Controller
         // Log::info('getUser returning '.json_encode($user, 192));
 
         return [
-            'id'       => $user['id'],
+            'id'       => $user['uuid'],
             'name'     => $user['name'],
             'username' => $user['username'],
             'email'    => $user['email'],

@@ -3,6 +3,7 @@
 namespace TKAccounts\Repositories;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 
 /*
@@ -21,6 +22,7 @@ class OAuthClientRepository extends APIRepository
         if (!isset($attributes['id'])) {
             $attributes['id'] = $token_generator->generateToken(32, 'I');
         }
+
         if (!isset($attributes['secret'])) {
             $attributes['secret'] = $token_generator->generateToken(40, 'K');
         }

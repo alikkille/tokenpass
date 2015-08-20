@@ -47,4 +47,9 @@
 
 </form>
 
+<div class="spacer4"></div>
+<p>Already have an account?  <a href="/auth/login">Login</a></p>
+
+
+
 @endsection

@@ -1,6 +1,6 @@
-@extends('layouts.base')
+@extends('layouts.guest')
 
-@section('body')
+@section('body_content')
 
 <h1>Login with Your Tokenly Account</h1>
 
@@ -34,6 +34,10 @@
     </div>
 
 </form>
+
+
+<div class="spacer4"></div>
+<p>Don't have an account yet?  <a href="/auth/register">Register</a></p>
 
 @endsection
 

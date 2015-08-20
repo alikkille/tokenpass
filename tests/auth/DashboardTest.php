@@ -22,7 +22,7 @@ class DashboardTest extends TestCase {
         $response = $this->call('GET', '/dashboard');
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('johndoe', $response->getContent());
-        // $this->assertContains('johndoe@devonweller.com', $response->getContent());
+        // $this->assertContains('johndoe@tokenly.com', $response->getContent());
     }
 
 

@@ -2,13 +2,14 @@
 
 @section('body')
 
-<h1>Authorize this Application</h1>
+<h1>Authorization Requested Application</h1>
 
 @include('partials.errors', ['errors' => $errors])
 
 
-<p>The application <span class="clientName">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
-<ul class="list-unstyled">
+
+<p>The application <span class="application-name">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
+<ul class="list-unstyled grant-list">
 @foreach ($scopes as $scope)
 <li>{{{ $scope->getDescription() }}} </li>
 @endforeach
@@ -17,7 +18,7 @@
 <p>What would you like to do?</p>
 
 
-<form method="POST" action="/oauth/authorize">
+<form method="POST" action="{{ route('oauth.authorize.post', $params) }}">
 
     {!! csrf_field() !!}
 
@@ -29,11 +30,12 @@
     <div class="spacer1"></div>
 
     <div>
-        <button type="submit" class="btn btn-success">Grant Access</button>
-        <button type="submit" class="btn btn-secondary">Deny Access</button>
+        <button type="submit" name="approve" value="1" class="btn btn-success">Grant Access</button>
+        <button type="submit" name="deny" value="1" class="btn btn-secondary">Deny Access</button>
     </div>
 
 </form>
+
 
 @endsection
 

@@ -28,6 +28,14 @@
 </div>
  --}}
 
+
+<div class="form-group">
+    {!! Form::label('endpoints', 'Client Endpoints', ['class' => 'control-label']) !!} <small class="pull-right">One per line</small>
+    {!! Form::textarea('endpoints', null, ['class' => 'form-control']) !!}
+</div>
+
+
+
 {!! Form::submit('Create New OAuth Client', ['class' => 'btn btn-primary']) !!}
 
 {!! Form::close() !!}
