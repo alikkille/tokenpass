@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "32bd28566f7d1b4519ace0dca1169f56",
+    "hash": "c5bc3eaa7f7d0a5cf7d0f28a742f8b3d",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -2145,6 +2145,46 @@
             "time": "2015-07-28 15:18:12"
         },
         {
+            "name": "tokenly/consul-health-daemon",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/consul-health-daemon.git",
+                "reference": "a2ac467fd96e5704172642c01dd2cdd9904a6b5c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/consul-health-daemon/zipball/a2ac467fd96e5704172642c01dd2cdd9904a6b5c",
+                "reference": "a2ac467fd96e5704172642c01dd2cdd9904a6b5c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Tokenly\\ConsulHealthDaemon": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "dweller@devonweller.com",
+                    "homepage": "http://devonweller.com"
+                }
+            ],
+            "description": "A library to monitor services health and report to consul",
+            "time": "2015-06-18 13:29:14"
+        },
+        {
             "name": "tokenly/hmac-auth",
             "version": "dev-master",
             "source": {
@@ -3588,7 +3628,8 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "lucadegasperi/oauth2-server-laravel": 20,
-        "tokenly/laravel-api-provider": 20
+        "tokenly/laravel-api-provider": 20,
+        "tokenly/consul-health-daemon": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

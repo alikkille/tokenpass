@@ -10,7 +10,8 @@
         "lucadegasperi/oauth2-server-laravel": "5.0.*@dev",
         "tokenly/laravel-api-provider": "dev-master",
         "illuminate/html": "5.0.*",
-        "guzzlehttp/guzzle": "~5"
+        "guzzlehttp/guzzle": "~5",
+        "tokenly/consul-health-daemon": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

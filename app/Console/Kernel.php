@@ -18,6 +18,8 @@ class Kernel extends ConsoleKernel
 
         \TKAccounts\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
         \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
+
+        \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,
     ];
 
     /**
