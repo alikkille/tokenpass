@@ -1,5 +1,7 @@
 <?php
 
+use TKAccounts\Providers\CMSAuth\CMSAccountLoaderMockBuilder;
+
 class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
     /**
@@ -17,6 +19,8 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
         parent::setUp();
 
         if ($this->use_database) { $this->setUpDb(); }
+
+        CMSAccountLoaderMockBuilder::installMockCMSAccountLoader();
     }
 
     /**

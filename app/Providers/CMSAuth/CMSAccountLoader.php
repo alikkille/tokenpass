@@ -131,8 +131,6 @@ class CMSAccountLoader {
         $json = $response->json();
         if (!is_array($json)) { throw new Exception("Unexpected response", 1); }
 
-        echo $response."\n";
-
         if ($json and isset($json['error'])) {
             $auth_exception = new CMSException($json['error'], $response->getStatusCode());
             $auth_exception->setJSONResponse($json);
