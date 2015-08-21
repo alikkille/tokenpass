@@ -153,6 +153,7 @@ return [
         TKAccounts\Providers\EventServiceProvider::class,
         TKAccounts\Providers\RouteServiceProvider::class,
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
+        TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
 
     ],
 
