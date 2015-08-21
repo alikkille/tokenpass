@@ -86,7 +86,11 @@ class AuthController extends Controller
         }
 
 
-        Auth::login($this->create($request->all()));
+        $new_user = $this->create($request->all());
+        Auth::login($new_user);
+
+        // send the confirmation email
+        $this->dispatch(new SendUserConfirmationEmail($new_user));
 
         return redirect($this->redirectPath());
     }
