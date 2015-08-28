@@ -4,6 +4,7 @@ namespace TKAccounts\Providers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -19,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function($view){
             $view->with('user', Auth::user());
         });
+
+        // make all forms use https
+        if (env('USE_SSL', false)) {
+            URL::forceSchema('https');
+        }
     }
 
     /**
