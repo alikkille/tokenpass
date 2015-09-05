@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Repositories\ClientConnectionRepository;
+use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
 
 /**
@@ -19,8 +21,10 @@ class OAuthController extends Controller
 {
     protected $authorizer;
 
-    public function __construct()
+    public function __construct(OAuthClientRepository $oauth_client_repository, ClientConnectionRepository $client_connection_repository)
     {
+        $this->oauth_client_repository      = $oauth_client_repository;
+        $this->client_connection_repository = $client_connection_repository;
 
         // $this->beforeFilter('auth', ['only' => ['getAuthorize', 'postAuthorize']]);
 
@@ -53,9 +57,24 @@ class OAuthController extends Controller
      */
     public function getAuthorizeForm()
     {
+        $user = Auth::user();
         $authParams = Authorizer::getAuthCodeRequestParams();
+        $client_id = $authParams['client']->getId();
+
+        // see if this client is already authorized
+        $client = $this->oauth_client_repository->findById($client_id);
+        if (!$client) { throw new Exception("Unable to find oauth client for client ".json_encode($client_id, 192)); }
+        $already_connected = $this->client_connection_repository->isUserConnectedToClient($user, $client);
+        if ($already_connected) {
+            // we are already connected.  Issue the code and continue
+            $params = $authParams;
+            $params['user_id'] = $user->id;
+            $redirect_uri = Authorizer::issueAuthCode('user', $params['user_id'], $params);
+            return Redirect::to($redirect_uri);
+        }
+
         $formParams = array_except($authParams,'client');
-        $formParams['client_id'] = $authParams['client']->getId();
+        $formParams['client_id'] = $client_id;
         return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$authParams['scopes']]);
     }
 
@@ -66,14 +85,25 @@ class OAuthController extends Controller
      */
     public function postAuthorizeForm()
     {
+        $user = Auth::user();
         $params = Authorizer::getAuthCodeRequestParams();
-        $params['user_id'] = Auth::user()->id;
+        $client_id = $params['client']->getId();
+        $params['user_id'] = $user->id;
         $redirect_uri = '';
 
 
         // if the user has allowed the client to access its data, redirect back to the client with an auth code
         if (Input::get('approve') !== null) {
             $redirect_uri = Authorizer::issueAuthCode('user', $params['user_id'], $params);
+
+            // remember this authorization for later
+            $client = $this->oauth_client_repository->findById($client_id);
+            if (!$client) {
+                throw new Exception("Unable to find oauth client for client ".json_encode($client_id, 192));
+            }
+            if (!$this->client_connection_repository->isUserConnectedToClient($user, $client)) {
+                $this->client_connection_repository->connectUserToClient($user, $client);
+            }
         }
 
         // if the user has denied the client to access its data, redirect back to the client with an error message

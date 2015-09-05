@@ -2,7 +2,7 @@
 
 @section('body_content')
 
-<h1>Authorization Requested Application</h1>
+<h1>Authorization Requested</h1>
 
 @include('partials.errors', ['errors' => $errors])
 

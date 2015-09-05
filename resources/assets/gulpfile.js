@@ -40,7 +40,7 @@ function browserifyBundle(b) {
 // ---------------------------------------------------------------
 // tasks
 
-gulp.task('default', ['js','less']);
+gulp.task('default', ['js','less','fonts']);
 
 gulp.task('js', function() {
   // run the watchify bundler
@@ -83,4 +83,10 @@ gulp.task('watch', function() {
 
     // browserifyBundle(b);
 });
+
+gulp.task('fonts', function () {
+  return gulp.src('node_modules/bootstrap/fonts/*')
+    .pipe(gulp.dest('../../public/fonts'));
+});
+
 

@@ -47,6 +47,10 @@ Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
 
+// Connected apps routes...
+Route::get('auth/connectedapps', 'Auth\ConnectedAppsController@getConnectedApps');
+Route::get('auth/revokeapp/{clientid}', 'Auth\ConnectedAppsController@getRevokeAppForm');
+Route::post('auth/revokeapp/{clientid}', 'Auth\ConnectedAppsController@postRevokeAppForm');
 
 // -------------------------------------------------------------------------
 // Admin routes

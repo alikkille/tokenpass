@@ -5,6 +5,7 @@
     <ul class="list-unstyled">
         <li><a href="/dashboard">Accounts Home</a></li>
         <li><a href="/auth/update">Update my Account</a></li>
+        <li><a href="/auth/connectedapps">My Connected Applications</a></li>
         
         <li>
             <hr>
