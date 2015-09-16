@@ -92,7 +92,9 @@ class AuthController extends Controller
         // send the confirmation email
         $this->dispatch(new SendUserConfirmationEmail($new_user));
 
-        return redirect($this->redirectPath());
+        // if we came from an authorization request
+        //   then continue by redirecting the user to their original, intended request
+        return redirect()->intended($this->redirectPath());
     }
 
 
