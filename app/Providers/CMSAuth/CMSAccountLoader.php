@@ -88,6 +88,15 @@ class CMSAccountLoader {
         $results = $this->fetchFromAPI('GET', '/users', ['limit' => $limit]);
         return $results['users'];
     }
+    
+    public function getUserCoinAddresses($cms_user)
+    {
+		$results = $this->fetchFromAPI('GET', 'address/get', ['x-auth' => $cms_user['auth']]);
+		if($results AND isset($results['addresses'])){
+			return $results['addresses'];
+		}
+		return false;
+	}
 
     protected function fetchFromAPI($method, $path, $parameters=[]) {
         $api_path = $this->base_path.'/'.ltrim($path, '/');
