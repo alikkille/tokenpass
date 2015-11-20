@@ -14,7 +14,8 @@
         "tokenly/consul-health-daemon": "dev-master",
 		"linusu/bitcoin-address-validator": "~0",
 		"tokenly/xchain-client": "@dev",
-		"tokenly/hmac-auth": "dev-master"     
+		"tokenly/hmac-auth": "dev-master",
+		"tokenly/token-controlled-access": "@dev"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
