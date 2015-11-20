@@ -11,7 +11,10 @@
         "tokenly/laravel-api-provider": "dev-master",
         "illuminate/html": "5.0.*",
         "guzzlehttp/guzzle": "~5",
-        "tokenly/consul-health-daemon": "dev-master"
+        "tokenly/consul-health-daemon": "dev-master",
+		"linusu/bitcoin-address-validator": "~0",
+		"tokenly/xchain-client": "@dev",
+		"tokenly/hmac-auth": "dev-master"     
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
