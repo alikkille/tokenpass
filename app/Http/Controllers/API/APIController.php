@@ -39,7 +39,7 @@ class APIController extends Controller
 					$stack_ops[$k2] = strtoupper($v);
 				}
 				else{
-					$checks[] = array('asset' => strtoupper($k), 'amount' => intval($v) * 100000000); //convert amount to satoshis
+					$checks[] = array('asset' => strtoupper($k), 'amount' => round(floatval($v) * 100000000)); //convert amount to satoshis
 				}
 			}
 			$full_stack = array();
