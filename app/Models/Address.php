@@ -18,7 +18,7 @@ class Address extends Model
 	public static function getAddressBalances($address_id)
 	{
 		$address = Address::find($address_id);
-		if(!$address){
+		if(!$address OR $address->verified != 1){
 			return false;
 		}
 		$balances = array();
@@ -34,7 +34,7 @@ class Address extends Model
 	public static function updateAddressBalances($address_id, $balance_list)
 	{
 		$address = Address::find($address_id);
-		if(!$address){
+		if(!$address OR $address->verified != 1){
 			return false;
 		}
 		$current = DB::table('address_balances')->where('address_id', '=', $address->id)->get();
@@ -58,6 +58,29 @@ class Address extends Model
 			}
 		}
 		return true;
+	}
+	
+	public static function getAllUserBalances($user_id)
+	{
+		$address_list = Address::getAddressList($user_id);
+		if(!$address_list OR count($address_list) == 0){
+			return array();
+		}
+		$balances = array();
+		foreach($address_list as $address){
+			$addr_balances = Address::getAddressBalances($address->id);
+			if(is_array($addr_balances)){
+				foreach($addr_balances as $asset => $val){
+					if(!isset($balances[$asset])){
+						$balances[$asset] = intval($val);
+					}
+					else{
+						$balances[$asset] += intval($val);
+					}
+				}
+			}
+		}
+		return $balances;
 	}
 	
 }
