@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c5bc3eaa7f7d0a5cf7d0f28a742f8b3d",
+    "hash": "12e4159eecf3f6f02d299e1421938b7a",
+    "content-hash": "74e02f5c238c0f88fa425d017024ae50",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -890,6 +891,51 @@
             "time": "2015-03-22 23:19:36"
         },
         {
+            "name": "linusu/bitcoin-address-validator",
+            "version": "v0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LinusU/php-bitcoin-address-validator.git",
+                "reference": "60dd66e7be5e7f5127e65a581eb67aacb3fe553c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LinusU/php-bitcoin-address-validator/zipball/60dd66e7be5e7f5127e65a581eb67aacb3fe553c",
+                "reference": "60dd66e7be5e7f5127e65a581eb67aacb3fe553c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "LinusU\\Bitcoin\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Linus Unnebäck",
+                    "email": "linus@folkdatorn.se",
+                    "homepage": "http://linusu.se/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple, easy to use PHP Bitcoin address validator",
+            "homepage": "http://github.com/LinusU/bitcoin-address-validator",
+            "keywords": [
+                "address",
+                "bitcoin",
+                "validation",
+                "validator"
+            ],
+            "time": "2014-08-20 13:04:51"
+        },
+        {
             "name": "lucadegasperi/oauth2-server-laravel",
             "version": "5.0.1",
             "source": {
@@ -1446,12 +1492,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/Console.git",
+                "url": "https://github.com/symfony/console.git",
                 "reference": "d6cf02fe73634c96677e428f840704bfbcaec29e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Console/zipball/d6cf02fe73634c96677e428f840704bfbcaec29e",
+                "url": "https://api.github.com/repos/symfony/console/zipball/d6cf02fe73634c96677e428f840704bfbcaec29e",
                 "reference": "d6cf02fe73634c96677e428f840704bfbcaec29e",
                 "shasum": ""
             },
@@ -1503,12 +1549,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/CssSelector.git",
+                "url": "https://github.com/symfony/css-selector.git",
                 "reference": "0b5c07b516226b7dd32afbbc82fe547a469c5092"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/CssSelector/zipball/0b5c07b516226b7dd32afbbc82fe547a469c5092",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/0b5c07b516226b7dd32afbbc82fe547a469c5092",
                 "reference": "0b5c07b516226b7dd32afbbc82fe547a469c5092",
                 "shasum": ""
             },
@@ -1556,12 +1602,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/Debug.git",
+                "url": "https://github.com/symfony/debug.git",
                 "reference": "9daa1bf9f7e615fa2fba30357e479a90141222e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Debug/zipball/9daa1bf9f7e615fa2fba30357e479a90141222e3",
+                "url": "https://api.github.com/repos/symfony/debug/zipball/9daa1bf9f7e615fa2fba30357e479a90141222e3",
                 "reference": "9daa1bf9f7e615fa2fba30357e479a90141222e3",
                 "shasum": ""
             },
@@ -1616,12 +1662,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/DomCrawler.git",
+                "url": "https://github.com/symfony/dom-crawler.git",
                 "reference": "9dabece63182e95c42b06967a0d929a5df78bc35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/9dabece63182e95c42b06967a0d929a5df78bc35",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/9dabece63182e95c42b06967a0d929a5df78bc35",
                 "reference": "9dabece63182e95c42b06967a0d929a5df78bc35",
                 "shasum": ""
             },
@@ -1669,12 +1715,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/EventDispatcher.git",
+                "url": "https://github.com/symfony/event-dispatcher.git",
                 "reference": "9310b5f9a87ec2ea75d20fec0b0017c77c66dac3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/9310b5f9a87ec2ea75d20fec0b0017c77c66dac3",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/9310b5f9a87ec2ea75d20fec0b0017c77c66dac3",
                 "reference": "9310b5f9a87ec2ea75d20fec0b0017c77c66dac3",
                 "shasum": ""
             },
@@ -1776,12 +1822,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/HttpFoundation.git",
+                "url": "https://github.com/symfony/http-foundation.git",
                 "reference": "863af6898081b34c65d42100c370b9f3c51b70ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/HttpFoundation/zipball/863af6898081b34c65d42100c370b9f3c51b70ca",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/863af6898081b34c65d42100c370b9f3c51b70ca",
                 "reference": "863af6898081b34c65d42100c370b9f3c51b70ca",
                 "shasum": ""
             },
@@ -1829,12 +1875,12 @@
             "version": "v2.7.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/HttpKernel.git",
+                "url": "https://github.com/symfony/http-kernel.git",
                 "reference": "405d3e7a59ff7a28ec469441326a0ac79065ea98"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/HttpKernel/zipball/405d3e7a59ff7a28ec469441326a0ac79065ea98",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/405d3e7a59ff7a28ec469441326a0ac79065ea98",
                 "reference": "405d3e7a59ff7a28ec469441326a0ac79065ea98",
                 "shasum": ""
             },
@@ -2236,7 +2282,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/9fbdca5aaf6eaa71977a14d70a85142194fd22e0",
+                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/67a37af0040428ae0f76fb9e183e2799c90d19bf",
                 "reference": "9fbdca5aaf6eaa71977a14d70a85142194fd22e0",
                 "shasum": ""
             },
@@ -2311,6 +2357,46 @@
             "time": "2015-07-02 20:58:07"
         },
         {
+            "name": "tokenly/token-controlled-access",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/token-controlled-access.git",
+                "reference": "adb528caa006d9f12ff2f67e458375cc8bc66b54"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/token-controlled-access/zipball/adb528caa006d9f12ff2f67e458375cc8bc66b54",
+                "reference": "adb528caa006d9f12ff2f67e458375cc8bc66b54",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0",
+                "tokenly/xchain-client": "dev-master"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Tokenly\\TCA": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nick Rathman",
+                    "email": "nrathman@ironcladtech.ca"
+                }
+            ],
+            "description": "Library for providing Token Controlled Access functionality",
+            "time": "2015-11-21 00:09:44"
+        },
+        {
             "name": "tokenly/token-generator",
             "version": "dev-master",
             "source": {
@@ -2349,6 +2435,49 @@
             ],
             "description": "A library to generate random strings",
             "time": "2014-12-03 03:55:02"
+        },
+        {
+            "name": "tokenly/xchain-client",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/xchain-client.git",
+                "reference": "69bc89e20e84e73cd3f4f2532f54ff03ef2bf22c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/69bc89e20e84e73cd3f4f2532f54ff03ef2bf22c",
+                "reference": "69bc89e20e84e73cd3f4f2532f54ff03ef2bf22c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~5",
+                "php": ">=5.5.0",
+                "tokenly/hmac-auth": "dev-master"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4",
+                "tokenly/bitcoin-currency-lib": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Tokenly\\XChainClient": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "dweller@devonweller.com",
+                    "homepage": "http://devonweller.com"
+                }
+            ],
+            "description": "A library",
+            "time": "2015-11-19 04:50:36"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -3629,7 +3758,10 @@
     "stability-flags": {
         "lucadegasperi/oauth2-server-laravel": 20,
         "tokenly/laravel-api-provider": 20,
-        "tokenly/consul-health-daemon": 20
+        "tokenly/consul-health-daemon": 20,
+        "tokenly/xchain-client": 20,
+        "tokenly/hmac-auth": 20,
+        "tokenly/token-controlled-access": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
