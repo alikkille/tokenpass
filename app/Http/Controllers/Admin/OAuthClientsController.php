@@ -160,7 +160,7 @@ class OAuthClientsController extends Controller
     protected function loadEndpoints(OAuthClient $client) {
         $out = '';
         foreach (DB::table('oauth_client_endpoints')->where('client_id', $client['id'])->get() as $endpoint) {
-            Log::debug("\$endpoint=".json_encode($endpoint, 192));
+            // Log::debug("\$endpoint=".json_encode($endpoint, 192));
             $out .= $endpoint->redirect_uri."\n";
         }
 

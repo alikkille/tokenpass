@@ -123,7 +123,13 @@ class OAuthController extends Controller
         $owner_id = Authorizer::getResourceOwnerId();
 
         $user = $user_repository->findById($owner_id);
-        // Log::info('getUser returning '.json_encode($user, 192));
+        Log::info('getUser returning '.json_encode([
+            'id'                 => $user['uuid'],
+            'name'               => $user['name'],
+            'username'           => $user['username'],
+            'email'              => $user['email'],
+            'email_is_confirmed' => $user->emailIsConfirmed(),
+        ], 192));
 
         return [
             'id'                 => $user['uuid'],
