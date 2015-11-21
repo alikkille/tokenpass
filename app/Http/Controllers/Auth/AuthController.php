@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Session;
 use InvalidArgumentException;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
+use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
 use TKAccounts\Providers\CMSAuth\Util;
@@ -108,13 +109,16 @@ class AuthController extends Controller
         }
 
         $credentials = $this->getCredentials($request);
-
-
+		
         $login_error = null;
         $second_time = false;
         while (true) {
             // try authenticating with our local database
             if (Auth::attempt($credentials, $request->has('remember'))) {
+				
+				//sync BTC addresses from their LTB account where possible - temporary
+				$this->syncCMSAccountData($credentials);
+				
                 return $this->handleUserWasAuthenticated($request, true);
             }
 
@@ -308,5 +312,14 @@ class AuthController extends Controller
     protected function importCMSAccount($username, $password) {
         return $this->dispatch(new ImportCMSAccount($username, $password));
     }
+    
+    protected function syncCMSAccountData($credentials)
+    {
+		$user = Auth::user();
+		if(!$user){
+			return false;
+		}
+		return $this->dispatch(new SyncCMSAccount($user, $credentials));
+	}
     
 }

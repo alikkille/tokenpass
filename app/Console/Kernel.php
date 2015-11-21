@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
 
         \TKAccounts\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
         \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
+        \TKAccounts\Console\Commands\ScanCoinAddresses::class,
 
         \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,
     ];
@@ -30,6 +31,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('scanCoinAddresses')->everyThirtyMinutes();
     }
 }

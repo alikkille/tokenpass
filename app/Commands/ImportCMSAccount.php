@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use TKAccounts\Commands\Command;
 use TKAccounts\Commands\SendUserConfirmationEmail;
+use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Models\User;
 use TKAccounts\Providers\CMSAuth\Util;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -65,6 +66,9 @@ class ImportCMSAccount extends Command implements SelfHandling
         }
 
         $new_user = $user_repository->create($user_vars);
+        
+        //attempt to load in any BTC addresses and other relevant account data they may have
+        $this->dispatch(new SyncCMSAccount($new_user, array('username' => $this->username, 'password' => $this->password)));
 
         // and send welcome email
         $this->dispatch(new SendUserConfirmationEmail($new_user));
