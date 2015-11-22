@@ -10,9 +10,13 @@ class Address extends Model
 	protected $table = 'coin_addresses';
 	public $timestamps = true;
 	
-	public static function getAddressList($userId)
+	public static function getAddressList($userId, $public = null)
 	{
-		return Address::where('user_id', '=', $userId)->orderBy('id', 'asc')->get();
+		$get = Address::where('user_id', '=', $userId);
+		if($public !== null){
+			$get = $get->where('public', '=', intval($public));
+		}
+		return $get->orderBy('id', 'asc')->get();
 	}
 	
 	public static function getAddressBalances($address_id)

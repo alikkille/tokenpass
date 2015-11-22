@@ -80,4 +80,30 @@ class APIController extends Controller
 		return Response::json($output, $http_code);
 	}
 	
+	public function getAddresses($username)
+	{
+		$output = array();
+		$http_code = 200;
+		
+		$user = User::where('username', $username)->first();
+		if(!$user){
+			$http_code = 404;
+			$output['result'] = false;
+			$output['error'] = 'Username not found';
+		}
+		
+		$address_list = Address::getAddressList($user->id, 1);
+		if(!$address_list OR count($address_list) == 0){
+			$output['addresses'] = array();
+		}
+		else{
+			$balances = array();
+			foreach($address_list as $address){
+				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id));
+			}
+			$output['result'] = $balances;
+		}
+		return Response::json($output, $http_code);
+	}
+	
 }
