@@ -44,10 +44,12 @@ class SyncCMSAccount extends Command implements SelfHandling
 		$address_list = $this->cms_loader->getUserCoinAddresses($this->cms_user);
 		$current_list = Address::getAddressList($this->accounts_user->id);
 		$used = array();
+		$used_rows = array();
 		$stamp = date('Y-m-d H:i:s');
 		if($current_list AND count($current_list) > 0){
 			foreach($current_list as $row){
 				$used[] = $row->address;
+				$used_rows[$row->address] = $row;
 			}
 		}
 		foreach($address_list as $row){
@@ -62,6 +64,18 @@ class SyncCMSAccount extends Command implements SelfHandling
 				$address->created_at = $row['submitDate'];
 				$address->updated_at = $stamp;
 				$address->save();
+			}
+			elseif(isset($used_rows[$row['address']])){
+				$used_row = $used_rows[$row['address']];
+				if($row['label'] != $used_row->label
+					OR $row['verified'] != $used_row->verified
+					OR $row['public'] != $used_row->public){
+						
+					$used_row->label = $row['label'];
+					$used_row->verified = $row['verified'];
+					$used_row->public = $row['public'];
+					$used_row->save();
+				}
 			}
 		}
 		return true;
