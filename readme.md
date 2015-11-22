@@ -48,9 +48,10 @@ else{
 * **Endpoint:** /api/v1/tca/addresses/{username}
 * **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut
 * **Authentication:** none required
-* **Returns:** result (array)
- * address (string)
- * balances (array)
+* **Returns:** 
+ * result (array)
+   * address (string)
+    * balances (array)
 * **Notes:** Returns a list of all **public** bitcoin addresses for the specified user, as well as each addresses' token balances. Registered addresses are private by default. Balances are given in satoshis
 
 
