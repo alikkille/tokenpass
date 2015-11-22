@@ -97,6 +97,15 @@ class CMSAccountLoader {
 		}
 		return false;
 	}
+	
+	public function checkTokenAccess($username, $params = array())
+	{
+		$result = $this->fetchFromAPI('GET', 'tca/check/'.$username, $params);
+		if($result AND isset($result['result'])){
+			return $result['result'];
+		}
+		return false;
+	}
 
     protected function fetchFromAPI($method, $path, $parameters=[]) {
         $api_path = $this->base_path.'/'.ltrim($path, '/');

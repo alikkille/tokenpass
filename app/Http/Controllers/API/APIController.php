@@ -2,6 +2,7 @@
 namespace TKAccounts\Http\Controllers\API;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User, TKAccounts\Models\Address;
+use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 use DB, Exception, Response, Input;
 use Illuminate\Http\JsonResponse;
 use Tokenly\TCA\Access;
@@ -16,9 +17,23 @@ class APIController extends Controller
 		
 		$getUser = User::where('username', $username)->first();
 		if(!$getUser){
-			$http_code = 404;
-			$output['result'] = false;
-			$output['error'] = 'Username not found';
+			//try falling back to CMS - temporary
+			$cms = new CMSAccountLoader(env('CMS_ACCOUNTS_HOST'));
+			$failed = false;
+			try{
+				$check = $cms->checkTokenAccess($username, Input::all());
+			}
+			catch(Exception $e){
+				$failed = true;
+			}
+			if(!$failed){
+				$output['result'] = $check;
+			}
+			else{
+				$http_code = 404;
+				$output['result'] = false;
+				$output['error'] = 'Username not found';
+			}
 		}
 		else{
 			$input = Input::all();
