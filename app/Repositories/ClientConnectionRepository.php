@@ -5,8 +5,10 @@ namespace TKAccounts\Repositories;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Models\OAuthClient;
+use TKAccounts\Models\OAuthScope;
 use TKAccounts\Models\User;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
+use DB;
 
 /*
 * ClientConnectionRepository
@@ -17,11 +19,26 @@ class ClientConnectionRepository extends APIRepository
     protected $model_type = 'TKAccounts\Models\ClientConnection';
 
 
-    public function connectUserToClient(User $user, OAuthClient $client) {
-        return $this->create([
+    public function connectUserToClient(User $user, OAuthClient $client, $scopes = array()) {
+        $create = $this->create([
             'user_id'   => $user['id'],
             'client_id' => $client['id'],
         ]);
+
+       if(count($scopes) > 0){
+			foreach($scopes as $scope){
+				if(!is_string($scope)){
+					$scope = $scope->id;
+				}
+				$getScope = OAuthScope::find($scope);
+				if($getScope){
+					$id = $create->id;
+					DB::table('client_connection_scopes')->insert(array('connection_id' => $id, 'scope_id' => $getScope->uuid));
+				}
+			}
+		}
+
+        return $create;
     }
 
     public function disconnectUserFromClient(User $user, OAuthClient $client) {

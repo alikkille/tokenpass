@@ -75,6 +75,12 @@ class OAuthController extends Controller
 
         $formParams = array_except($authParams,'client');
         $formParams['client_id'] = $client_id;
+        $formParams['scopes'] = array();
+        foreach($authParams['scopes'] as $scope_k => $scope){
+			$formParams['scopes'][] = $scope_k;
+		}
+		$formParams['scopes'] = join(',', $formParams['scopes']);
+
         return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$authParams['scopes']]);
     }
 
@@ -91,6 +97,14 @@ class OAuthController extends Controller
         $params['user_id'] = $user->id;
         $redirect_uri = '';
 
+        $scope_param = Input::get('scopes');
+        $scopes = array();
+        if(isset($params['scopes'])){
+			$scopes = $params['scopes'];
+		}
+		if($scope_param AND count($scopes) == 0){
+			$scopes = explode(',', $scope_param);
+		}
 
         // if the user has allowed the client to access its data, redirect back to the client with an auth code
         if (Input::get('approve') !== null) {
@@ -102,7 +116,7 @@ class OAuthController extends Controller
                 throw new Exception("Unable to find oauth client for client ".json_encode($client_id, 192));
             }
             if (!$this->client_connection_repository->isUserConnectedToClient($user, $client)) {
-                $this->client_connection_repository->connectUserToClient($user, $client);
+                $this->client_connection_repository->connectUserToClient($user, $client, $scopes);
             }
         }
 
