@@ -107,4 +107,5 @@ Route::get('oauth/user', [
 // API endpoints
 
 Route::get('api/v1/tca/check/{username}', array('as' => 'api.tca.check', 'uses' => 'API\APIController@checkTokenAccess'));
+Route::get('api/v1/tca/check-address/{address}', array('as' => 'api.tca.check-address', 'uses' => 'API\APIController@checkAddressTokenAccess'));
 Route::get('api/v1/tca/addresses/{username}', array('as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses'));
