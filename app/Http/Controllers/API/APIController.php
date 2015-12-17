@@ -188,4 +188,79 @@ class APIController extends Controller
 		return Response::json($output, $http_code);
 	}
 	
+	public function checkAddressTokenAccess($address)
+	{
+		$input = Input::all();
+		$output = array();
+		
+		if(!isset($input['sig']) OR trim($input['sig']) == ''){
+			$output['error'] = 'Proof-of-ownership signature required (first 10 characters of address)';
+			$output['result'] = false;
+			return Response::json($output, 400);
+		}
+		
+		$xchain = app('Tokenly\XChainClient\Client');
+		$validate = $xchain->validateAddress($address);	
+		if(!$validate['result']){
+			$output['error'] = 'Invalid address';
+			$output['result'] = false;
+			return Response::json($output, 400);
+		}	
+		
+		$first_bits = substr($address, 0, 10);
+		$check_sig = $xchain->verifyMessage($address, $input['sig'], $first_bits);
+		if(!$check_sig['result']){
+			$output['error'] = 'Invalid proof-of-ownership signature';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+		
+		$sig = $input['sig'];
+		unset($input['sig']);
+		
+		$tca = new Access(true);
+		$ops = array();
+		$stack_ops = array();
+		$checks = array();
+		$tca = new Access(true);
+		foreach($input as $k => $v){
+			$exp_k = explode('_', $k);
+			$k2 = 0;
+			if(isset($exp_k[1])){
+				$k2 = intval($exp_k[1]);
+			}
+			if($exp_k[0] == 'op'){
+				$ops[$k2] = $v;
+			}
+			elseif($exp_k[0] == 'stackop'){
+				$stack_ops[$k2] = strtoupper($v);
+			}
+			else{
+				$checks[] = array('asset' => strtoupper($k), 'amount' => round(floatval($v) * 100000000)); //convert amount to satoshis
+			}
+		}
+		$full_stack = array();
+		foreach($checks as $k => $row){
+			$stack_item = $row;
+			if(isset($ops[$k])){
+				$stack_item['op'] = $ops[$k];
+			}
+			else{
+				$stack_item['op'] = '>='; //default to greater or equal than
+			}
+			if(isset($stack_ops[$k])){
+				$stack_item['stackOp'] = $stack_ops[$k];
+			}
+			else{
+				$stack_item['stackOp'] = 'AND';
+			}
+			$full_stack[] = $stack_item;
+		}
+		
+
+		$output['result'] = $tca->checkAccess($full_stack, false, $address);
+		
+		return Response::json($output);
+	}
+	
 }
