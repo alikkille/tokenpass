@@ -32,6 +32,9 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 		
+		$client_id = $input['client_id'];
+		unset($input['client_id']);
+		
 		$getUser = User::where('username', $username)->first();
 		if(!$getUser){
 			//try falling back to CMS - temporary
