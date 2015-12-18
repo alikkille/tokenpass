@@ -11,8 +11,8 @@ Tokenly Accounts features various public API methods for use in third party appl
 **Check Token Controlled Access**
 
 * **Endpoint:** /api/v1/tca/check/{username}
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000
-* **Authentication:** none required
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000&client_id=<CLIENT_API_ID>
+* **Authentication:** must pass in valid application ```client_id```
 * **Returns:** result (boolean)
 * **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
 * **Advanced usage:** for more complicated rule sets, you may include an ```op``` (logic operator) as well as a ```stackop``` (secondary logic operator) field in your query string. Append with "_0", "_1" etc. to apply different operators to different asset checks (depends on order of asset list).
@@ -21,6 +21,7 @@ Tokenly Accounts features various public API methods for use in third party appl
  * ```https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=10000&op_0==&TOKENLY=1&stackop_1=OR```
  * translates to "return true if user Cryptonaut has exactly 10,000 LTBCOIN OR has at least 1 TOKENLY"
 * TCA component source code: https://github.com/tokenly/token-controlled-access/blob/master/src/Tokenly/TCA/Access.php
+* Any user you query must have authenticated with your client application at least once, with the "tca" scope applied.
 
 
 **Code Example (PHP):**
@@ -46,13 +47,14 @@ else{
 **Get Public Bitcoin Addresses**
 
 * **Endpoint:** /api/v1/tca/addresses/{username}
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut
-* **Authentication:** none required
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut?client_id=<CLIENT_API_ID>
+* **Authentication:** must pass in valid application ```client_id```
 * **Returns:** 
  * result (array)
    * address (string)
     * balances (array)
 * **Notes:** Returns a list of all **public** bitcoin addresses for the specified user, as well as each addresses' token balances. Registered addresses are private by default. Balances are given in satoshis
+* Any user you query must have authenticated with your client application at least once, with the "tca" scope applied.
 
 
 **Example Response**
@@ -73,3 +75,16 @@ else{
 }
 
 ```
+-------------------------------
+
+
+**Check Address Token Controlled Access**
+
+* **Endpoint:** /api/v1/tca/check-address/{address}
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?LTBCOIN=1000&sig=<SIGNED_MESSAGE>
+* **Authentication:** must pass in a ```sig``` field containing a signed message of the first 10 characters in the requested bitcoin address, from said address. e.g 1DB3rtNQ8W
+* **Returns:** result (boolean)
+* **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
+* **Advanced usage:** see user-based TCA check method above
+
+
