@@ -11,7 +11,7 @@ Tokenly Accounts features various public API methods for use in third party appl
 **Check Token Controlled Access**
 
 * **Endpoint:** /api/v1/tca/check/{username}
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000&client_id=<CLIENT_API_ID>
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000&client_id={CLIENT_API_ID}
 * **Authentication:** must pass in valid application ```client_id```
 * **Returns:** result (boolean)
 * **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
@@ -47,7 +47,7 @@ else{
 **Get Public Bitcoin Addresses**
 
 * **Endpoint:** /api/v1/tca/addresses/{username}
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut?client_id=<CLIENT_API_ID>
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut?client_id={CLIENT_API_ID}
 * **Authentication:** must pass in valid application ```client_id```
 * **Returns:** 
  * result (array)
@@ -81,7 +81,7 @@ else{
 **Check Address Token Controlled Access**
 
 * **Endpoint:** /api/v1/tca/check-address/{address}
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?LTBCOIN=1000&sig=<SIGNED_MESSAGE>
+* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?LTBCOIN=1000&sig={SIGNED_MESSAGE}
 * **Authentication:** must pass in a ```sig``` field containing a signed message of the first 10 characters in the requested bitcoin address, from said address. e.g 1DB3rtNQ8W
 * **Returns:** result (boolean)
 * **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
