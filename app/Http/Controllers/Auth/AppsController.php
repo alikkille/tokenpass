@@ -22,9 +22,11 @@ class AppsController extends \TKAccounts\Http\Controllers\Admin\OAuthClientsCont
     public function index()
     {
 		$clients = OAuthClient::getUserClients($this->user->id);
-		foreach($clients as &$client){
-			$client->endpoints = $this->loadEndpoints($client);
-			$client->user_count = DB::table('client_connections')->where('client_id', $client->id)->count();
+		if($clients){
+			foreach($clients as &$client){
+				$client->endpoints = $this->loadEndpoints($client);
+				$client->user_count = DB::table('client_connections')->where('client_id', $client->id)->count();
+			}
 		}
 
 		return view('auth.client-apps', array(
