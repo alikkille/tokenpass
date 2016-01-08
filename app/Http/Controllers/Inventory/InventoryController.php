@@ -18,16 +18,13 @@ class InventoryController extends Controller
      */
     public function __construct()
     {
+		$this->middleware('auth');
 		$this->user = Auth::user();
     }
 
 
     public function index()
     {
-		if(!$this->user){
-			return redirect('auth/login');
-		}
-		
 		$addresses = Address::getAddressList($this->user->id, null, null);
 		$balances = Address::getAllUserBalances($this->user->id);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
@@ -59,11 +56,6 @@ class InventoryController extends Controller
     
     public function registerAddress()
     {
-		//check login
-		if(!$this->user){
-			return redirect('auth/login');
-		}
-		
 		//get input
 		$input = Input::all();
 		
@@ -134,9 +126,6 @@ class InventoryController extends Controller
 	
 	public function deleteAddress($address)
 	{
-		if(!$this->user){
-			return redirect('auth/login');
-		}
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
 			Session::flash('message', 'Address not found');
@@ -158,9 +147,6 @@ class InventoryController extends Controller
 	
 	public function editAddress($address)
 	{
-		if(!$this->user){
-			return redirect('auth/login');
-		}
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
 			Session::flash('message', 'Address not found');
@@ -196,9 +182,6 @@ class InventoryController extends Controller
 	
 	public function verifyAddressOwnership($address)
 	{
-		if(!$this->user){
-			return redirect('auth/login');
-		}
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
 			Session::flash('message', 'Address not found');
@@ -249,9 +232,6 @@ class InventoryController extends Controller
 	{
 		$output = array('result' => false);
 		$response_code = 200;
-		if(!$this->user){
-			return false;
-		}
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
 			$output['error'] = 'Address not found';
@@ -289,10 +269,7 @@ class InventoryController extends Controller
 	{
 		$output = array('result' => false);
 		$response_code = 200;
-		if(!$this->user){
-			return false;
-		}
-		
+
 		$disabled_tokens = json_decode(UserMeta::getMeta($this->user->id, 'disabled_tokens'), true);
 		if(!is_array($disabled_tokens)){
 			$disabled_tokens = array();
@@ -334,9 +311,6 @@ class InventoryController extends Controller
 	
 	public function refreshBalances()
 	{
-		if(!$this->user){
-			return redirect('auth/login');
-		}
 		$update = Address::updateUserBalances($this->user->id);
 		if(!$update){
 			Session::flash('message', 'Error updating balances');
