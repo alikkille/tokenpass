@@ -1,7 +1,7 @@
 @extends('accounts.base')
 
 @section('accounts_content')
-	<h2>Token Inventory</h2>
+	<h1>Token Inventory</h1>
 	@if(Session::has('message'))
 		<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
 	@endif	
