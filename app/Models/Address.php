@@ -1,5 +1,4 @@
 <?php
-
 namespace TKAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -10,11 +9,14 @@ class Address extends Model
 	protected $table = 'coin_addresses';
 	public $timestamps = true;
 	
-	public static function getAddressList($userId, $public = null)
+	public static function getAddressList($userId, $public = null, $active_toggle = 1)
 	{
 		$get = Address::where('user_id', '=', $userId);
 		if($public !== null){
 			$get = $get->where('public', '=', intval($public));
+		}
+		if($active_toggle !== null){
+			$get = $get->where('active_toggle', '=', intval($active_toggle));
 		}
 		return $get->orderBy('id', 'asc')->get();
 	}
@@ -22,7 +24,7 @@ class Address extends Model
 	public static function getAddressBalances($address_id)
 	{
 		$address = Address::find($address_id);
-		if(!$address OR $address->verified != 1){
+		if(!$address OR $address->verified != 1 OR $address->active_toggle != 1){
 			return false;
 		}
 		$balances = array();
@@ -38,7 +40,7 @@ class Address extends Model
 	public static function updateAddressBalances($address_id, $balance_list)
 	{
 		$address = Address::find($address_id);
-		if(!$address OR $address->verified != 1){
+		if(!$address OR $address->verified != 1 OR $address->active_toggle != 1){
 			return false;
 		}
 		$current = DB::table('address_balances')->where('address_id', '=', $address->id)->get();
@@ -64,7 +66,7 @@ class Address extends Model
 		return true;
 	}
 	
-	public static function getAllUserBalances($user_id)
+	public static function getAllUserBalances($user_id, $filter_disabled = false)
 	{
 		$address_list = Address::getAddressList($user_id);
 		if(!$address_list OR count($address_list) == 0){
@@ -84,7 +86,52 @@ class Address extends Model
 				}
 			}
 		}
+		if($filter_disabled){
+			$disabled = Address::getDisabledTokens($user_id);
+			foreach($disabled as $asset){
+				if(isset($balances[$asset])){
+					unset($balances[$asset]);
+				}
+			}
+		}
 		return $balances;
+	}
+	
+	public static function getVerifyCode($address)
+	{
+		return substr(hash('sha256', $address->address.':'.$address->user_id), 0, 10);
+	}
+	
+	public static function updateUserBalances($user_id)
+	{
+        $xchain = app('Tokenly\XChainClient\Client');
+
+        $address_list = Address::where('user_id', $user_id)->where('verified', '=', 1)->get();
+        if(!$address_list OR count($address_list) == 0){
+			return false;
+		}
+		$stamp = date('Y-m-d H:i:s');
+		foreach($address_list as $row){
+			$balances = $xchain->getBalances($row->address, true);
+			if($balances AND count($balances) > 0){
+				$update = Address::updateAddressBalances($row->id, $balances);
+				if(!$update){
+					return false;
+				}
+			}
+		}
+		return true;		
+		
+	}
+	
+	public static function getDisabledTokens($user_id)
+	{
+		$get = UserMeta::getMeta($user_id, 'disabled_tokens');
+		$decode = json_decode($get, true);
+		if(!$get OR !is_array($decode)){
+			return array();
+		}
+		return $decode;
 	}
 	
 }

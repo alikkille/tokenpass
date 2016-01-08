@@ -42,7 +42,7 @@ class SyncCMSAccount extends Command implements SelfHandling
 		
 		//load in all cryptocurrency addresses from CMS account
 		$address_list = $this->cms_loader->getUserCoinAddresses($this->cms_user);
-		$current_list = Address::getAddressList($this->accounts_user->id);
+		$current_list = Address::getAddressList($this->accounts_user->id, null, null);
 		$used = array();
 		$used_rows = array();
 		$stamp = date('Y-m-d H:i:s');

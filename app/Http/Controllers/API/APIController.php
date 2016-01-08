@@ -119,7 +119,7 @@ class APIController extends Controller
 				}
 				$full_stack[] = $stack_item;
 			}
-			$balances = Address::getAllUserBalances($getUser->id);
+			$balances = Address::getAllUserBalances($getUser->id, true);
 			$output['result'] = $tca->checkAccess($full_stack, $balances);
 		}
 		return Response::json($output, $http_code);

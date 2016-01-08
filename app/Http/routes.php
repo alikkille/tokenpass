@@ -52,6 +52,16 @@ Route::get('auth/connectedapps', 'Auth\ConnectedAppsController@getConnectedApps'
 Route::get('auth/revokeapp/{clientid}', 'Auth\ConnectedAppsController@getRevokeAppForm');
 Route::post('auth/revokeapp/{clientid}', 'Auth\ConnectedAppsController@postRevokeAppForm');
 
+//token inventory management
+Route::get('inventory', 'Inventory\InventoryController@index');
+Route::post('inventory/address/new', 'Inventory\InventoryController@registerAddress');
+Route::post('inventory/address/{address}/edit', 'Inventory\InventoryController@editAddress');
+Route::post('inventory/address/{address}/verify', 'Inventory\InventoryController@verifyAddressOwnership');
+Route::post('inventory/address/{address}/toggle', 'Inventory\InventoryController@toggleAddress');
+Route::get('inventory/address/{address}/delete', 'Inventory\InventoryController@deleteAddress');
+Route::get('inventory/refresh', 'Inventory\InventoryController@refreshBalances');
+Route::post('inventory/asset/{asset}/toggle', 'Inventory\InventoryController@toggleAsset');
+
 // -------------------------------------------------------------------------
 // Admin routes
 
