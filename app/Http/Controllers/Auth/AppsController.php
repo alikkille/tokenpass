@@ -21,12 +21,6 @@ class AppsController extends \TKAccounts\Http\Controllers\Admin\OAuthClientsCont
     
     public function index()
     {
-		/*
-		
-		to do for this:
-			- update admin oauth client section to show what user owns the app, how many connected users to it
-	
-		 */
 		$clients = OAuthClient::getUserClients($this->user->id);
 		foreach($clients as &$client){
 			$client->endpoints = $this->loadEndpoints($client);
