@@ -62,6 +62,12 @@ Route::get('inventory/address/{address}/delete', 'Inventory\InventoryController@
 Route::get('inventory/refresh', 'Inventory\InventoryController@refreshBalances');
 Route::post('inventory/asset/{asset}/toggle', 'Inventory\InventoryController@toggleAsset');
 
+//client applications / API keys
+Route::get('auth/apps', 'Auth\AppsController@index');
+Route::post('auth/apps/new', 'Auth\AppsController@registerApp');
+Route::post('auth/apps/{app}/edit', 'Auth\AppsController@updateApp');
+Route::get('auth/apps/{app}/delete', 'Auth\AppsController@deleteApp');
+
 // -------------------------------------------------------------------------
 // Admin routes
 

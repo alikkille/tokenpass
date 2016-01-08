@@ -12,5 +12,15 @@ class OAuthClient extends APIModel {
     public $incrementing = false;
 
     protected $api_attributes = ['id','name'];
+    
+    public static function getUserClients($user_id)
+    {
+		$get = OAuthClient::where('user_id', $user_id)->get();
+		if(count($get) == 0){
+			return false;
+		}
+		return $get;
+	}
+	
 
 }

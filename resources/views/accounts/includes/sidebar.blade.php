@@ -7,7 +7,7 @@
         <li><a href="/auth/update"><i class="fa fa-gears"></i> Update Account</a></li>
 		<li><a href="/inventory"><i class="fa fa-btc"></i> Token Inventory</a></li>
         <li><a href="/auth/connectedapps"><i class="fa fa-globe"></i> Connected Applications</a></li>
-        <li><a href="#"><i class="fa fa-code-fork"></i> API Keys / My Apps</a></li>
+        <li><a href="/auth/apps"><i class="fa fa-code-fork"></i> API Keys / My Apps</a></li>
         <li>
             <hr>
             <a href="/auth/logout"><i class="fa fa-sign-out"></i> Logout</a>

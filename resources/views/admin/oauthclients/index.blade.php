@@ -12,15 +12,29 @@
     <tr>
         <th>Name</th>
         <th>ID</th>
-        <th>Edit</th>
-        <th>Delete</th>
+        <th>Owner</th>
+        <th># Users</th>
+        <th></th>
+        <th></th>
     </tr>
 @foreach ($models as $model)
     <tr>
-        <td>{{$model['name']}}</td>
+        <td><strong>{{$model['name']}}</strong></td>
         <td>{{$model['id']}}</td>
-        <td><a href="{{ route('admin.oauthclients.edit', $model['id']) }}" class="btn btn-primary">Edit</a></td>
         <td>
+			@if($model->user_id == 0)
+				Platform
+			@elseif(!$model->owner)
+				N/A
+			@else
+				{{ $model->owner->email }}
+			@endif
+		</td>
+        <td>{{ number_format($model->user_count) }}</td>
+        <td>
+			<a href="{{ route('admin.oauthclients.edit', $model['id']) }}" class="btn btn-primary">Edit</a>
+		</td>
+        <td>	
             {!! Form::open(['onSubmit' => "return confirm('Are you sure you want to delete this?')", 'method' => 'DELETE', 'route' => ['admin.oauthclients.destroy', $model['id']]]) !!}
                 {!! Form::submit('Delete', ['class' => 'btn btn-danger']) !!}
             {!! Form::close() !!}

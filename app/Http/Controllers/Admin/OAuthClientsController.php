@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Http\Requests;
 use TKAccounts\Models\OAuthClient;
+use TKAccounts\Models\User;
 use TKAccounts\Repositories\OAuthClientRepository;
 use InvalidArgumentException;
 
@@ -28,8 +29,13 @@ class OAuthClientsController extends Controller
      */
     public function index()
     {
+		$get = $this->repository->findAll();
+		foreach($get as &$row){
+			$row->owner = User::find($row->user_id);
+			$row->user_count = DB::table('client_connections')->where('client_id', $row->id)->count();
+		}
         return view('admin.oauthclients.index', [
-            'models' => $this->repository->findAll()
+            'models' => $get,
         ]);
     }
 
