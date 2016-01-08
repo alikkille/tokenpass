@@ -24,11 +24,15 @@ class ClientConnectionRepository extends APIRepository
             'user_id'   => $user['id'],
             'client_id' => $client['id'],
         ]);
-
        if(count($scopes) > 0){
 			foreach($scopes as $scope){
 				if(!is_string($scope)){
-					$scope = $scope->id;
+					if(method_exists($scope, 'getId')){
+						$scope = $scope->getId();
+					}
+					else{
+						$scope = $scope->id;
+					}
 				}
 				$getScope = OAuthScope::find($scope);
 				if($getScope){
