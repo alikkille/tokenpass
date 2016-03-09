@@ -5,12 +5,22 @@ use TKAccounts\Models\User, TKAccounts\Models\Address;
 use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 use TKAccounts\Models\OAuthClient as AuthClient;
 use TKAccounts\Models\OAuthScope as Scope;
-use DB, Exception, Response, Input;
+use DB, Exception, Response, Input, Hash;
 use Illuminate\Http\JsonResponse;
 use Tokenly\TCA\Access;
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
+use TKAccounts\Repositories\ClientConnectionRepository;
+use TKAccounts\Repositories\OAuthClientRepository;
+use TKAccounts\Repositories\UserRepository;
 
 class APIController extends Controller
 {
+
+    public function __construct(OAuthClientRepository $oauth_client_repository, ClientConnectionRepository $client_connection_repository)
+    {
+        $this->oauth_client_repository      = $oauth_client_repository;
+        $this->client_connection_repository = $client_connection_repository;   
+    }
 
 	public function checkTokenAccess($username)
 	{
@@ -264,6 +274,86 @@ class APIController extends Controller
 		$output['result'] = $tca->checkAccess($full_stack, false, $address);
 		
 		return Response::json($output);
+	}
+	
+	public function requestOAuth()
+	{
+		$input = Input::all();
+		$output = array();
+		$error = false;
+		
+		if(!isset($input['state'])){
+			$error = true;
+			$output['error'] = 'State required';
+		}
+		
+		if(!isset($input['client_id'])){
+			$error = true;
+			$output['error'] = 'Client ID required';
+		}
+
+		$client_id = $input['client_id'];
+		$client = $this->oauth_client_repository->findById($client_id);
+        if (!$client){ 
+			$error = true;
+			$output['error'] = "Unable to find oauth client for client ".$client_id;
+		}				
+		
+		if(!isset($input['scope'])){
+			$error = true;
+			$output['error'] = 'Scope required';
+		}
+		
+		if(!isset($input['response_type']) OR $input['response_type'] != 'code'){
+			$error = true;
+			$output['error'] = 'Invalid response type';
+		}	
+		
+		if(!isset($input['username'])){
+			$error = true;
+			$output['error'] = 'Username required';
+		}
+		
+		if(!isset($input['password'])){
+			$error = true;
+			$output['error'] = 'Password required';
+		}
+		
+		$getUser = User::where('username', $input['username'])->first();
+		if(!$getUser){
+			$error = true;
+			$output['error'] = 'Invalid credentials';
+		}
+		else{
+			$checkPass = Hash::check($input['password'], $getUser->password);
+			if(!$checkPass){
+				$error = true;
+				$output['error'] = 'Invalid credentials';
+			}
+		}
+		
+		if(!$error){
+			$code_params =  Authorizer::getAuthCodeRequestParams();
+			$code_url = Authorizer::issueAuthCode('user', $getUser->id, $code_params);
+			$parse = parse_str(parse_url($code_url)['query'], $parsed);
+			
+			$output['code'] = $parsed['code'];
+			$output['state'] = $parsed['state'];
+		}
+		
+		return Response::json($output);
+	}
+	
+	public function getOAuthToken()
+	{
+		$output = array();
+        try {
+			$output = Authorizer::issueAccessToken();
+        } catch (\Exception $e) {
+            Log::error("Exception: ".get_class($e).' '.$e->getMessage());
+			$output['error'] = 'Failed getting access token';
+        }
+        return Response::json($output);
 	}
 	
 }
