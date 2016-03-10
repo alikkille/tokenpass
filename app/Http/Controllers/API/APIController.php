@@ -303,6 +303,11 @@ class APIController extends Controller
 			$error = true;
 			$output['error'] = 'Scope required';
 		}
+        $scope_param = Input::get('scope');
+        $scopes = array();
+		if($scope_param AND count($scopes) == 0){
+			$scopes = explode(',', $scope_param);
+		}		
 		
 		if(!isset($input['response_type']) OR $input['response_type'] != 'code'){
 			$error = true;
@@ -319,26 +324,40 @@ class APIController extends Controller
 			$output['error'] = 'Password required';
 		}
 		
-		$getUser = User::where('username', $input['username'])->first();
-		if(!$getUser){
+		$user = User::where('username', $input['username'])->first();
+		if(!$user){
 			$error = true;
 			$output['error'] = 'Invalid credentials';
 		}
 		else{
-			$checkPass = Hash::check($input['password'], $getUser->password);
+			$checkPass = Hash::check($input['password'], $user->password);
 			if(!$checkPass){
 				$error = true;
 				$output['error'] = 'Invalid credentials';
 			}
 		}
 		
+		$already_connected = $this->client_connection_repository->isUserConnectedToClient($user, $client);
+		if(!$already_connected){	
+			$grant_access = false;
+			if(isset($input['grant_access']) AND intval($input['grant_access']) === 1){
+				$grant_access = true;
+			}
+			if(!$grant_access){
+				$error = true;
+				$output['error'] = 'Application denied access to account';
+			}
+		}		
+		
 		if(!$error){
 			$code_params =  Authorizer::getAuthCodeRequestParams();
-			$code_url = Authorizer::issueAuthCode('user', $getUser->id, $code_params);
+			$code_url = Authorizer::issueAuthCode('user', $user->id, $code_params);
 			$parse = parse_str(parse_url($code_url)['query'], $parsed);
-			
 			$output['code'] = $parsed['code'];
-			$output['state'] = $parsed['state'];
+			$output['state'] = $parsed['state'];			
+			if(!$already_connected){
+				$this->client_connection_repository->connectUserToClient($user, $client, $scopes);
+			}
 		}
 		
 		return Response::json($output);
