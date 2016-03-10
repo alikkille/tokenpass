@@ -129,15 +129,14 @@ class AuthController extends Controller
             if ($existing_user) { break; }
 
             // try importing a user with CMS credentials
-            $imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+            try{
+				$imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+			}
+			catch(\Exception $e){
+				$login_error = $e->getMessage();
+				$imported_new_account = false;
+			}
             if (!$imported_new_account) {
-                // failed to import. See if there was an ltb username
-                $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
-                if ($loader->usernameExists($credentials['username'])) {
-                    $login_error = 'This username was found at LetsTalkBitcoin.com but the password was incorrect.  Please try again.';
-                }
-
-
                 break;
             }
 
