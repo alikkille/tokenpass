@@ -390,6 +390,7 @@ class APIController extends Controller
 		$input = Input::all();
 		$output = array();
 		$error = false;
+		$output['result'] = false;
 		
 		if(!isset($input['client_id']) OR !AuthClient::find($input['client_id'])){
 			$error = true;
@@ -461,7 +462,7 @@ class APIController extends Controller
 			}
 			
 			if($register){
-				$output['user'] = array('id' => $register->uuid, 'username' => $register->username, 'email' => $register->email);
+				$output['result'] = array('id' => $register->uuid, 'username' => $register->username, 'email' => $register->email);
 				$this->dispatch(new SendUserConfirmationEmail($register));
 			}
 		}
