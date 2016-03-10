@@ -470,4 +470,97 @@ class APIController extends Controller
 		return Response::json($output);
 	}
 	
+	public function updateAccount()
+	{
+		$input = Input::all();
+		$output = array();
+		$error = false;
+		$output['result'] = false;
+		
+		if(!isset($input['client_id']) OR !AuthClient::find($input['client_id'])){
+			$error = true;
+			$output['error'] = 'Invalid API client ID';
+		}
+		
+		if(!isset($input['user_id'])){
+			$error = true;
+			$output['error'] = 'User ID required';
+		}
+		
+		if(!isset($input['token'])){
+			$error = true;
+			$output['error'] = 'Access Token required';
+		}
+		
+		if(!isset($input['current_password'])){
+			$error = true;
+			$output['error'] = 'Current password required';
+		}
+		
+		if($error){
+			return Response::json($output);
+		}		
+		
+		$user = User::where('uuid', $input['user_id'])->first();
+		
+		$get_token = DB::table('oauth_access_tokens')->where('id', $input['token'])->first();
+		$valid_access = false;
+		if($get_token AND $user){
+			$get_sesh = DB::table('oauth_sessions')->where('id', $get_token->session_id)->first();
+			if($get_sesh AND $get_sesh->client_id == $input['client_id'] AND $get_sesh->owner_id == $user->id){
+				$valid_access = true;
+			}
+		}
+		if(!$valid_access){
+			$output['error'] = 'Invalid access token, client ID or user ID';
+			return Response::json($output); 
+		}
+		
+		$check = Hash::check($input['current_password'], $user->password);
+		if(!$check){
+			$output['error'] = 'Invalid password';
+			return Response::json($output); 
+		}		
+		
+		$to_change = array();
+		if(isset($input['name']) AND $input['name'] != $user->name){
+			$to_change['name'] = trim($input['name']);
+		}		
+		if(isset($input['email']) AND trim($input['email']) != '' AND $input['email'] != $user->email){
+			$to_change['email'] = $input['email'];
+		}
+		if(isset($input['password']) AND trim($input['password']) != ''){
+			$to_change['password'] = $input['password'];
+		}		
+		
+		if(count($to_change) == 0){
+			$output['error'] = 'No changes to make';
+			return Response::json($output); 
+		}
+		$changed = array_keys($to_change);
+		foreach($to_change as $k => $v){
+			switch($k){
+				case 'name':
+					$user->name = $v;
+					break;
+				case 'email':
+					$user->email = $v;
+					$this->dispatch(new SendUserConfirmationEmail($user));
+					break;
+				case 'password':
+					$user->password = Hash::make($v);
+					break;
+			}
+		}
+		
+		$save = $user->save();
+		if(!$save){
+			$output['error'] = 'Error saving updated account information';
+		}
+		else{
+			$output['result'] = 'success';
+		}
+		
+		return Response::json($output);
+	}
 }
