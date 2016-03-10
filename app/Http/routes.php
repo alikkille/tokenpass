@@ -127,3 +127,4 @@ Route::get('api/v1/tca/check-address/{address}', array('as' => 'api.tca.check-ad
 Route::get('api/v1/tca/addresses/{username}', array('as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses'));
 Route::post('api/v1/oauth/request', array('as' => 'api.oauth.request', 'uses' => 'API\APIController@requestOAuth', 'middleware' => ['check-authorization-params']));
 Route::post('api/v1/oauth/token', array('as' => 'api.oauth.token', 'uses' => 'API\APIController@getOAuthToken', 'middleware' => ['check-authorization-params']));
+Route::post('api/v1/register', array('as' => 'api.oauth.token', 'uses' => 'API\APIController@registerAccount'));

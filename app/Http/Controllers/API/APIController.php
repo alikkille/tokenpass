@@ -12,14 +12,21 @@ use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
+use TKAccounts\Commands\ImportCMSAccount;
+use TKAccounts\Commands\SendUserConfirmationEmail;
+use TKAccounts\Commands\SyncCMSAccount;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class APIController extends Controller
 {
 
-    public function __construct(OAuthClientRepository $oauth_client_repository, ClientConnectionRepository $client_connection_repository)
+    use DispatchesJobs;
+
+    public function __construct(OAuthClientRepository $oauth_client_repository, ClientConnectionRepository $client_connection_repository, UserRepository $user_repository)
     {
         $this->oauth_client_repository      = $oauth_client_repository;
-        $this->client_connection_repository = $client_connection_repository;   
+        $this->client_connection_repository = $client_connection_repository;  
+        $this->user_repository = $user_repository;
     }
 
 	public function checkTokenAccess($username)
@@ -31,7 +38,7 @@ class APIController extends Controller
 		//check if a valid application client_id
 		$valid_client = false;
 		if(isset($input['client_id'])){
-			$get_client = AuthClient::find(trim($input['client_id']));
+			$get_client = AuthClient::find($input['client_id']);
 			if($get_client){
 				$valid_client = $get_client;
 			}
@@ -41,7 +48,6 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
-		
 		$client_id = $input['client_id'];
 		unset($input['client_id']);
 		
@@ -314,15 +320,19 @@ class APIController extends Controller
 			$output['error'] = 'Invalid response type';
 		}	
 		
-		if(!isset($input['username'])){
+		if(!isset($input['username']) OR trim($input['username']) == ''){
 			$error = true;
 			$output['error'] = 'Username required';
 		}
 		
-		if(!isset($input['password'])){
+		if(!isset($input['password']) OR trim($input['password']) == ''){
 			$error = true;
 			$output['error'] = 'Password required';
 		}
+		
+		if($error){
+			return Response::json($output);
+		}		
 		
 		$user = User::where('username', $input['username'])->first();
 		if(!$user){
@@ -373,6 +383,90 @@ class APIController extends Controller
 			$output['error'] = 'Failed getting access token';
         }
         return Response::json($output);
+	}
+	
+	public function registerAccount()
+	{
+		$input = Input::all();
+		$output = array();
+		$error = false;
+		
+		if(!isset($input['client_id']) OR !AuthClient::find($input['client_id'])){
+			$error = true;
+			$output['error'] = 'Invalid API client ID';
+		}
+
+		if(!isset($input['username']) OR trim($input['username']) == ''){
+			$error = true;
+			$output['error'] = 'Username required';
+		}
+		
+		if(!isset($input['password']) OR trim($input['password']) == ''){
+			$error = true;
+			$output['error'] = 'Password required';
+		}
+		
+		if(!isset($input['email']) OR trim($input['email']) == ''){
+			$error = true;
+			$output['error'] = 'Email required';
+		}
+		
+		if($error){
+			return Response::json($output);
+		}
+		
+		$data['username'] = $input['username'];
+		$data['password'] = $input['password'];
+		$data['email'] = $input['email'];
+		$data['name'] = '';
+		if(isset($input['name'])){
+			$data['name'] = $input['name'];
+		}	
+		
+        // we can't create a new user with an existing LTB username
+        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        if ($loader->usernameExists($data['username'])) {
+			$error = true;
+            $output['error'] = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
+        }	
+        
+        $find_user = User::where('email', $data['email'])->orWhere('username', $data['username'])->first();
+        if($find_user){
+			$error = true;
+			if($find_user->username == $data['username']){
+				$output['error'] = 'Username already taken';
+			}
+			else{
+				$output['error'] = 'Email already taken';
+			}
+		}		
+		
+		if(!filter_var($data['email'], FILTER_VALIDATE_EMAIL)){
+			$error = true;
+			$output['error'] = 'Invalid email address';
+		}
+		
+		if(!$error){
+			try{
+				$register = $this->user_repository->create([
+						'name'     => $data['name'],
+						'username' => $data['username'],
+						'email'    => $data['email'],
+						'password' => $data['password'],
+					]);
+			}
+			catch(\Exception $e){
+				$register = false;
+				$output['error'] = 'Error registering account';
+			}
+			
+			if($register){
+				$output['user'] = array('id' => $register->uuid, 'username' => $register->username, 'email' => $register->email);
+				$this->dispatch(new SendUserConfirmationEmail($register));
+			}
+		}
+		
+		return Response::json($output);
 	}
 	
 }
