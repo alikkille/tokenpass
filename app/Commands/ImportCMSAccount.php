@@ -40,7 +40,7 @@ class ImportCMSAccount extends Command implements SelfHandling
         $user_repository = App('TKAccounts\Repositories\UserRepository');
 
         $existing_user = $user_repository->findBySlug(Util::slugify($this->username));
-        if ($existing_user) { throw new \Exception('Username exists'); }
+        if ($existing_user) { throw new \Exception('Invalid credentials'); }
 
         // load user info from CMS
         $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
