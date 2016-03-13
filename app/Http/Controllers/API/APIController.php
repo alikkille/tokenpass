@@ -209,7 +209,7 @@ class APIController extends Controller
 		else{
 			$balances = array();
 			foreach($address_list as $address){
-				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id), 'public' => boolval($address->public));
+				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true), 'public' => boolval($address->public));
 			}
 			$output['result'] = $balances;
 		}
