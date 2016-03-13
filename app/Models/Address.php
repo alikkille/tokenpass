@@ -9,9 +9,12 @@ class Address extends Model
 	protected $table = 'coin_addresses';
 	public $timestamps = true;
 	
-	public static function getAddressList($userId, $public = null, $active_toggle = 1)
+	public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false)
 	{
 		$get = Address::where('user_id', '=', $userId);
+		if($verified_only){
+			$get = $get->where('verified', 1);
+		}
 		if($public !== null){
 			$get = $get->where('public', '=', intval($public));
 		}

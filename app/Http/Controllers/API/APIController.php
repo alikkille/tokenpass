@@ -202,7 +202,7 @@ class APIController extends Controller
 		}
 		
 		
-		$address_list = Address::getAddressList($user->id, $use_public);
+		$address_list = Address::getAddressList($user->id, $use_public, 1, true);
 		if(!$address_list OR count($address_list) == 0){
 			$output['addresses'] = array();
 		}
