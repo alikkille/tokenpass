@@ -166,6 +166,7 @@ class APIController extends Controller
 			$http_code = 404;
 			$output['result'] = false;
 			$output['error'] = 'Username not found';
+			return Response::json($output, 404);
 		}
 		
 		//make sure user has authenticated with this application at least once
@@ -175,25 +176,33 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
+
+		//make sure scope is applied to client connection
 		
-		//look for the TCA scope
-		$get_scope = Scope::find('tca');
-		if(!$get_scope){
-			$output['error'] = 'TCA scope not found in system';
+		try{
+			$tca_scope = AuthClient::connectionHasScope($find_connect->id, 'tca');
+			$priv_scope = AuthClient::connectionHasScope($find_connect->id, 'private-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
 			$output['result'] = false;
-			return Response::json($output, 500);
+			return Response::json($output, 403);
 		}
 		
-		
-		//make sure scope is applied to client connection
-		$scope_connect = DB::table('client_connection_scopes')->where('connection_id', $find_connect->id)->where('scope_id', $get_scope->uuid)->get();
-		if(!$scope_connect OR count($scope_connect) == 0){
+		if(!$tca_scope){
 			$output['error'] = 'User does not have TCA scope applied for this client application';
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
 		
-		$address_list = Address::getAddressList($user->id, 1);
+		
+		$use_public = 1;
+		if($priv_scope){
+			$use_public = null;
+		}
+		
+		
+		$address_list = Address::getAddressList($user->id, $use_public);
 		if(!$address_list OR count($address_list) == 0){
 			$output['addresses'] = array();
 		}
