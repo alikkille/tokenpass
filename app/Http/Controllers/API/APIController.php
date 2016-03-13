@@ -197,7 +197,7 @@ class APIController extends Controller
 		
 		
 		$use_public = 1;
-		if($priv_scope){
+		if($priv_scope AND !isset($input['public'])){
 			$use_public = null;
 		}
 		
@@ -209,7 +209,7 @@ class APIController extends Controller
 		else{
 			$balances = array();
 			foreach($address_list as $address){
-				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id));
+				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id), 'public' => boolval($address->public));
 			}
 			$output['result'] = $balances;
 		}
