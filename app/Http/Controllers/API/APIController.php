@@ -356,17 +356,19 @@ class APIController extends Controller
 			}
 		}
 		
-		$already_connected = $this->client_connection_repository->isUserConnectedToClient($user, $client);
-		if(!$already_connected){	
-			$grant_access = false;
-			if(isset($input['grant_access']) AND intval($input['grant_access']) === 1){
-				$grant_access = true;
-			}
-			if(!$grant_access){
-				$error = true;
-				$output['error'] = 'Application denied access to account';
-			}
-		}		
+		if(!$error){
+			$already_connected = $this->client_connection_repository->isUserConnectedToClient($user, $client);
+			if(!$already_connected){	
+				$grant_access = false;
+				if(isset($input['grant_access']) AND intval($input['grant_access']) === 1){
+					$grant_access = true;
+				}
+				if(!$grant_access){
+					$error = true;
+					$output['error'] = 'Application denied access to account';
+				}
+			}	
+		}	
 		
 		if(!$error){
 			$code_params =  Authorizer::getAuthCodeRequestParams();
