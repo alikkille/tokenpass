@@ -1,7 +1,7 @@
 <?php
 namespace TKAccounts\Http\Controllers\API;
 use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\User, TKAccounts\Models\Address;
+use TKAccounts\Models\User, TKAccounts\Models\Address, TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 use TKAccounts\Models\OAuthClient as AuthClient;
 use TKAccounts\Models\OAuthScope as Scope;
@@ -572,6 +572,38 @@ class APIController extends Controller
 			$output['result'] = 'success';
 		}
 		
+		return Response::json($output);
+	}
+	
+	public function invalidateOAuth()
+	{
+		$input = Input::all();
+		$output = array();
+		$output['result'] = false;
+		if(!isset($input['client_id']) OR !AuthClient::find($input['client_id'])){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output);
+		}
+		if(!isset($input['token'])){
+			$output['error'] = 'OAuth token required';
+			return Response::json($output);
+		}
+		$get = User::getByOAuth($input['token']);
+		if(!$get){
+			$output['error'] = 'Invalid OAuth token';
+			return Response::json($output);
+		}
+		if($get['session']->client_id != $input['client_id']){
+			$output['error'] = 'Session does not belong to client';
+			return Response::json($output);
+		}
+		$browser_sesh = UserMeta::getMeta($get['user']->id, 'session_id');
+		if($browser_sesh){
+			DB::table('sessions')->where('id', $browser_sesh)->delete();
+		}		
+		DB::table('oauth_access_tokens')->where('id', $get['access_token']->id)->delete();
+		DB::table('oauth_sessions')->where('id', $get['session']->id)->delete();
+		$output['result'] = true;
 		return Response::json($output);
 	}
 }

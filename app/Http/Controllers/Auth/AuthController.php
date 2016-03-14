@@ -18,6 +18,7 @@ use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
+use TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
 use Validator;
@@ -118,6 +119,11 @@ class AuthController extends Controller
 				
 				//sync BTC addresses from their LTB account where possible - temporary
 				$this->syncCMSAccountData($credentials);
+
+				$user = Auth::user();
+				if($user){
+					UserMeta::setMeta($user->id, 'session_id', \Session::getId());
+				}
 				
                 return $this->handleUserWasAuthenticated($request, true);
             }
@@ -148,6 +154,7 @@ class AuthController extends Controller
 
         // failed login
         if ($login_error === null) { $login_error = $this->getFailedLoginMessage(); }
+                
         return redirect($this->loginPath())
             ->withInput($request->only($this->loginUsername(), 'remember'))
             ->withErrors([
