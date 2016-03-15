@@ -12,7 +12,7 @@
 
         <p></p>
             Please follow this link to verify your email address:<br/>
-            {{ URL::route('auth.verify', ['token' => $token]) }}.
+            <a href="{{ URL::route('auth.verify', ['token' => $token]) }}">{{ URL::route('auth.verify', ['token' => $token]) }}</a>
         </p>
 
         <p>

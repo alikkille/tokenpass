@@ -23,7 +23,7 @@ class CMSAccountLoader {
 
     public function getFullUserInfoWithLogin($username, $password) {
         try {
-            $authorize_results = $this->fetchFromAPI('POST', '/auth', ['username' => $username, 'password' => $password]);
+            $authorize_results = $this->fetchFromAPI('POST', '/auth', ['username' => $username, 'password' => $password, 'force_native' => true]);
         } catch (CMSException $e) {
             Log::debug("Failed to login {$username}:\n".json_encode($e->getJSONResponse(), 192));
             if ($e->getCode() == 401) {
@@ -109,7 +109,6 @@ class CMSAccountLoader {
 
     protected function fetchFromAPI($method, $path, $parameters=[]) {
         $api_path = $this->base_path.'/'.ltrim($path, '/');
-
         $client = new GuzzleClient(['base_url' => $this->cms_accounts_url,]);
 
         if ($method == 'GET') {

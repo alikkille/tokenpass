@@ -58,6 +58,7 @@ class OAuthController extends Controller
     public function getAuthorizeForm()
     {
         $user = Auth::user();
+
         $authParams = Authorizer::getAuthCodeRequestParams();
         $client_id = $authParams['client']->getId();
 
@@ -93,10 +94,10 @@ class OAuthController extends Controller
     {
         $user = Auth::user();
         $params = Authorizer::getAuthCodeRequestParams();
+
         $client_id = $params['client']->getId();
         $params['user_id'] = $user->id;
         $redirect_uri = '';
-
         $scope_param = Input::get('scopes');
         $scopes = array();
         if(isset($params['scopes'])){
