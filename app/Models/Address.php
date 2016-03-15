@@ -9,9 +9,12 @@ class Address extends Model
 	protected $table = 'coin_addresses';
 	public $timestamps = true;
 	
-	public static function getAddressList($userId, $public = null, $active_toggle = 1)
+	public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false)
 	{
 		$get = Address::where('user_id', '=', $userId);
+		if($verified_only){
+			$get = $get->where('verified', 1);
+		}
 		if($public !== null){
 			$get = $get->where('public', '=', intval($public));
 		}
@@ -21,7 +24,7 @@ class Address extends Model
 		return $get->orderBy('id', 'asc')->get();
 	}
 	
-	public static function getAddressBalances($address_id)
+	public static function getAddressBalances($address_id, $filter_disabled = false)
 	{
 		$address = Address::find($address_id);
 		if(!$address OR $address->verified != 1 OR $address->active_toggle != 1){
@@ -32,6 +35,14 @@ class Address extends Model
 		if($get AND count($get) > 0){
 			foreach($get as $row){
 				$balances[$row->asset] = $row->balance;
+			}
+		}
+		if($filter_disabled){
+			$disabled = Address::getDisabledTokens($address->user_id);
+			foreach($disabled as $asset){
+				if(isset($balances[$asset])){
+					unset($balances[$asset]);
+				}
 			}
 		}
 		return $balances;

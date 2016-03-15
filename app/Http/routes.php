@@ -125,3 +125,8 @@ Route::get('oauth/user', [
 Route::get('api/v1/tca/check/{username}', array('as' => 'api.tca.check', 'uses' => 'API\APIController@checkTokenAccess'));
 Route::get('api/v1/tca/check-address/{address}', array('as' => 'api.tca.check-address', 'uses' => 'API\APIController@checkAddressTokenAccess'));
 Route::get('api/v1/tca/addresses/{username}', array('as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses'));
+Route::post('api/v1/oauth/request', array('as' => 'api.oauth.request', 'uses' => 'API\APIController@requestOAuth', 'middleware' => ['check-authorization-params']));
+Route::post('api/v1/oauth/token', array('as' => 'api.oauth.token', 'uses' => 'API\APIController@getOAuthToken', 'middleware' => ['check-authorization-params']));
+Route::get('api/v1/oauth/logout', array('as' => 'api.oauth.logout', 'uses' => 'API\APIController@invalidateOAuth'));
+Route::patch('api/v1/update', array('as' => 'api.update-account', 'uses' => 'API\APIController@updateAccount'));
+Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIController@registerAccount'));

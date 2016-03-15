@@ -18,6 +18,7 @@ use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
+use TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
 use Validator;
@@ -118,6 +119,11 @@ class AuthController extends Controller
 				
 				//sync BTC addresses from their LTB account where possible - temporary
 				$this->syncCMSAccountData($credentials);
+
+				$user = Auth::user();
+				if($user){
+					UserMeta::setMeta($user->id, 'session_id', \Session::getId());
+				}
 				
                 return $this->handleUserWasAuthenticated($request, true);
             }
@@ -129,15 +135,14 @@ class AuthController extends Controller
             if ($existing_user) { break; }
 
             // try importing a user with CMS credentials
-            $imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+            try{
+				$imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+			}
+			catch(\Exception $e){
+				$login_error = $e->getMessage();
+				$imported_new_account = false;
+			}
             if (!$imported_new_account) {
-                // failed to import. See if there was an ltb username
-                $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
-                if ($loader->usernameExists($credentials['username'])) {
-                    $login_error = 'This username was found at LetsTalkBitcoin.com but the password was incorrect.  Please try again.';
-                }
-
-
                 break;
             }
 
@@ -149,6 +154,7 @@ class AuthController extends Controller
 
         // failed login
         if ($login_error === null) { $login_error = $this->getFailedLoginMessage(); }
+                
         return redirect($this->loginPath())
             ->withInput($request->only($this->loginUsername(), 'remember'))
             ->withErrors([
