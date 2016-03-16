@@ -36,23 +36,9 @@ class ScanCoinAddresses extends Command
 			return false;
 		}
 		$stamp = date('Y-m-d H:i:s');
-		$used_assets = array();
 		foreach($address_list as $row){
 			$balances = $xchain->getBalances($row->address, true);
 			if($balances AND count($balances) > 0){
-				foreach($balances as $asset => $amnt){
-					if($amnt > 0){
-						if(!isset($used_assets[$asset])){
-							$used_assets[$asset] = $xchain->getAsset($asset);
-						}
-						if(!$used_assets[$asset]){
-							continue;
-						}					
-						if(!$used_assets[$asset]['divisible']){
-							$balances[$asset] = intval(round($amnt / 100000000));
-						}
-					}
-				}
 				$update = Address::updateAddressBalances($row->id, $balances);
 				if(!$update){
 					$this->error('Failed updating '.$row->address.' ['.$row->id.']');
