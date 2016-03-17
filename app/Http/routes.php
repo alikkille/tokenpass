@@ -130,3 +130,4 @@ Route::post('api/v1/oauth/token', array('as' => 'api.oauth.token', 'uses' => 'AP
 Route::get('api/v1/oauth/logout', array('as' => 'api.oauth.logout', 'uses' => 'API\APIController@invalidateOAuth'));
 Route::patch('api/v1/update', array('as' => 'api.update-account', 'uses' => 'API\APIController@updateAccount'));
 Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIController@registerAccount'));
+Route::post('api/v1/login', array('as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword'));

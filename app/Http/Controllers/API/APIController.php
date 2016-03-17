@@ -1,21 +1,23 @@
 <?php
 namespace TKAccounts\Http\Controllers\API;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\User, TKAccounts\Models\Address, TKAccounts\Models\UserMeta;
-use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
-use TKAccounts\Models\OAuthClient as AuthClient;
-use TKAccounts\Models\OAuthScope as Scope;
 use DB, Exception, Response, Input, Hash;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
-use Tokenly\TCA\Access;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
-use TKAccounts\Repositories\ClientConnectionRepository;
-use TKAccounts\Repositories\OAuthClientRepository;
-use TKAccounts\Repositories\UserRepository;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Commands\SyncCMSAccount;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Models\OAuthClient as AuthClient;
+use TKAccounts\Models\OAuthScope as Scope;
+use TKAccounts\Models\User, TKAccounts\Models\Address, TKAccounts\Models\UserMeta;
+use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
+use TKAccounts\Repositories\ClientConnectionRepository;
+use TKAccounts\Repositories\OAuthClientRepository;
+use TKAccounts\Repositories\UserRepository;
+use Tokenly\TCA\Access;
 
 class APIController extends Controller
 {
@@ -606,4 +608,45 @@ class APIController extends Controller
 		$output['result'] = true;
 		return Response::json($output);
 	}
+
+	public function loginWithUsernameAndPassword(Request $request) {
+		$this->validate($request, [
+            'username' => 'required|max:255',
+            'password' => 'required|max:255',
+		]);
+
+		$credentials = $request->only(['username','password']);
+		$auth_controller = app('TKAccounts\Http\Controllers\Auth\AuthController');
+		list($login_error, $was_logged_in) = $auth_controller->performLoginLogic($credentials, false);
+		if ($was_logged_in) {
+			$user = Auth::user();
+			return new JsonResponse([
+				'id'              => $user['uuid'],
+				'name'            => $user['name'],
+				'username'        => $user['username'],
+				'email'           => $user['email'],
+				'confirmed_email' => $user['confirmed_email'],
+			], 200);
+		}
+
+		if (!$login_error) { $login_error = 'failed to login'; }
+		return new JsonResponse(['message' => $login_error, 'errors' => [$login_error]], 422);
+	}
+
+    protected function buildFailedValidationResponse(Request $request, array $errors)
+	{
+	    if (is_array($errors)) {
+	        $error_strings = [];
+	        foreach($errors as $error) {
+	            $error_strings = array_merge($error_strings, array_values($error));
+	        }
+	        $message = implode(" ", $error_strings);
+	        $errors = $error_strings;
+	    } else {
+	        $message = $errors;
+	        $errors = [$errors];
+	    }
+	    return new JsonResponse(['message' => $message, 'errors' => $errors], 422);
+	}
+
 }
