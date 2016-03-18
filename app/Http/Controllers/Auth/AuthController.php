@@ -150,7 +150,7 @@ class AuthController extends Controller
             if ($second_time) { break; }
 
             // never try to import a CMS user if the username exists in our database
-            $existing_user = $user_repository->findBySlug(Util::slugify($this->username));
+            $existing_user = $this->user_repository->findBySlug(Util::slugify($this->username));
             if ($existing_user) { break; }
 
             // try importing a user with CMS credentials
