@@ -46,11 +46,7 @@ class APIControllerTest extends TestCase {
         ]);
 
         // create an oauth client
-        $oauth_client = app('TKAccounts\Repositories\OAuthClientRepository')->create([
-            'id'     => 'MY_API_TOKEN',
-            'secret' => 'MY_SECRET',
-            'name'   => 'client one',
-        ]);
+        $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
 
         // add the scope
         $oauth_scope = app('TKAccounts\Repositories\OAuthScopeRepository')->create([

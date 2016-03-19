@@ -609,11 +609,25 @@ class APIController extends Controller
 		return Response::json($output);
 	}
 
+	/**
+	 * This only verifies the user by login and password.  It does not confer any grants
+	 * @param  Request $request The HTTP Request
+	 * @return JsonResponse     The HTTP Response
+	 */
 	public function loginWithUsernameAndPassword(Request $request) {
 		$this->validate($request, [
-            'username' => 'required|max:255',
-            'password' => 'required|max:255',
+            'client_id' => 'required',
+            'username'  => 'required|max:255',
+            'password'  => 'required|max:255',
 		]);
+
+		// require a valid client_id
+		$client_id = $request->input('client_id');
+		$valid_client = AuthClient::find($client_id);
+		if (!$valid_client) {
+			$error = 'Invalid API client ID';
+			return new JsonResponse(['message' => $error, 'errors' => [$error]], 403);
+		}
 
 		$credentials = $request->only(['username','password']);
 		$auth_controller = app('TKAccounts\Http\Controllers\Auth\AuthController');

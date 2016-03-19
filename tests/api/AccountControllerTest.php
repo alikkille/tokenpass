@@ -18,10 +18,14 @@ class AccountControllerTest extends TestCase {
         // create a user
         $user = $user_helper->createNewUser();
 
+        // create an oAuth client
+        $client = app('OAuthClientHelper')->createSampleOAuthClient();
+
         // login with username and password
         $vars = [
-            'username' => 'johndoe',
-            'password' => 'abc123456',
+            'client_id' => $client['id'],
+            'username'  => 'johndoe',
+            'password'  => 'abc123456',
         ];
         $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.login'), $vars);
         PHPUnit::assertNotEmpty($response);
