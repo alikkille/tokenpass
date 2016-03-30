@@ -6,15 +6,14 @@
     "type": "project",
     "require": {
         "php": ">=5.5.9",
-        "laravel/framework": "5.1.*",
-        "lucadegasperi/oauth2-server-laravel": "5.0.*@dev",
+        "laravel/framework": "5.2.*",
+        "lucadegasperi/oauth2-server-laravel": "dev-master@dev",
         "tokenly/laravel-api-provider": "dev-master",
-        "illuminate/html": "5.0.*",
-        "guzzlehttp/guzzle": "~5",
+        "cryptonaut/illuminate-html": "dev-master",
+        "guzzlehttp/guzzle": "~6",
         "tokenly/consul-health-daemon": "dev-master",
 		"linusu/bitcoin-address-validator": "~0",
 		"tokenly/xchain-client": "@dev",
-		"tokenly/hmac-auth": "dev-master",
 		"tokenly/token-controlled-access": "dev-master"
     },
     "require-dev": {
@@ -23,6 +22,12 @@
         "phpunit/phpunit": "~4.0",
         "phpspec/phpspec": "~2.1"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/cryptonaut420/html"
+        }
+    ],    
     "autoload": {
         "classmap": [
             "database"

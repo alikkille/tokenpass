@@ -3,8 +3,7 @@
 namespace TKAccounts\Http\Controllers\Auth;
 
 use Exception;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
@@ -38,8 +37,7 @@ class AuthController extends Controller
     use DispatchesJobs;
     use ThrottlesLogins;
 
-    use AuthenticatesUsers, RegistersUsers {
-        AuthenticatesUsers::redirectPath insteadof RegistersUsers;
+    use AuthenticatesAndRegistersUsers {
         handleUserWasAuthenticated as trait_handleUserWasAuthenticated;
     }
 
