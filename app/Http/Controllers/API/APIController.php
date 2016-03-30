@@ -197,12 +197,17 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 		
+		if(isset($input['oauth_token'])){
+			$getUser = User::getByOAuth($input['oauth_token']);
+			if($getUser AND $getUser['user']->id == $user->id){
+				$priv_scope = true;
+			}
+		}
 		
 		$use_public = 1;
 		if($priv_scope AND !isset($input['public'])){
 			$use_public = null;
 		}
-		
 		
 		$address_list = Address::getAddressList($user->id, $use_public, 1, true);
 		if(!$address_list OR count($address_list) == 0){
