@@ -143,7 +143,7 @@ class APIController extends Controller
 		return Response::json($output, $http_code);
 	}
 	
-	public function getAddresses($username)
+	public function getAddresses($username, $force_refresh = false)
 	{
 		$output = array();
 		$http_code = 200;
@@ -197,10 +197,14 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 		
+		$and_active = 1;
+		$and_verified = 1;
 		if(isset($input['oauth_token'])){
 			$getUser = User::getByOAuth($input['oauth_token']);
 			if($getUser AND $getUser['user']->id == $user->id){
 				$priv_scope = true;
+				$and_active = null;
+				$and_verified = false;
 			}
 		}
 		
@@ -209,18 +213,454 @@ class APIController extends Controller
 			$use_public = null;
 		}
 		
-		$address_list = Address::getAddressList($user->id, $use_public, 1, true);
+		if($force_refresh){
+			Address::updateUserBalances($user->id);
+		}
+		
+		$address_list = Address::getAddressList($user->id, $use_public, $and_active, $and_verified);
 		if(!$address_list OR count($address_list) == 0){
 			$output['addresses'] = array();
 		}
 		else{
 			$balances = array();
 			foreach($address_list as $address){
-				$balances[] = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true), 'public' => boolval($address->public));
+				$item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true), 'public' => boolval($address->public), 'label' => $address->label);
+				if($and_active == null){
+					$item['active'] = boolval($address->active_toggle);
+				}
+				if(!$and_verified){
+					$item['verified'] = boolval($address->verified);
+				}
+				$balances[] = $item;
 			}
 			$output['result'] = $balances;
 		}
 		return Response::json($output, $http_code);
+	}
+	
+	public function getRefreshedAddresses($username)
+	{
+		return $this->getAddresses($username, true);
+	}
+	
+	public function getAddressDetails($username, $address)
+	{
+		$output = array();
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$user = User::where('username', $username)->first();
+		if(!$user){
+			$http_code = 404;
+			$output['result'] = false;
+			$output['error'] = 'Username not found';
+			return Response::json($output, 404);
+		}
+		
+		//make sure user has authenticated with this application at least once
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$priv_scope = false;
+		$logged_user = false;
+		try{
+			$priv_scope = AuthClient::connectionHasScope($find_connect->id, 'private-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+		if(isset($input['oauth_token'])){
+			$getUser = User::getByOAuth($input['oauth_token']);
+			if($getUser AND $getUser['user']->id == $user->id){
+				$priv_scope = true;
+				$logged_user = true;
+			}
+		}		
+		
+		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
+		if(!$getAddress OR ($getAddress->public == 0 AND !$priv_scope) OR ($getAddress->active_toggle == 0 AND !$logged_user)){
+			$output['error'] = 'Address details not found';
+			$output['result'] = false;
+			return Response::json($output, 404);
+		}
+				
+		$result = array();
+		$result['type'] = $getAddress->type;
+		$result['address'] = $getAddress->address;
+		$result['label'] = $getAddress->label;
+		$result['public'] = boolval($getAddress->public);
+		$result['active'] = boolval($getAddress->active_toggle);
+		$result['verified'] = boolval($getAddress->verified);
+		$result['balances'] = Address::getAddressBalances($getAddress->id, true);
+		if(!$result['verified']){
+			$result['verify_code'] = Address::getVerifyCode($getAddress);
+		}		
+		$output['result'] = $result;
+		
+		return Response::json($output);
+		
+	}
+	
+	public function registerAddress()
+	{
+		$output = array();
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+
+		$user = false;
+		if(isset($input['oauth_token'])){
+			$user = User::getByOAuth($input['oauth_token']);
+		}			
+				
+		if(!$user){
+			$output['error'] = 'Invalid user oauth token';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+		$user = $user['user'];
+		
+		//make sure user has authenticated with this application at least once
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$type = 'btc';
+		if(isset($input['type'])){
+			switch(strtolower($input['type'])){
+				case 'btc':
+				case 'bitcoin':
+					$type = 'btc';
+					break;
+				default:
+					$output['error'] = 'Invalid cryptocurrency type';
+					$output['result'] = false;
+					return Response::json($output, 400);
+			}
+		}
+		
+		if(!isset($input['address'])){
+			$output['error'] = $type.' address required';
+			$output['result'] = false;
+			return Response::json($output, 400);
+		}
+		
+		$address = trim($input['address']);
+		switch($type){
+			case 'btc':
+				//validate address
+				$xchain = app('Tokenly\XChainClient\Client');
+				$validate = $xchain->validateAddress($address);
+				if(!$validate OR !$validate['result']){
+					$output['error'] = 'Please enter a valid bitcoin address';
+					$output['result'] = false;
+					return Response::json($output, 400);					
+				}				
+				break;
+			
+		}
+		
+		$label = '';
+		if(isset($input['label'])){
+			$label = trim(htmlentities($input['label']));
+		}
+		
+		$public = 0;
+		if(isset($input['public']) AND intval($input['public']) == 1){
+			$public = 1;
+		}
+		
+		$active = 1;
+		if(isset($input['active']) AND intval($input['active']) == 0){
+			$active = 0;
+		}
+		
+		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
+		if($getAddress){
+			$output['error'] = 'Address already registered';
+			$output['result'] = false;
+			return Response::json($output, 400);	
+		}
+		
+		$new = new Address;
+		$new->user_id = $user->id;
+		$new->type = $type;
+		$new->address = $address;
+		$new->label = $label;
+		$new->public = $public;
+		$new->active_toggle = $active;
+		$save = $new->save();
+		
+		if(!$save){
+			$output['error'] = 'Error registering address';
+			$output['result'] = false;
+			return Response::json($output, 500);
+		}
+		
+		$result = array();
+		$result['type'] = $type;
+		$result['address'] = $address;
+		$result['label'] = $label;
+		$result['public'] = $public;
+		$result['active'] = $active;
+		$result['verify_code'] = Address::getVerifyCode($new);
+		$output['result'] = $result;
+		
+		return Response::json($output);
+	}
+	
+	public function editAddress($username, $address)
+	{
+		$output = array();
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+
+		$user = false;
+		if(isset($input['oauth_token'])){
+			$user = User::getByOAuth($input['oauth_token']);
+			if($user){
+				$user = $user['user'];
+			}
+		}			
+		$matchedUser = User::where('username', $username)->first();
+				
+		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
+			$output['error'] = 'Invalid user oauth token';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+
+		//make sure user has authenticated with this application at least once
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}	
+		
+		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
+		if(!$getAddress){
+			$output['error'] = 'Address not found';
+			$output['result'] = false;
+			return Response::json($output, 404);
+		}	
+		
+		if(isset($input['label'])){
+			$getAddress->label = trim(htmlentities($input['label']));
+		}
+		if(isset($input['public'])){
+			$public = intval($input['public']);
+			$getAddress->public = $public;
+		}
+		if(isset($input['active'])){
+			$active = intval($input['active']);
+			$getAddress->active_toggle = $active;
+		}
+		$save = $getAddress->save();
+		if(!$save){
+			$output['error'] = 'Error updating address';
+			$output['result'] = false;
+			return Response::json($output, 500);
+		}
+		
+		return $this->getAddressDetails($username, $address);
+	}
+	
+	public function deleteAddress($username, $address)
+	{
+		$output = array();
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+
+		$user = false;
+		if(isset($input['oauth_token'])){
+			$user = User::getByOAuth($input['oauth_token']);
+			if($user){
+				$user = $user['user'];
+			}
+		}			
+		$matchedUser = User::where('username', $username)->first();
+				
+		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
+			$output['error'] = 'Invalid user oauth token';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+
+		//make sure user has authenticated with this application at least once
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}	
+		
+		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
+		if(!$getAddress){
+			$output['error'] = 'Address not found';
+			$output['result'] = false;
+			return Response::json($output, 404);
+		}			
+		
+		$delete = $getAddress->delete();
+		if(!$delete){
+			$output['error'] = 'Error deleting address';
+			$output['result'] = false;
+			return Response::json($output, 500);
+		}
+		
+		$output['result'] = true;
+		return Response::json($output);
+	}
+	
+	
+	public function verifyAddress($username, $address)
+	{
+		$output = array();
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+
+		$user = false;
+		if(isset($input['oauth_token'])){
+			$user = User::getByOAuth($input['oauth_token']);
+			if($user){
+				$user = $user['user'];
+			}
+		}			
+		$matchedUser = User::where('username', $username)->first();
+				
+		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
+			$output['error'] = 'Invalid user oauth token';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+
+		//make sure user has authenticated with this application at least once
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}
+		
+		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
+		if(!$getAddress){
+			$output['error'] = 'Address not found';
+			$output['result'] = false;
+			return Response::json($output, 404);
+		}	
+		
+		if($getAddress->verified == 1){
+			$output['error'] = 'Address already verified';
+			$output['result'] = true;
+			return Response::json($output);
+		}
+		
+		if(!isset($input['signature'])){
+			$output['error'] = 'Verification signature required';
+			$output['result'] = false;
+			return Response::json($output, 400);
+		}			
+		
+		$verify_code = Address::getVerifyCode($getAddress);
+		
+		$sig = $this->extract_signature($input['signature']);
+		$xchain = app('Tokenly\XChainClient\Client');
+		
+		$verify_message = $xchain->verifyMessage($getAddress->address, $sig, $verify_code);
+		$verified = false;
+		if($verify_message AND $verify_message['result']){
+			$verified = true;
+		}
+		
+		if(!$verified){
+			$output['error'] = 'Invalid verification signature!';
+			$output['result'] = false;
+			return Response::json($output, 400);
+		}
+		
+		$getAddress->verified = 1;
+		$save = $getAddress->save();
+		if(!$save){
+			$output['error'] = 'Error updating address';
+			$output['result'] = false;
+			return Response::json($output, 500);
+		}
+		
+		$output['result'] = true;
+		return Response::json($output);
 	}
 	
 	public function checkAddressTokenAccess($address)
@@ -667,5 +1107,23 @@ class APIController extends Controller
 	    }
 	    return new JsonResponse(['message' => $message, 'errors' => $errors], 422);
 	}
+	
+	
+	protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
+	{
+		$inputMessage = trim($text);
+		if(strpos($inputMessage, $start) !== false){
+			//pgp style signed message format, extract the actual signature from it
+			$expMsg = explode("\n", $inputMessage);
+			foreach($expMsg as $k => $line){
+				if($line == $end){
+					if(isset($expMsg[$k-1])){
+						$inputMessage = trim($expMsg[$k-1]);
+					}
+				}
+			}
+		}
+		return $inputMessage;	
+	}	
 
 }
