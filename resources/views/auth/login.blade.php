@@ -45,6 +45,9 @@
 
 <div class="spacer4"></div>
 <p>Don't have an account yet?  <a href="/auth/register">Register</a></p>
+<p>
+	If you are using TOR and are having troubles logging in, make sure cookies are enabled (try temporarily disabling "always enable private browsing" in Privacy settings)
+</p>
 
 @endsection
 
