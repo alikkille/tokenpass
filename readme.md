@@ -154,9 +154,9 @@ else{
     * address (string
     * label (string)
     * public (boolean) 
-    * active (boolean) \*
-    * verified (boolean) \*
-    * verify_code (string) \*
+    * active (boolean) 
+    * verified (boolean) 
+    * verify_code (string) 
 * **Notes:** Registers a new bitcoin address in the system. An address must be verified via proof-of-ownership before it can be used for Token Controlled Access features.
 
 ---------------------------
