@@ -202,3 +202,26 @@ else{
 
 ---------------------------
 
+**Lookup Bitcoin Address by Username**
+
+* **Endpoint:** /api/v1/lookup/user/{username}
+* **Request Method:** GET
+* **Example URL:** https://accounts.tokenly.com/api/v1/lookup/user/cryptonaut?client_id={CLIENT_ID}
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (array)
+    * username (string)
+    * address (string)
+
+---------------------------
+
+**Lookup Username by Bitcoin Address
+
+* **Endpoint:** /api/v1/lookup/address/{address}
+* **Request Method:** GET
+* **Example URL:** https://accounts.tokenly.com/api/v1/lookup/address/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (array)
+    * username (string)
+    * address (string)
