@@ -215,7 +215,7 @@ else{
 
 ---------------------------
 
-**Lookup Username by Bitcoin Address
+**Lookup Username by Bitcoin Address**
 
 * **Endpoint:** /api/v1/lookup/address/{address}
 * **Request Method:** GET
