@@ -137,3 +137,5 @@ Route::get('api/v1/oauth/logout', array('as' => 'api.oauth.logout', 'uses' => 'A
 Route::patch('api/v1/update', array('as' => 'api.update-account', 'uses' => 'API\APIController@updateAccount'));
 Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIController@registerAccount'));
 Route::post('api/v1/login', array('as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword'));
+Route::get('api/v1/lookup/address/{address}', array('as' => 'api.lookup.address', 'uses' => 'API\APIController@lookupUserByAddress'));
+Route::get('api/v1/lookup/user/{username}', array('as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser'));

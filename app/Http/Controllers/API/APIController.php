@@ -1135,5 +1135,73 @@ class APIController extends Controller
 		}
 		return $inputMessage;	
 	}	
+	
+	public function lookupUserByAddress($address)
+	{
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+		}			
+		$get = Address::where('address', $address)
+			->where('public', 1)->where('active_toggle', 1)->where('verified', 1)->first();
+		if(!$get){
+			$output['error'] = 'User not found';
+			return Response::json($output, 404);
+		}
+		
+		$user = User::find($get->user_id);
+		
+		$result = array();
+		$result['username'] = $user->username;
+		$result['address'] = $get->address;
+		$output['result'] = $result;
+		return Response::json($output);
+	}
+	
+	public function lookupAddressByUser($username)
+	{
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+		}			
+		$get = User::where('username', $username)->first();
+		if(!$get){
+			$output['error'] = 'User not found';
+			return Response::json($output, 404);
+		}
+		
+		$addresses = Address::getAddressList($get->id, 1, 1, true);
+		if(!$addresses OR count($addresses) == 0){
+			$output['error'] = 'User not found'; //user is hidden
+			return Response::json($output, 404);
+		}
+		$result = array();
+		$result['username'] = $get->username;
+		$result['address'] = $addresses[0]->address;
+		$output['result'] = $result;
+		return Response::json($output);
+	}
 
 }
