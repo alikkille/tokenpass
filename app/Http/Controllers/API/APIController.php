@@ -360,14 +360,6 @@ class APIController extends Controller
 		}
 		$user = $user['user'];
 		
-		//make sure user has authenticated with this application at least once
-		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
-		if(!$find_connect OR count($find_connect) == 0){
-			$output['error'] = 'User has not authenticated yet with client application';
-			$output['result'] = false;
-			return Response::json($output, 403);
-		}		
-		
 		$type = 'btc';
 		if(isset($input['type'])){
 			switch(strtolower($input['type'])){
@@ -486,13 +478,6 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 
-		//make sure user has authenticated with this application at least once
-		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
-		if(!$find_connect OR count($find_connect) == 0){
-			$output['error'] = 'User has not authenticated yet with client application';
-			$output['result'] = false;
-			return Response::json($output, 403);
-		}	
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
@@ -556,14 +541,6 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 
-		//make sure user has authenticated with this application at least once
-		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
-		if(!$find_connect OR count($find_connect) == 0){
-			$output['error'] = 'User has not authenticated yet with client application';
-			$output['result'] = false;
-			return Response::json($output, 403);
-		}	
-		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
 			$output['error'] = 'Address not found';
@@ -617,13 +594,6 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 
-		//make sure user has authenticated with this application at least once
-		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
-		if(!$find_connect OR count($find_connect) == 0){
-			$output['error'] = 'User has not authenticated yet with client application';
-			$output['result'] = false;
-			return Response::json($output, 403);
-		}
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
