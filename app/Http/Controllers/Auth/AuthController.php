@@ -117,11 +117,7 @@ class AuthController extends Controller
         // throttle
         $this->incrementLoginAttempts($request);
 
-        return redirect($this->loginPath())
-            ->withInput($request->only($this->loginUsername(), 'remember'))
-            ->withErrors([
-                $this->loginUsername() => $login_error,
-            ]);
+        return $this->sendFailedLoginResponse($request);
     }
 
     // ------------------------------------------------------------------------
