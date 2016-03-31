@@ -3,8 +3,7 @@
 namespace TKAccounts\Http\Controllers\Auth;
 
 use Exception;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
@@ -39,8 +38,7 @@ class AuthController extends Controller
     use DispatchesJobs;
     use ThrottlesLogins;
 
-    use AuthenticatesUsers, RegistersUsers {
-        AuthenticatesUsers::redirectPath insteadof RegistersUsers;
+    use AuthenticatesAndRegistersUsers {
         handleUserWasAuthenticated as trait_handleUserWasAuthenticated;
     }
 
@@ -110,51 +108,15 @@ class AuthController extends Controller
         }
 
         $credentials = $this->getCredentials($request);
-		
-        $login_error = null;
-        $second_time = false;
-        while (true) {
-            // try authenticating with our local database
-            if (Auth::attempt($credentials, $request->has('remember'))) {
-				
-				//sync BTC addresses from their LTB account where possible - temporary
-				$this->syncCMSAccountData($credentials);
+        list($login_error, $was_logged_in) = $this->performLoginLogic($credentials, $request->has('remember'));
 
-				$user = Auth::user();
-				if($user){
-					UserMeta::setMeta($user->id, 'session_id', \Session::getId());
-				}
-				
-                return $this->handleUserWasAuthenticated($request, true);
-            }
-
-            if ($second_time) { break; }
-
-            // never try to import a CMS user if the username exists in our database
-            $existing_user = $user_repository->findBySlug(Util::slugify($this->username));
-            if ($existing_user) { break; }
-
-            // try importing a user with CMS credentials
-            try{
-				$imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
-			}
-			catch(\Exception $e){
-				$login_error = $e->getMessage();
-				$imported_new_account = false;
-			}
-            if (!$imported_new_account) {
-                break;
-            }
-
-            $second_time = true;
+        if ($was_logged_in) {
+            return $this->handleUserWasAuthenticated($request, true);
         }
 
         // throttle
         $this->incrementLoginAttempts($request);
 
-        // failed login
-        if ($login_error === null) { $login_error = $this->getFailedLoginMessage(); }
-                
         return redirect($this->loginPath())
             ->withInput($request->only($this->loginUsername(), 'remember'))
             ->withErrors([
@@ -162,6 +124,55 @@ class AuthController extends Controller
             ]);
     }
 
+    // ------------------------------------------------------------------------
+    
+    public function performLoginLogic($credentials, $remember) {
+        $login_error = null;
+        $second_time = false;
+        while (true) {
+            // try authenticating with our local database
+            if (Auth::attempt($credentials, $remember)) {
+                
+                // sync BTC addresses from their LTB account where possible - temporary
+                $this->syncCMSAccountData($credentials);
+
+                $user = Auth::user();
+                $session_id = \Session::getId();
+                if ($user AND $session_id) {
+                    UserMeta::setMeta($user->id, 'session_id', $session_id);
+                }
+                
+                return [null, true];
+            }
+
+            if ($second_time) { break; }
+
+            // never try to import a CMS user if the username exists in our database
+            $existing_user = $this->user_repository->findBySlug(Util::slugify($this->username));
+            if ($existing_user) { break; }
+
+            // try importing a user with CMS credentials
+            try{
+                $imported_new_account = $this->importCMSAccount($credentials['username'], $credentials['password']);
+            }
+            catch(\Exception $e){
+                $login_error = $e->getMessage();
+                $imported_new_account = false;
+            }
+            if (!$imported_new_account) {
+                break;
+            }
+
+            $second_time = true;
+        }
+
+        if ($login_error === null) { $login_error = $this->getFailedLoginMessage(); }
+
+        return [$login_error, false];
+    }
+
+    // ------------------------------------------------------------------------
+    
 
     public function getUpdate(Request $request)
     {

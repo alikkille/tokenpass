@@ -16,7 +16,7 @@ class CMSAuthServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->bindShared('TKAccounts\Providers\CMSAuth\CMSAccountLoader', function ($app) {
+        $this->app->singleton('TKAccounts\Providers\CMSAuth\CMSAccountLoader', function ($app) {
             return new CMSAccountLoader(env('CMS_ACCOUNTS_HOST'), env('ENABLE_CMS_ACCOUNT_LOOKUPS', true));
         });
     }
