@@ -280,6 +280,7 @@ class APIController extends Controller
 		$priv_scope = false;
 		$logged_user = false;
 		try{
+			$tca_scope = AuthClient::connectionHasScope($find_connect->id, 'tca');
 			$priv_scope = AuthClient::connectionHasScope($find_connect->id, 'private-address');
 		}
 		catch(\Exception $e){
@@ -293,6 +294,15 @@ class APIController extends Controller
 				$priv_scope = true;
 				$logged_user = true;
 			}
+		}
+		
+		if(!$logged_user){
+			//check for TCA scope as well of no oauth_token
+			if(!$tca_scope){
+				$output['error'] = 'User does not have TCA scope applied for this client application';
+				$output['result'] = false;
+				return Response::json($output, 403);
+			}			
 		}		
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
