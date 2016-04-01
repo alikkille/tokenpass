@@ -54,6 +54,7 @@
 						<td class="table-action">
 							@if($address->verified == 0)
 								<a href="#" class="btn btn-warning" title="Verify Address Ownership"  data-toggle="modal" data-target="#verify-address-modal-{{ $address->id }}"><i class="fa fa-check"></i> Verify</a>
+								<span id="{{ $address->address }}-verifycode" style="display: none;">{{ \TKAccounts\Models\Address::getVerifyCode($address) }}</span>
 								<!-- Modal -->
 								<div class="modal fade" id="verify-address-modal-{{ $address->id }}" tabindex="-1" role="dialog">
 								  <div class="modal-dialog" role="document">
