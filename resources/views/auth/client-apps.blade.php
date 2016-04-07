@@ -7,7 +7,7 @@
 	<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
 @endif	
 <p>
-	Here you can register new client Applications and obtain a pair of API keys for integration of Tokenly Accounts
+	Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
 	in your own website or service. 
 	Once you have your API keys, the <a href="https://github.com/tokenly/accounts-client" target="_blank">Accounts-Client</a>
 	PHP class can be used to integrate into your application. 

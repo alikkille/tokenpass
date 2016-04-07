@@ -3,11 +3,11 @@
 
 @section('body_content')
 
-<h1>Welcome to Tokenly Accounts</h1>
+<h1>Welcome to Tokenpass</h1>
 
 <div class="spacer1"></div>
 
-<p>Tokenly Accounts is where you register and login for Tokenly services such as Swapbot.</p>
+<p>Tokenpass is where you register and login for Tokenly services such as Swapbot.</p>
 
 
 <div class="spacer1"></div>

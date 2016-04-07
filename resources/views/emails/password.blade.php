@@ -7,7 +7,7 @@
         <h2>Reset Your Password</h2>
 
         <p>
-            Someone requested to reset the Tokenly Accounts password with this email address.  If this was not you, just ignore this message.
+            Someone requested to reset the Tokenpass password with this email address.  If this was not you, just ignore this message.
         </p>
 
         <p>

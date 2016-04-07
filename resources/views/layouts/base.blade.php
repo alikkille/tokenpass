@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset=utf-8 />
-    <title>@yield('htmltitle', 'Tokenly Accounts')</title>
+    <title>@yield('htmltitle', 'Tokenpass')</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="screen" href="/css/main.css" />
@@ -18,7 +18,7 @@
   <div class="container-fluid">
     <div class="navbar-header">
       <a class="navbar-brand" href="/">
-        Tokenly Accounts
+        Tokenpass
       </a>
     </div>
 
