@@ -2,7 +2,7 @@
 
 @section('body_content')
 
-<h1>Reset Your Tokenly Accounts Password</h1>
+<h1>Reset Your Tokenpass Password</h1>
 
 @include('partials.errors', ['errors' => $errors])
 

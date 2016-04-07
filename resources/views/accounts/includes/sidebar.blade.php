@@ -1,6 +1,6 @@
 <div class="panel panel-default">
   <div class="panel-body">
-    <h4>Tokenly Accounts</h4>
+    <h4>Tokenpass</h4>
     <div class="spacer1"></div>
     <ul class="accounts-menu">
         <li><a href="/dashboard"><i class="fa fa-home"></i> Accounts Home</a></li>

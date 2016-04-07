@@ -7,7 +7,7 @@
 <div class="spacer2"></div>
 
 @if ($connection_entries)
-    <h4>The following applications are authorized by Tokenly Accounts</h4>
+    <h4>The following applications are authorized by Tokenpass</h4>
     <ul class="list-group client-list">
     
     @foreach ($connection_entries as $entry)

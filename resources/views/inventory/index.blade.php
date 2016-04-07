@@ -66,7 +66,7 @@
 									  <form action="/inventory/address/{{ $address->address }}/verify" method="post">
 									  <div class="modal-body">
 										<p>
-											In order for Tokenly Accounts to track your address balances
+											In order for Tokenpass to track your address balances
 											and provide access to "Token Controlled Access" features, you must 
 											first prove ownership of this bitcoin address. 
 										</p>

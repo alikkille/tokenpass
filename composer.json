@@ -1,6 +1,6 @@
 {
     "name": "tokenly/accounts",
-    "description": "Tokenly Accounts and TCA provider.",
+    "description": "Tokenpass Authentication and TCA provider.",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "type": "project",
