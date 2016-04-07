@@ -11,6 +11,7 @@ cp -v .env.example .env
 echo; echo "compiling assets"
 DIR=`pwd`
 cd resources/assets;
+npm cache clean;
 npm install;
 ./node_modules/gulp/bin/gulp.js
 cd $DIR
