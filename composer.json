@@ -13,12 +13,13 @@
         "guzzlehttp/guzzle": "~6",
         "tokenly/consul-health-daemon": "dev-master",
 		"linusu/bitcoin-address-validator": "~0",
-		"tokenly/xchain-client": "@dev",
-		"tokenly/token-controlled-access": "dev-master"
+        "tokenly/token-controlled-access": "dev-master",
+        "tokenly/xchain-client": "^0.2.1",
+        "mockery/mockery": "^0.9",
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
-        "mockery/mockery": "0.9.*",
         "phpunit/phpunit": "~4.0",
         "phpspec/phpspec": "~2.1",
         "symfony/dom-crawler": "~3.0",
