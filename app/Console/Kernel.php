@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
         \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
         \TKAccounts\Console\Commands\ScanCoinAddresses::class,
 
+        // Migration commands
+        \TKAccounts\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
+
         \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,
     ];
 

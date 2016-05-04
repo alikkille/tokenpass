@@ -54,16 +54,16 @@ class SyncCMSAccount extends Command implements SelfHandling
 		}
 		foreach($address_list as $row){
 			if(!in_array($row['address'], $used)){
-				$address = new Address;
-				$address->user_id = $this->accounts_user->id;
-				$address->type = $row['type'];
-				$address->address = $row['address'];
-				$address->label = trim($row['label']);
-				$address->verified = $row['verified'];
-				$address->public = $row['public'];
-				$address->created_at = $row['submitDate'];
-				$address->updated_at = $stamp;
-				$address->save();
+                $address = app('TKAccounts\Repositories\AddressRepository')->create([
+                    'user_id'    => $this->accounts_user->id,
+                    'type'       => $row['type'],
+                    'address'    => $row['address'],
+                    'label'      => trim($row['label']),
+                    'verified'   => $row['verified'],
+                    'public'     => $row['public'],
+                    'created_at' => $row['submitDate'],
+                    'updated_at' => $stamp,
+                ]);
 			}
 			elseif(isset($used_rows[$row['address']])){
 				$used_row = $used_rows[$row['address']];

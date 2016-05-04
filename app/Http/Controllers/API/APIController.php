@@ -417,14 +417,14 @@ class APIController extends Controller
 			return Response::json($output, 400);	
 		}
 		
-		$new = new Address;
-		$new->user_id = $user->id;
-		$new->type = $type;
-		$new->address = $address;
-		$new->label = $label;
-		$new->public = $public;
-		$new->active_toggle = $active;
-		$save = $new->save();
+        $new = app('TKAccounts\Repositories\AddressRepository')->create([
+			'user_id'       => $user->id,
+			'type'          => $type,
+			'address'       => $address,
+			'label'         => $label,
+			'public'        => $public,
+			'active_toggle' => $active,
+    	]);
 		
 		if(!$save){
 			$output['error'] = 'Error registering address';

@@ -139,3 +139,10 @@ Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIC
 Route::post('api/v1/login', array('as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword'));
 Route::get('api/v1/lookup/address/{address}', array('as' => 'api.lookup.address', 'uses' => 'API\APIController@lookupUserByAddress'));
 Route::get('api/v1/lookup/user/{username}', array('as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser'));
+
+
+// ------------------------------------------------------------------------
+// XChain Receiver
+
+// webhook notifications
+$router->post('/_xchain_client_receive', 'WebhookController@receive');
