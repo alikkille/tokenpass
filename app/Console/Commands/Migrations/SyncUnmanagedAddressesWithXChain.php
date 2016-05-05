@@ -82,7 +82,7 @@ class SyncUnmanagedAddressesWithXChain extends Command {
             throw $e;
         }
 
-        $this->comment('Done. Archived '.$archived_count.' events.');
+        $this->comment('Done. synced '.$count.' addresses.');
     }
 
 }
