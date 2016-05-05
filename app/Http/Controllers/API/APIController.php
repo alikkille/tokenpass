@@ -1241,6 +1241,7 @@ class APIController extends Controller
 		}
 		
 		UserMeta::setMeta($user->id, 'force_inventory_page_refresh', 1);
+		UserMeta::setMeta($user->id, 'inventory_refresh_message', 'Address '.$address->address.' registered and verified!');
 		$output['result'] = true;
 		
 		return Response::json($output);

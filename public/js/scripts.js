@@ -50,4 +50,18 @@ $(document).ready(function(){
 			return true;
 		});
 	});
+    
+    window.inventory_refresh_check = false;
+    $('.btn.instant-address').click(function(e){
+        if(!window.inventory_refresh_check){
+            window.inventory_refresh_check = setInterval(function(){
+                var url = '/inventory/check-refresh';
+                $.get(url, function(data){
+                    if(data.result){
+                        location.reload();
+                    }
+                });
+            }, 5000);
+        }
+    });
 });

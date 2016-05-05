@@ -339,5 +339,24 @@ class InventoryController extends Controller
 		}
 		return $inputMessage;	
 	}
+    
+    public function checkPageRefresh()
+    {
+        $output = array('result' => false);
+        $user = Auth::user();
+        if(!$user){
+             return Response::json($output, 404);
+        }
+        
+        $check_refresh = intval(UserMeta::getMeta($user->id, 'force_inventory_page_refresh'));
+        if($check_refresh === 1){
+            $output['result'] = true;
+            UserMeta::setMeta($user->id, 'force_inventory_page_refresh', 0);
+            $refresh_message = UserMeta::getMeta($user->id, 'inventory_refresh_message');
+			Session::flash('message', $refresh_message);
+			Session::flash('message-class', 'alert-success');
+        }
+        return Response::json($output);
+    }
 
 }
