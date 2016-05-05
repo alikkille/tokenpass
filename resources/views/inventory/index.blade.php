@@ -157,6 +157,7 @@
 	</p>
 	<p>
 		<a href="#" class="btn btn-success new-address btn-lg" data-toggle="modal" data-target="#new-address-modal"><i class="fa fa-plus"></i> Register Address</a>
+		<a href="#" class="btn btn-info instant-address btn-lg" data-toggle="modal" data-target="#instant-address-modal"><i class="fa fa-plus"></i> Register With Mobile <i class="fa fa-mobile-phone"></i> </a>
 	</p>
 	<div class="clear"></div>
 	<!-- Modal -->
@@ -198,6 +199,37 @@
 		</div>
 	  </div>
 	</div>
+	<!-- instant address modal -->
+	<div class="modal fade" id="instant-address-modal" tabindex="-1" role="dialog">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h3 class="modal-title" id="myModalLabel">Register Bitcoin Address With Mobile Device</h3>
+		  </div>
+		  
+		  <div class="modal-body">
+			<p>
+				If you are using a bitcoin wallet on your mobile device (e.g <a href="https://wallet.indiesquare.me/" target="_blank">IndieSquareWallet</a>) which
+				supports <strong>Tokenpass Instant Address Verification</strong>, you may scan the 
+				<strong>QR code</strong> below to register and 
+				verify ownership of your bitcoin address in a single step.
+			</p>
+			<p class="text-center">
+				<?php
+				$verify_message = \TKAccounts\Models\Address::getInstantVerifyMessage($user);
+				?>
+				<span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
+					<?php echo QrCode::size(200)->generate(route('api.instant-verify', 'cryptonaut').'?msg='.$verify_message) ?>
+				</span>
+			</p>
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  </div>
+		</div>
+	  </div>
+	</div>	
 	@if($addresses AND count($addresses) > 0)
 	<hr>
 	<h3>My Tokens</h3>
