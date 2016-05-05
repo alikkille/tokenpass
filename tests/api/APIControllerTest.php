@@ -118,6 +118,72 @@ class APIControllerTest extends TestCase {
         $json_data = json_decode($response->getContent(), true);
         PHPUnit::assertFalse($json_data['result']);
     }
+    
+    public function testInstantVerifyAddressAPI()
+    {
+        // create a user
+        $user_helper = $this->buildUserHelper();
+        $user = $user_helper->createNewUser();
+        
+        $user->uuid = '1234567890'; 
+        $user->save(); //set a predictable uuid so we can test with a premade signature
+        
+        $new_address = '1GGsaA2kBEUW1HRc5KvMnzEKpmHbQqzcmP';
+        $address_sig = 'IHnyXpEMX+Dhu/em3SYEC+pLZPQYI1EblsjIGpPEVy2SmPJ1p6CBDvy71llh6lYMt5SxTx51SOImSpIp1PQoGUI=';
+        $sig_message = Address::getInstantVerifyMessage($user);
+
+        //test with a bogus user
+        $route = route('api.instant-verify', 123123);
+        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);
+        
+        //test with no address
+        $route = route('api.instant-verify', $user->username); //set proper route
+        $query_params = ['msg' => $sig_message, 'sig' => $address_sig];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);
+        
+        //test with missing input
+        $query_params = ['sig' => $address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);        
+        
+        //test with wrong message
+        $query_params = ['msg' => 'qwerty', 'sig' => $address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);        
+        
+        //test with wrong signature
+        $query_params = ['msg' => $sig_message, 'sig' => '123456', 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']); 
+        
+        //test with wrong address
+        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => '123456'];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);
+        
+        //test with all correct info
+        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertTrue($json_data['result']);        
+        
+    }
 
 
     ////////////////////////////////////////////////////////////////////////
