@@ -34,6 +34,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('scanCoinAddresses')->everyThirtyMinutes();
+        // $schedule->command('scanCoinAddresses')->everyThirtyMinutes();
     }
 }
