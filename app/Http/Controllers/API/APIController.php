@@ -1174,7 +1174,7 @@ class APIController extends Controller
 		return Response::json($output);
 	}
 	
-	public function instantVerifyAddress($username, $verify_address)
+	public function instantVerifyAddress($username)
 	{
 		$output = array();
 		$output['result'] = false;
@@ -1186,8 +1186,15 @@ class APIController extends Controller
 			return Response::json($output, 404);
 		}
 		
+		//check they included an address
+		$verify_address = Input::get('address');
+		if(!$verify_address OR trim($verify_address) == ''){
+			$output['error'] = 'Address required'; 
+			return Response::json($output, 400);
+		}
+		
 		//get the message needed to verify and check inputs
-		$verify_message = Address::getInstantVerifyMessage($user, $verify_address);
+		$verify_message = Address::getInstantVerifyMessage($user);
 		$input_sig = Input::get('sig');
 		$input_message = Input::get('msg');
 		if(!$input_sig OR trim($input_sig) == ''){

@@ -236,9 +236,9 @@ class Address extends Model
         return true;
     }
 
-	public static function getInstantVerifyMessage($user, $address)
+	public static function getInstantVerifyMessage($user)
 	{
-		$message = hash('sha256', $user->uuid.'_'.$address);
+		$message = hash('sha256', $user->uuid);
 		return $message;
 	}
 	
