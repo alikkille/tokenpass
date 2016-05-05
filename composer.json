@@ -16,7 +16,8 @@
         "tokenly/token-controlled-access": "dev-master",
         "tokenly/xchain-client": "^0.2.4",
         "mockery/mockery": "^0.9",
-        "doctrine/dbal": "^2.5"
+        "doctrine/dbal": "^2.5",
+        "simplesoftwareio/simple-qrcode": "^1.4"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
