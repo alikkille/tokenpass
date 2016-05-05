@@ -1223,17 +1223,19 @@ class APIController extends Controller
 		$address = Address::where('user_id', $user->id)->where('address', $verify_address)->first();
 		if(!$address){
 			//register new address
-			$address = new Address;
-			$address->user_id = $user->id;
-			$address->type = 'btc';
-			$address->address = $verify_address;
-			$address->verified = 1;
-			$save = $address->save();
+			$address = app('TKAccounts\Repositories\AddressRepository')->create([
+				'user_id'  => $user->id,
+				'type'     => 'btc',
+				'address'  => $verify_address,
+				'verified' => 1,
+			]);
+			$save = ($address ? true : false);
 		}
 		else{
 			//verify existing address
-			$address->verified = 1;
-			$save = $address->save();
+			$save = app('TKAccounts\Repositories\AddressRepository')->update($address, [
+				'verified' => true,
+			]);
 		}
 		if(!$save){
 			$output['error'] = 'Error saving address';
