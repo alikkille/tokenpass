@@ -145,6 +145,7 @@ return [
          */
         LucaDegasperi\OAuth2Server\Storage\FluentStorageServiceProvider::class,
         LucaDegasperi\OAuth2Server\OAuth2ServerServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
         Tokenly\ConsulHealthDaemon\ServiceProvider\ConsulHealthDaemonServiceProvider::class,
         Tokenly\XChainClient\XChainServiceProvider::class,
         Tokenly\LaravelEventLog\EventLogServiceProvider::class,
@@ -158,7 +159,6 @@ return [
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
         TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
         
-        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
     ],
 

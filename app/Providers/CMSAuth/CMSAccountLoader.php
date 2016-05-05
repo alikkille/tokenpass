@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Providers\CMSAuth\CMSException;
 use TKAccounts\Providers\CMSAuth\Util;
+use GuzzleHttp\Psr7\Request;
 
 class CMSAccountLoader {
 
@@ -110,19 +111,19 @@ class CMSAccountLoader {
 
     protected function fetchFromAPI($method, $path, $parameters=[]) {
         $api_path = $this->base_path.'/'.ltrim($path, '/');
-        $client = new GuzzleClient(['base_uri' => $this->cms_accounts_url]);
-
+		$client = new GuzzleClient(array('base_uri', $this->cms_accounts_url));
+		$request = new Request($method, $this->cms_accounts_url.$api_path);
         if ($method == 'GET') {
             $data = ['query' => $parameters];
 
         } else {
-            $data = ['body' => $parameters];
+            $data = ['form_params' => $parameters];
         }
-		
+		$method = strtolower($method);
         // send request
         try {
-			$request = $client->request($method, $api_path, $data);
-        } catch (RequestException $e) {
+			$response = $client->send($request, $data);
+        } catch (Exception $e) {
             if ($response = $e->getResponse()) {
                 // interpret the response and error message
                 $code = $response->getStatusCode();
@@ -143,9 +144,7 @@ class CMSAccountLoader {
             // if no response, then just throw the original exception
             throw $e;
         }
-		
-		
-        json_decode($response->getBody(), true);
+        $json = json_decode($response->getBody(), true);
         if (!is_array($json)) { throw new Exception("Unexpected response", 1); }
 
         if ($json and isset($json['error'])) {
