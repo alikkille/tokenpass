@@ -71,31 +71,12 @@ class SyncUnmanagedAddressesWithXChain extends Command {
     {
         try {
             // get all addresses
-            foreach (app('TKAccounts\Repositories\AddressRepository')->findAll() as $address) {
-                
+            $all_addresses = app('TKAccounts\Repositories\AddressRepository')->findAll();
+            $count = $all_addresses->count();
+            foreach ($all_addresses as $offset => $address) {
+                $this->info('Syncing address '.$address['address'].' ('.($offset+1).' of '.$count.')');
+                $address->syncWithXChain();
             }
-
-
-            // get a single swap and process it
-            $event_name = $this->argument('event-name');
-            $limit = $this->option('limit');
-            if ($limit !== null) { $limit = intval($limit); }
-            $this->comment("Archiving events with name: $event_name".($limit ? " (limit $limit)" : ''));
-
-            $archived_count = 0;
-            DB::transaction(function() use ($event_name, $limit, &$archived_count) {
-                $bot_event_repository = app('Swapbot\Repositories\BotEventRepository');
-                foreach ($bot_event_repository->slowFindByEventName($event_name, $limit) as $bot_event_model) {
-                    // archive the event
-                    $bot_event_repository->archive($bot_event_model);
-                    ++$archived_count;
-
-                    if ($limit !== null AND $archived_count >= $limit) {
-                        break;
-                    }
-                }
-            });
-
         } catch (Exception $e) {
             $this->error('Error: '.$e->getMessage());
             throw $e;
