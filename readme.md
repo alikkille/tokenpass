@@ -242,7 +242,7 @@ else{
 * **Returns:**
   * result (boolean)
 * **Notes:** Scanning the QR code on the Tokenpass inventory page gives you the full endpoint URL including the ```msg``` variable. Simply append the ```address``` and ```sig``` parameters to this URL and then make a POST request to it to complete verification. The user's web browser will automatically refresh upon completion to reflect the registration.
-* 
+* The ```msg``` variable can be obtained in two other ways besides QR code. 1)  (for browser extensions) The HTML element surrounding the QR image on the Token Inventory page has the id ```#instant-address-qr```, which contains the attribute ```data-verify-message```. 2) If a Tokenpass user has authenticated with your app, ```msg``` is just a sha256 hash of the users' ```uuid``` 
 
 ---------------------------
 
