@@ -1173,5 +1173,70 @@ class APIController extends Controller
 		$output['result'] = $result;
 		return Response::json($output);
 	}
+	
+	public function instantVerifyAddress($username, $verify_address)
+	{
+		$output = array();
+		$output['result'] = false;
+		
+		//find user
+		$user = User::where('username', $username)->first();
+		if(!$user){
+			$output['error'] = 'User not found'; 
+			return Response::json($output, 404);
+		}
+		
+		//get the message needed to verify and check inputs
+		$verify_message = Address::getInstantVerifyMessage($user, $verify_address);
+		$input_sig = Input::get('sig');
+		$input_message = Input::get('msg');
+		if(!$input_sig OR trim($input_sig) == ''){
+			$output['error'] = 'sig required';
+			return Response::json($output, 400);
+		}
+		if(!$input_message OR $input_message != $verify_message){
+			$output['error'] = 'msg invalid';
+			return Response::json($output, 400);
+		}
+		
+		//verify signed message on xchain
+		$xchain = app('Tokenly\XChainClient\Client');
+		try{
+			$verify = $xchain->verifyMessage($verify_address, $input_sig, $verify_message);
+		}
+		catch(Exception $e){
+			$verify = false;
+		}
+		if(!$verify OR !isset($verify['result']) OR !$verify['result']){
+			$output['error'] = 'signature invalid';
+			return Response::json($output, 400);
+		}
+		
+		//check to see if this address exists on their account
+		$address = Address::where('user_id', $user->id)->where('address', $verify_address)->first();
+		if(!$address){
+			//register new address
+			$address = new Address;
+			$address->user_id = $user->id;
+			$address->type = 'btc';
+			$address->address = $verify_address;
+			$address->verified = 1;
+			$save = $address->save();
+		}
+		else{
+			//verify existing address
+			$address->verified = 1;
+			$save = $address->save();
+		}
+		if(!$save){
+			$output['error'] = 'Error saving address';
+			return Response::json($output, 500);
+		}
+		
+		UserMeta::setMeta($user->id, 'force_inventory_page_refresh', 1);
+		$output['result'] = true;
+		
+		return Response::json($output);
+	}
 
 }
