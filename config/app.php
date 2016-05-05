@@ -157,6 +157,8 @@ return [
         TKAccounts\Providers\RouteServiceProvider::class,
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
         TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
+        
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
     ],
 
@@ -210,6 +212,7 @@ return [
         'Html'       => Illuminate\Html\HtmlFacade::class,
 
         'Authorizer' => LucaDegasperi\OAuth2Server\Facades\Authorizer::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
 
     ],
 

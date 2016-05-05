@@ -60,6 +60,7 @@ Route::post('inventory/address/{address}/verify', 'Inventory\InventoryController
 Route::post('inventory/address/{address}/toggle', 'Inventory\InventoryController@toggleAddress');
 Route::get('inventory/address/{address}/delete', 'Inventory\InventoryController@deleteAddress');
 Route::get('inventory/refresh', 'Inventory\InventoryController@refreshBalances');
+Route::get('inventory/check-refresh', 'Inventory\InventoryController@checkPageRefresh');
 Route::post('inventory/asset/{asset}/toggle', 'Inventory\InventoryController@toggleAsset');
 
 //client applications / API keys
@@ -139,7 +140,7 @@ Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIC
 Route::post('api/v1/login', array('as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword'));
 Route::get('api/v1/lookup/address/{address}', array('as' => 'api.lookup.address', 'uses' => 'API\APIController@lookupUserByAddress'));
 Route::get('api/v1/lookup/user/{username}', array('as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser'));
-
+Route::post('api/v1/instant-verify/{username}', array('as' => 'api.instant-verify', 'uses' => 'API\APIController@instantVerifyAddress'));
 
 // ------------------------------------------------------------------------
 // XChain Receiver
