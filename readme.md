@@ -225,3 +225,24 @@ else{
   * result (array)
     * username (string)
     * address (string)
+
+
+---------------------------
+
+**Instant Address Registration + Verification**
+
+* **Endpoint:** /api/v1/instant-verify/{username}
+* **Request Method:** POST
+* **Example URL:** https://accounts.tokenly.com/api/v1/instant-verify/cryptonaut?msg={MSG}&address={BITCOIN_ADDRESS}&sig={SIGNATURE}
+* **Authentication:** None needed
+* **URL Paremeters:** 
+  * msg - secret verification message, obtained from QR code on Tokenpass inventory page
+  * address - the bitcoin address you want to register/verify
+  * sig - signature of the secret message
+* **Returns:**
+  * result (boolean)
+* **Notes:** Scanning the QR code on the Tokenpass inventory page gives you the full endpoint URL including the ```msg``` variable. Simply append the ```address``` and ```sig``` parameters to this URL and then make a POST request to it to complete verification. The user's web browser will automatically refresh upon completion to reflect the registration.
+* 
+
+---------------------------
+
