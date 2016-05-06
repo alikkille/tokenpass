@@ -124,7 +124,9 @@ class APIControllerTest extends TestCase {
         // create a user
         $user_helper = $this->buildUserHelper();
         $user = $user_helper->createNewUser();
-        $mock = app('Tokenly\XChainClient\Mock\MockBuilder')->installXChainMockClient($this);
+        $mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
+        $mock_builder->setBalances(['BTC' => 0.123]);
+        $mock = $mock_builder->installXChainMockClient($this);
         
         $user->uuid = '1234567890'; 
         $user->save(); //set a predictable uuid so we can test with a premade signature
