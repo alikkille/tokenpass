@@ -638,6 +638,9 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 500);
 		}
+
+        // make sure to sync the new address with any xchain balances
+        $getAddress->syncWithXChain();
 		
 		$output['result'] = true;
 		return Response::json($output);
@@ -1241,6 +1244,12 @@ class APIController extends Controller
 			$output['error'] = 'Error saving address';
 			return Response::json($output, 500);
 		}
+
+        if ($address['verified']) {
+            // make sure to sync the new address with any xchain balances
+            $address->syncWithXChain();
+        }
+
 		
 		UserMeta::setMeta($user->id, 'force_inventory_page_refresh', 1);
 		UserMeta::setMeta($user->id, 'inventory_refresh_message', 'Address '.$address->address.' registered and verified!');

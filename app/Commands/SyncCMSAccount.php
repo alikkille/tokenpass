@@ -64,6 +64,11 @@ class SyncCMSAccount extends Command implements SelfHandling
                     'created_at' => $row['submitDate'],
                     'updated_at' => $stamp,
                 ]);
+
+                if ($address['verified']) {
+                    // make sure to sync the new address with any xchain balances
+                    $address->syncWithXChain();
+                }
 			}
 			elseif(isset($used_rows[$row['address']])){
 				$used_row = $used_rows[$row['address']];
