@@ -146,4 +146,4 @@ Route::post('api/v1/instant-verify/{username}', array('as' => 'api.instant-verif
 // XChain Receiver
 
 // webhook notifications
-$router->post('/_xchain_client_receive', 'XChain\WebhookController@receive');
+$router->post('/_xchain_client_receive', 'XChain\XChainWebhookController@receive');
