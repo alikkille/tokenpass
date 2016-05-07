@@ -2940,15 +2940,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/consul-health-daemon.git",
-                "reference": "6fafc6f789c7ee739281dcca41a47ed14b6d830d"
+                "reference": "d066e16fc3ecc92bf85bef1f93abb493235de2e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/consul-health-daemon/zipball/6fafc6f789c7ee739281dcca41a47ed14b6d830d",
-                "reference": "6fafc6f789c7ee739281dcca41a47ed14b6d830d",
+                "url": "https://api.github.com/repos/tokenly/consul-health-daemon/zipball/d066e16fc3ecc92bf85bef1f93abb493235de2e3",
+                "reference": "d066e16fc3ecc92bf85bef1f93abb493235de2e3",
                 "shasum": ""
             },
             "require": {
+                "guzzlehttp/guzzle": "~5|~6",
                 "php": ">=5.5.0"
             },
             "require-dev": {
@@ -2956,8 +2957,8 @@
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Tokenly\\ConsulHealthDaemon": "src"
+                "psr-4": {
+                    "Tokenly\\ConsulHealthDaemon\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -2972,7 +2973,7 @@
                 }
             ],
             "description": "A library to monitor services health and report to consul",
-            "time": "2016-03-04 14:45:44"
+            "time": "2016-05-07 17:06:25"
         },
         {
             "name": "tokenly/hmac-auth",

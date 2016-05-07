@@ -13,7 +13,8 @@ class Address extends Model
     protected $table = 'coin_addresses';
     public $timestamps = true;
 
-    protected $fillable = ['user_id', 'type', 'address', 'label', 'verified', 'public', 'active_toggle', 'send_monitor_id', 'receive_monitor_id', 'xchain_address_id', ];
+    // protected $fillable = ['user_id', 'type', 'address', 'label', 'verified', 'public', 'active_toggle', 'send_monitor_id', 'receive_monitor_id', 'xchain_address_id', ];
+    protected static $unguarded = true;
 
 
     protected $casts = [

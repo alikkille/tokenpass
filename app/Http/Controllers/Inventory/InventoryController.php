@@ -119,6 +119,9 @@ class InventoryController extends Controller
 			Session::flash('message-class', 'alert-danger');
 			return redirect('inventory');
 		}
+
+		// sync with XChain
+        $new_address->syncWithXChain();
 		
 		Session::flash('message', 'Bitcoin address registered!');
 		Session::flash('message-class', 'alert-success');
