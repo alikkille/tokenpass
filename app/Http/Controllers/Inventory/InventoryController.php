@@ -104,7 +104,7 @@ class InventoryController extends Controller
 		}
 		
 		//register address
-		app('TKAccounts\Repositories\AddressRepository')->create([
+		$new_address = app('TKAccounts\Repositories\AddressRepository')->create([
 			'user_id'  => $this->user->id,
 			'type'     => 'btc',
 			'address'  => $address,
@@ -112,6 +112,7 @@ class InventoryController extends Controller
 			'verified' => 0,
 			'public'   => $public,
 		]);
+		$save = (!!$new_address);
 		
 		if(!$save){
 			Session::flash('message', 'Error saving address');
