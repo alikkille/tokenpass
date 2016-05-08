@@ -426,7 +426,7 @@ class APIController extends Controller
 			'active_toggle' => $active,
     	]);
 		
-		if(!$save){
+		if(!$new){
 			$output['error'] = 'Error registering address';
 			$output['result'] = false;
 			return Response::json($output, 500);
