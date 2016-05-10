@@ -1138,6 +1138,7 @@ class APIController extends Controller
 		$result = array();
 		$result['username'] = $user->username;
 		$result['address'] = $get->address;
+        $result['email'] = $user->email;
 		$output['result'] = $result;
 		return Response::json($output);
 	}
@@ -1173,6 +1174,7 @@ class APIController extends Controller
 		$result = array();
 		$result['username'] = $get->username;
 		$result['address'] = $addresses[0]->address;
+        $result['email'] = $get->email;
 		$output['result'] = $result;
 		return Response::json($output);
 	}
