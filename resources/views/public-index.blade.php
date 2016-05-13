@@ -14,6 +14,7 @@
 
 <p>If you have a <a href="https://letstalkbitcoin.com">Let's Talk Bitcoin</a> account with, then you can create a Tokenly Account immediately by logging in with your existing login and password.</p>
 <a href="/auth/login" class="btn btn-primary">Login</a>
+<a href="/auth/bitcoin" class="btn btn-primary">Bitcoin Login</a>
 
 
 <div class="spacer2"></div>

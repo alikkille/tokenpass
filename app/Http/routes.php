@@ -25,6 +25,10 @@ Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
 Route::get('auth/logout', 'Auth\AuthController@getLogout');
 
+// Bitcoin Authentication routes...
+Route::get('auth/bitcoin', 'Auth\AuthController@getBitcoinLogin');
+Route::post('auth/bitcoin', 'Auth\AuthController@postBitcoinLogin');
+
 // Registration routes...
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');

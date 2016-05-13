@@ -56,6 +56,21 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
     public function emailIsConfirmed() {
         return ($this['confirmed_email'] == $this['email']);
     }
+
+    public static function getByVerifiedAddress($data)
+    {
+
+        $get_user = DB::table('users')
+            ->join('coin_addresses', 'coin_addresses.user_id', '=', 'users.id')
+            ->where('coin_addresses.address', '=', $data->request->get('address'))
+            ->where('coin_addresses.verified', '=', 1)
+            ->first();
+
+        if(!$get_user) {
+            return false;
+        }
+        return $get_user;
+    }
     
     public static function getByOAuth($token)
     {

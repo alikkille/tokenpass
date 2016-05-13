@@ -8,14 +8,19 @@ use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Input;
 use InvalidArgumentException;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Http\Controllers\Inventory\InventoryController;
+use TKAccounts\Models\Address;
 use TKAccounts\Models\User;
 use TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\Util;
@@ -254,6 +259,75 @@ class AuthController extends Controller
             throw new HttpResponseException($this->buildFailedValidationResponse($request, [0 => $e->getMessage()]));
         }
 
+    }
+
+    public function getBitcoinLogin(Request $request) {
+
+        // Generate message for signing and flash for POST results
+        $sigval = substr( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ,mt_rand( 0 ,51 ) ,1 ) .substr( md5( time() ), 1);
+        $request->session()->flash('sigval', $sigval);
+
+        return view('auth.bitcoin', ['sigval' => $sigval]);
+    }
+
+    public function postBitcoinLogin(Request $request) {
+        $data = [
+            'sigval'  => $request->session()->get('sigval'),
+            'address' => $request->request->get('address'),
+            'sig'     => $request->request->get('sig')];
+
+        if($this->verifySigniture($data)) {
+            try {
+                $result = User::getByVerifiedAddress($request);
+            } catch(Exception $e) {
+                return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+                ]);
+            }
+        }
+        if(isset($result) && !false) {
+            try {
+                Auth::loginUsingId($result->user_id);
+            } catch (Exception $e)
+            {
+                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+            }
+
+            return view('accounts/dashboard', [
+                'user' => Auth::user(),
+            ]);
+        } else {
+            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+            ]);
+        }
+    }
+
+    protected function verifySigniture($data) {
+        $sig = $this->extract_signature($data['sig']);
+        $xchain = app('Tokenly\XChainClient\Client');
+
+        $verify_message = $xchain->verifyMessage($data['address'], $sig, $data['sigval']);
+        if($verify_message AND $verify_message['result']){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
+    {
+        $inputMessage = trim($text);
+        if(strpos($inputMessage, $start) !== false){
+            //pgp style signed message format, extract the actual signature from it
+            $expMsg = explode("\n", $inputMessage);
+            foreach($expMsg as $k => $line){
+                if($line == $end){
+                    if(isset($expMsg[$k-1])){
+                        $inputMessage = trim($expMsg[$k-1]);
+                    }
+                }
+            }
+        }
+        return $inputMessage;
     }
 
     protected function handleUserWasAuthenticated(Request $request, $throttles) {
