@@ -1126,20 +1126,64 @@ class APIController extends Controller
 			$output['error'] = 'Invalid API client ID';
 			return Response::json($output, 403);
 		}			
-		$get = Address::where('address', $address)
-			->where('public', 1)->where('active_toggle', 1)->where('verified', 1)->first();
-		if(!$get){
-			$output['error'] = 'User not found';
-			return Response::json($output, 404);
-		}
-		
-		$user = User::find($get->user_id);
-		
-		$result = array();
-		$result['username'] = $user->username;
-		$result['address'] = $get->address;
-        $result['email'] = $user->email;
-		$output['result'] = $result;
+        
+        if(isset($input['address_list']) AND is_array($input['address_list'])){
+            //lookup multiple users at once
+            $get = Address::select('address', 'user_id', 'public', 'active_toggle', 'verified')->whereIn('address', $input['address_list'])->get();
+            if($get){
+                $user_ids = array();
+                foreach($get as $k => $row){
+                    if($row->public == 1 AND $row->verified == 1 AND $row->active_toggle == 1 ){
+                        if(!in_array($row->user_id, $user_ids)){
+                            $user_ids[] = $row->user_id;
+                        }
+                    }
+                    else{
+                        unset($get[$k]);
+                        continue;
+                    }
+                }
+                $output['users'] = array();
+                $get_users = User::select('id', 'username', 'email')->whereIn('id', $user_ids)->get();
+                if($get_users){
+                    foreach($get as $row){
+                        foreach($get_users as $user){
+                            if($user->id == $row->user_id){
+                                $output['users'][$row->address] = 
+                                    array('username' => $user->username, 'address' => $row->address,
+                                          'email' => $user->email
+                                         );
+                                continue 2;
+                            }
+                        }
+                    }
+                }
+                if(count($output['users']) > 0){
+                    $output['result'] = true;
+                }
+            }
+        }
+        else{
+            //lookup single address/user
+            $get = Address::where('address', $address)->first();
+            if($get){
+                if($get->public == 0 OR $get->active_toggle == 0 OR $get->verified == 0){
+                    $get = false;
+                }
+            }
+            if(!$get){
+                $output['error'] = 'User not found';
+                return Response::json($output, 404);
+            }
+            
+            $user = User::find($get->user_id);
+            
+            $result = array();
+            $result['username'] = $user->username;
+            $result['address'] = $get->address;
+            $result['email'] = $user->email;
+            $output['result'] = $result;
+        }
 		return Response::json($output);
 	}
 	
