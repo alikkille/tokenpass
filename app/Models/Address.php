@@ -162,12 +162,12 @@ class Address extends Model
                 throw $e;
             }
 
-            // $table->string('xchain_address_id', 36)->unique()->nullable();
-            // $table->string('receive_monitor_id', 36)->unique()->nullable();
-            // $table->string('send_monitor_id', 36)->unique()->nullable();
-
             // create an xchain send monitor
-            $webhook_endpoint = env('SITE_HOST').env('XCHAIN_CALLBACK_URL');
+            $webhook_endpoint = route('xchain.receive');
+            if(env('XCHAIN_CALLBACK_USE_NONCE') == 'true'){
+                $webhook_endpoint .= '?nonce='.env('XCHAIN_CALLBACK_NONCE');
+            }
+
             try {
                 $result = $xchain->newAddressMonitor($this['address'], $webhook_endpoint, 'send', true);
                 $send_monitor_id = $result['id'];
