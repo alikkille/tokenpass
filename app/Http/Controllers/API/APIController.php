@@ -52,6 +52,11 @@ class APIController extends Controller
 		}
 		$client_id = $input['client_id'];
 		unset($input['client_id']);
+        
+        $include_provisional = true;
+        if(isset($input['no_provisional']) AND !$input['no_provisional']){
+            $include_provisional = false;
+        }
 		
 		$getUser = User::where('username', $username)->first();
 		if(!$getUser){
@@ -137,7 +142,7 @@ class APIController extends Controller
 				}
 				$full_stack[] = $stack_item;
 			}
-			$balances = Address::getAllUserBalances($getUser->id, true);
+			$balances = Address::getAllUserBalances($getUser->id, true, $include_provisional);
 			$output['result'] = $tca->checkAccess($full_stack, $balances);
 		}
 		return Response::json($output, $http_code);
