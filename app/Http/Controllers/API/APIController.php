@@ -1303,5 +1303,123 @@ class APIController extends Controller
 		
 		return Response::json($output);
 	}
+    
+    public function registerProvisionalTCASourceAddress()
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        //check inputs
+        if(!isset($input['address'])){
+            $output['error'] = 'Address required';
+            return Response::json($output, 400);
+        }
+        
+        if(!isset($input['proof'])){
+            $output['error'] = 'Proof required';
+            return Response::json($output, 400);
+        }        
+
+		//verify signed message on xchain
+        $sig_message = $input['address'].'_'.$input['client_id'];
+		$xchain = app('Tokenly\XChainClient\Client');
+		try{
+			$verify = $xchain->verifyMessage($input['address'], $input['proof'], $sig_message);
+		}
+		catch(Exception $e){
+			$verify = false;
+		}
+		if(!$verify OR !isset($verify['result']) OR !$verify['result']){
+			$output['error'] = 'Proof signature invalid';
+			return Response::json($output, 400);
+		}
+        
+        $asset_list = null;
+        if(isset($input['assets'])){
+            if(!is_array($input['assets']) AND !is_object($input['assets'])){
+                $input['assets'] = explode(',', $input['assets']);
+            }
+            $asset_list = json_encode($input['assets']);
+        }
+        
+        $get = DB::table('provisional_tca_addresses')
+                ->where('address', $input['address'])->where('client_id', $input['client_id'])
+                ->first();
+                
+        $time = date('Y-m-d H:i:s');       
+        if(!$get){
+            //add new entry
+            $data = array('address' => $input['address'], 'proof' => $input['proof'], 
+                          'client_id' => $input['client_id'], 'assets' => $asset_list,
+                          'created_at' => $time, 'updated_at' => $time);
+            $update = DB::table('provisional_tca_addresses')->insert($data);
+        }
+        else{
+            //update entry
+            $data = array('proof' => $input['proof'], 'assets' => $asset_list, 'updated_at' => $time);
+            $update = DB::table('provisional_tca_addresses')->where('id', $get->id)->update($data);
+        }
+        
+        if(!$update){
+			$output['error'] = 'Error registering provisional TCA address';
+			return Response::json($output, 500);
+        }
+        
+        $output['result'] = true;
+        
+        return Response::json($output);
+    }
+    
+    public function deleteProvisionalTCASourceAddress($address)
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        $get = DB::table('provisional_tca_addresses')
+                ->where('client_id', $input['client_id'])->where('address', $address)->first();
+        
+        if(!$get){
+            $output['error'] = 'Provisional source address not found';
+            return Response::json($output, 404);
+        }
+        
+        $delete = DB::table('provisional_tca_addresses')->where('id', $get->id)->delete();
+        
+        if(!$delete){
+            $output['error'] = 'Error deleting provisional source address';
+            return Response::json($output, 500);
+        }
+        
+        $output['result'] = true;
+        return Response::json($output);
+    }
 
 }
