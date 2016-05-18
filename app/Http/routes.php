@@ -136,6 +136,7 @@ Route::post('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.
 Route::patch('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.edit', 'uses' => 'API\APIController@editAddress'));
 Route::delete('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.delete', 'uses' => 'API\APIController@deleteAddress'));
 Route::post('api/v1/tca/addresses', array('as' => 'api.tca.addresses.new', 'uses' => 'API\APIController@registerAddress'));
+Route::get('api/v1/tca/provisional', array('as' => 'api.tca.provisional.list', 'uses' => 'API\APIController@getProvisionalTCASourceAddressList'));
 Route::post('api/v1/tca/provisional', array('as' => 'api.tca.provisional.register', 'uses' => 'API\APIController@registerProvisionalTCASourceAddress'));
 Route::delete('api/v1/tca/provisional/{address}', array('as' => 'api.tca.provisional.delete', 'uses' => 'API\APIController@deleteProvisionalTCASourceAddress'));
 Route::post('api/v1/oauth/request', array('as' => 'api.oauth.request', 'uses' => 'API\APIController@requestOAuth', 'middleware' => ['check-authorization-params']));

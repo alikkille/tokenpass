@@ -1421,5 +1421,36 @@ class APIController extends Controller
         $output['result'] = true;
         return Response::json($output);
     }
+    
+    public function getProvisionalTCASourceAddressList()
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        $list = DB::table('provisional_tca_addresses')->where('client_id', $input['client_id'])->get();
+        
+        $output['list'] = array();
+        $output['result'] = true;
+        if($list){
+            foreach($list as $item){
+                $output['list'][] = array('address' => $item->address, 'assets' => json_decode($item->assets, true));
+            }
+        }
+        return Response::json($output);
+    }
 
 }
