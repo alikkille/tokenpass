@@ -3,10 +3,12 @@
 namespace TKAccounts\Handlers\XChain;
 
 use Exception;
+use DB;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Repositories\AddressRepository;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\Client as XChainClient;
+use TKAccounts\Models\Address;
 
 /**
  * This is invoked when a new block is received
@@ -37,6 +39,9 @@ class XChainTransactionHandler {
             $address = $this->address_repository->findByReceiveMonitorID($payload['notifiedAddressId']);
         }
         if (!$address) { throw new Exception("Unable to find address", 1); }
+        
+        //see if this is an existing provisional tx 
+        $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->first();        
 
         // sync new balance from xchain if this has 2 or more confirmations
         if ($payload['confirmations'] >= self::MINIMUM_CONFIRMATIONS) {
@@ -47,6 +52,55 @@ class XChainTransactionHandler {
             } catch (Exception $e) {
                 $error_data = [];
                 EventLog::logError('address.sync.failed', $e, ['id' => $address['id'], 'address' => $address['address']]);
+            }
+            
+            if($find_prov_tx){
+                //remove provisional tx from system
+                DB::table('provisional_tca_txs')->where('id', $find_prov_tx->id)->delete();
+            }
+        }
+        else{
+            //check to see if this is coming from a provisional TCA source address
+            if(!$find_prov_tx){ //if provisional tx not already added
+                //get list of source addresses
+                $payload_addresses = array();
+                foreach($payload['bitcoinTx']['vin'] as $vin){
+                    if(!in_array($vin['addr'], $payload_addresses)){
+                        $payload_addresses[] = $vin['addr'];
+                    }
+                }
+                //look for matches
+                $find_provisional = DB::table('provisional_tca_addresses')
+                                    ->whereIn('address', $payload_addresses)->get();
+                if($find_provisional){
+                    $valid_provisional = false;
+                    foreach($find_provisional as $prov_address){
+                        //make sure asset is valid
+                        if($prov_address->assets == null){
+                            $valid_provisional = true;
+                        }
+                        else{
+                            $assets = json_decode($prov_address->assets, true);
+                            if(in_array($payload['asset'], $assets)){
+                                $valid_provisional = true;
+                            }
+                        }
+                    }
+                    if($valid_provisional){
+                        //add provisional tx
+                        $time = date('Y-m-d H:i:s');
+                        $tx_data = array();
+                        $tx_data['source'] = $payload_addresses[0];
+                        $tx_data['destination'] = $payload['destinations'][0];
+                        $tx_data['asset'] = $payload['asset'];
+                        $tx_data['fingerprint'] = $payload['transactionFingerprint'];
+                        $tx_data['txid'] = $payload['txid'];
+                        $tx_data['quantity'] = $payload['quantitySat'];
+                        $tx_data['created_at'] = $time;
+                        $tx_data['updated_at'] = $time;
+                        $insert = DB::table('provisional_tca_txs')->insert($tx_data);
+                    }
+                }
             }
         }
 
