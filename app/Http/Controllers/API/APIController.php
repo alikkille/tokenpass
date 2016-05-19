@@ -17,6 +17,7 @@ use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
+use TKAccounts\Models\Provisional;
 use Tokenly\TCA\Access;
 
 class APIController extends Controller
@@ -1340,7 +1341,7 @@ class APIController extends Controller
         }        
 
 		//verify signed message on xchain
-        $sig_message = $input['address'].'_'.$input['client_id'];
+        $sig_message = Provisional::getProofMessage($input['address'], $input['client_id']);
 		$xchain = app('Tokenly\XChainClient\Client');
 		try{
 			$verify = $xchain->verifyMessage($input['address'], $input['proof'], $sig_message);
