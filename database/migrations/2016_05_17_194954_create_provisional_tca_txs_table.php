@@ -21,9 +21,9 @@ class CreateProvisionalTcaTxsTable extends Migration
             $table->index('destination');
             $table->string('asset');
             $table->bigInteger('quantity');
-            $table->string('fingerprint');
+            $table->string('fingerprint')->nullable();
             $table->index('fingerprint');
-            $table->string('txid');
+            $table->string('txid')->nullable();
             $table->index('txid');
             $table->timestamps();
         });
