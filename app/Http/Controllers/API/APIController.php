@@ -1449,11 +1449,12 @@ class APIController extends Controller
         
         $list = DB::table('provisional_tca_addresses')->where('client_id', $input['client_id'])->get();
         
-        $output['list'] = array();
+        $output['proof_suffix'] = Provisional::getProofMessage(null, $input['client_id']);
+        $output['whitelist'] = array();
         $output['result'] = true;
         if($list){
             foreach($list as $item){
-                $output['list'][] = array('address' => $item->address, 'assets' => json_decode($item->assets, true));
+                $output['whitelist'][] = array('address' => $item->address, 'assets' => json_decode($item->assets, true));
             }
         }
         return Response::json($output);
