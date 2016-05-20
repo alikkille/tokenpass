@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         \TKAccounts\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
         \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
         \TKAccounts\Console\Commands\ScanCoinAddresses::class,
+        \TKAccounts\Console\Commands\ExpireProvisionalTransactions::class,
 
         // Migration commands
         \TKAccounts\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
@@ -35,5 +36,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('scanCoinAddresses')->everyThirtyMinutes();
+        $schedule->command('tokenpass:expireProvisionalTransactions')->everyFiveMinutes();
     }
 }
