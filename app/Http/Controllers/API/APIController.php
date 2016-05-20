@@ -1781,4 +1781,39 @@ class APIController extends Controller
         return Response::json($output);
     }    
     
+    public function getProvisionalTCATransactionList()
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        $get_promises = DB::table('provisional_tca_txs')->where('client_id', $valid_client->id)->get();
+        $output['list'] = array();
+        if($get_promises){
+            foreach($get_promises as $promise){
+                $promise = (array)$promise;
+                $promise['promise_id'] = $promise['id'];
+                unset($promise['id']);
+                unset($promise['client_id']);
+                $output['list'][] = $promise;
+            }
+            $output['result'] = true;
+        }
+        
+        return Response::json($output);
+    }
+    
 }
