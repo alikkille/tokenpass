@@ -41,7 +41,7 @@ class XChainTransactionHandler {
         if (!$address) { throw new Exception("Unable to find address", 1); }
         
         //see if this is an existing provisional tx 
-        $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->first();        
+        $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->orWhere('txid', $payload['txid'])->first();        
 
         // sync new balance from xchain if this has 2 or more confirmations
         if ($payload['confirmations'] >= self::MINIMUM_CONFIRMATIONS) {
