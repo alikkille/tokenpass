@@ -1606,7 +1606,10 @@ class APIController extends Controller
         $tx_data['updated_at'] = $date;
         $tx_data['pseudo'] = 0; //implement pseudo-tokens later
         
-        $insert = DB::table('provisional_tca_txs')->insertGetId($tx_data);
+        $insert_data = $tx_data;
+        $insert_data['client_id'] = $valid_client->id;
+
+        $insert = DB::table('provisional_tca_txs')->insertGetId($insert_data);
         if(!$insert){
             $output['error'] = 'Error saving provisional transaction';
             return Response::json($output, 500);
@@ -1619,5 +1622,5 @@ class APIController extends Controller
         $output['tx'] = $tx_data;
         return Response::json($output);
     }
-
+    
 }
