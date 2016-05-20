@@ -23,7 +23,7 @@ class XChainTransactionHandler {
     }
 
     public function handleTransaction($payload) {
-        Log::debug("\$payload=".json_encode($payload, 192));
+        // Log::debug("\$payload=".json_encode($payload, 192));
         EventLog::log('transaction.'.$payload['event'].'.received', $payload, ['network', 'confirmations', 'quantity', 'asset', 'sources', 'destinations']);
 
         switch ($payload['event']) {
@@ -38,7 +38,10 @@ class XChainTransactionHandler {
         } else {
             $address = $this->address_repository->findByReceiveMonitorID($payload['notifiedAddressId']);
         }
-        if (!$address) { throw new Exception("Unable to find address", 1); }
+        if (!$address) {
+            EventLog::warning('address.notFound', $payload, ['network', 'event', 'notifiedAddressId']);
+            return;
+        }
         
         //see if this is an existing provisional tx 
         $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->orWhere('txid', $payload['txid'])->first();        
