@@ -1459,5 +1459,165 @@ class APIController extends Controller
         }
         return Response::json($output);
     }
+    
+    public function registerProvisionalTCATransaction()
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        //check basic required fields
+        $req = array('source', 'destination', 'asset', 'quantity', 'expiration');
+        foreach($req as $required){
+            if(!isset($input[$required]) OR trim($input[$required]) == ''){
+                $output['error'] = $required.' required';
+                return Response::json($output, 400);
+            }
+        }
+        
+        //make sure this is a already whitelisted source address
+        $get_source = DB::table('provisional_tca_addresses')
+                        ->where('address', $input['source'])
+                        ->where('client_id', $input['client_id'])->first();
+        
+        if(!$get_source){
+            $output['error'] = 'Source address not on provisional whitelist';
+            return Response::json($output, 400);
+        }
+        
+        //check if whitelisted source address is resricted to specific assets
+        if(trim($get_source->assets) != ''){
+            $valid_assets = json_decode($get_source->assets, true);
+            if(!in_array($input['asset'], $valid_assets)){
+                $output['error'] = 'Asset not allowed for this provisional source address. Allowed: '.join(', ',$valid_assets);
+                return Response::json($output, 400);
+            }
+        }
+        
+        //check txid/fingerprint, and make sure same one isn't submitted
+        $txid = null;
+        $fingerprint = null;
+        $ref = null;
+        $get_existing = DB::table('provisional_tca_txs');
+        $check_exist = false;
+        if(isset($input['txid']) AND trim($input['txid']) != ''){
+            $get_existing = $get_existing->where('txid', $input['txid']);
+            $txid = $input['txid'];
+            $check_exist = true;
+        }
+        if(isset($input['fingerprint']) AND trim($input['fingerprint']) != ''){
+            $get_existing = $get_existing->where('fingerprint', $input['fingerprint']);
+            $fingerprint = $input['fingerprint'];
+            $check_exist = true;
+        }
+        if(isset($input['ref']) AND trim($input['ref']) != ''){
+            $ref = $input['ref'];
+        }
+        if($check_exist){
+            $get_existing = $get_existing->first();
+            if($get_existing){
+                $output['error'] = 'Provisional transaction with matching txid or fingerprint already exists';
+                return Response::json($output, 400);
+            }
+        }
+        
+        
+        //check valid quantity
+        $quantity = intval($input['quantity']);
+        if($quantity <= 0){
+            $output['error'] = 'Invalid quantity, must be > 0';
+            return Response::json($output, 400);
+        }
+        
+        //check valid expiration
+        $time = time();
+        if(!is_int($input['expiration'])){
+            $input['expiration'] = strtotime($input['expiration']);
+        }
+        
+        if($input['expiration'] <= $time){
+            $output['error'] = 'Invalid expiration, must be set to the future';
+            return Response::json($output, 400);
+        }
+        
+        //make sure the source address has sufficient balance to cover all its token promises
+        $xchain = app('Tokenly\XChainClient\Client');
+        $balances = false;
+        try{
+            $balances = $xchain->getBalances($input['source'], true);
+        }
+        catch(Exception $e){
+            $output['error'] = 'Error checking source address balances';
+            return Response::json($output, 500);
+        }
+        
+        if(!$balances){
+            $output['error'] = 'Could not get balances for source address';
+            return Response::json($output, 500);
+        }
+        
+        $total_promised = $quantity;
+        $other_promises = DB::table('provisional_tca_txs')->where('source', $input['source'])->get();
+        if($other_promises){
+            foreach($other_promises as $promise){
+                $total_promised += $promise->quantity;
+            }
+        }
+        
+        $valid_balance = false;
+        $balance = 0;
+        if(isset($balances[$input['asset']])){
+            $balance = $balances[$input['asset']];
+        }
+        if($balance >= $total_promised){
+            $valid_balance = true;
+        }        
+
+        if(!$valid_balance){
+            $output['error'] = 'Source address has insufficient asset balance to promise this transaction ('.round($total_promised/100000000,8).' '.$input['asset'].' promised and only balance of '.round($balance/100000000,8).')';
+            return Response::json($output, 400);
+        }
+        
+        //setup the actual provisional transaction
+        $date = date('Y-m-d H:i:s');
+        $tx_data = array();
+        $tx_data['source'] = $input['source'];
+        $tx_data['destination'] = $input['destination'];
+        $tx_data['asset'] = $input['asset'];
+        $tx_data['quantity'] = $quantity;
+        $tx_data['fingerprint'] = $fingerprint;
+        $tx_data['txid'] = $txid;
+        $tx_data['ref'] = $ref;
+        $tx_data['expiration'] = $input['expiration'];
+        $tx_data['created_at'] = $date;
+        $tx_data['updated_at'] = $date;
+        $tx_data['pseudo'] = 0; //implement pseudo-tokens later
+        
+        $insert = DB::table('provisional_tca_txs')->insertGetId($tx_data);
+        if(!$insert){
+            $output['error'] = 'Error saving provisional transaction';
+            return Response::json($output, 500);
+        }
+        
+        $tx_data['promise_id'] = $insert;
+        
+        //output result
+        $output['result'] = true;
+        $output['tx'] = $tx_data;
+        return Response::json($output);
+    }
 
 }
