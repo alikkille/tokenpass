@@ -8,7 +8,6 @@
 <div class="modal-dialog" role="document">
 <div class="modal-content">
   <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <h3 class="modal-title" id="myModalLabel">Verify Bitcoin Address Ownership</h3>
   </div>
 
@@ -42,7 +41,7 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <a href="/auth/login" class="btn btn-primary">Standard Login</a>
     <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Verify</button>
   </div>
   </form>
