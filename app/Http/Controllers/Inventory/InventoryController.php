@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\UserMeta;
+use TKAccounts\Models\Provisional;
 use Input, \Exception, Session, Response;
 
 class InventoryController extends Controller
@@ -31,7 +32,7 @@ class InventoryController extends Controller
 		
 		$balance_addresses = array();
 		foreach($addresses as $address){
-			$bals = Address::getAddressBalances($address->id);
+			$bals = Address::getAddressBalances($address->id, false, false);
 			if(!$bals OR count($bals) == 0){
 				continue;
 			}
@@ -42,10 +43,20 @@ class InventoryController extends Controller
 				if(!isset($balance_addresses[$asset])){
 					$balance_addresses[$asset] = array();
 				}
-				$balance_addresses[$asset][$address->address] = $amnt;
+				$balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array());
 			}
+            $promises = Provisional::getAddressPromises($address->address);
+            foreach($promises as $promise){
+				if(!isset($balance_addresses[$promise->asset])){
+					$balance_addresses[$promise->asset] = array();
+				}  
+                if(!isset($balance_addresses[$promise->asset][$address->address])){
+                    $balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array());
+                }
+                $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
+            }
 		}
-		
+
 		return view('inventory.index', array(
 			'addresses' => $addresses,
 			'balances' => $balances,

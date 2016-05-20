@@ -57,6 +57,12 @@ class Provisional
         return $output;
     }
     
+    public static function getAddressPromises($address)
+    {
+        $get = DB::table('provisional_tca_txs')->where('destination', $address)->where('pseudo', 0)->get();
+        return $get;
+    }
+    
     
     
 }
