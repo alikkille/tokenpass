@@ -1554,40 +1554,17 @@ class APIController extends Controller
         }
         
         //make sure the source address has sufficient balance to cover all its token promises
-        $xchain = app('Tokenly\XChainClient\Client');
-        $balances = false;
         try{
-            $balances = $xchain->getBalances($input['source'], true);
+            $total_promised = Provisional::getTotalPromised($input['source'], $input['asset'], $quantity);
+            $valid_balance = Provisional::checkValidPromisedAmount($input['source'], $input['asset'], $total_promised);
         }
         catch(Exception $e){
-            $output['error'] = 'Error checking source address balances';
+            $output['error'] = $e->getMessage();
             return Response::json($output, 500);
         }
-        
-        if(!$balances){
-            $output['error'] = 'Could not get balances for source address';
-            return Response::json($output, 500);
-        }
-        
-        $total_promised = $quantity;
-        $other_promises = DB::table('provisional_tca_txs')->where('source', $input['source'])->get();
-        if($other_promises){
-            foreach($other_promises as $promise){
-                $total_promised += $promise->quantity;
-            }
-        }
-        
-        $valid_balance = false;
-        $balance = 0;
-        if(isset($balances[$input['asset']])){
-            $balance = $balances[$input['asset']];
-        }
-        if($balance >= $total_promised){
-            $valid_balance = true;
-        }        
 
-        if(!$valid_balance){
-            $output['error'] = 'Source address has insufficient asset balance to promise this transaction ('.round($total_promised/100000000,8).' '.$input['asset'].' promised and only balance of '.round($balance/100000000,8).')';
+        if(!$valid_balance['valid']){
+            $output['error'] = 'Source address has insufficient asset balance to promise this transaction ('.round($total_promised/100000000,8).' '.$input['asset'].' promised and only balance of '.round($valid_balance['balance']/100000000,8).')';
             return Response::json($output, 400);
         }
         
@@ -1622,5 +1599,186 @@ class APIController extends Controller
         $output['tx'] = $tx_data;
         return Response::json($output);
     }
+    
+    public function getProvisionalTCATransaction($id)
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        //get tx
+        $query = DB::table('provisional_tca_txs')->where('id', $id)->orWhere('txid', $id)->orWhere('fingerprint', $id);
+        $get = $query->first();
+        if(!$get){
+            $output['error'] = 'Provisional tx not found';
+            return Response::json($output, 404);
+        }
+        
+        if($get->client_id != $valid_client->id){
+            $output['error'] = 'Cannot look at provisional tx that does not belong to you';
+            return Response::json($output, 400);
+        }
+        
+        $get = (array)$get;
+        unset($get['client_id']);
+        $get['promise_id'] = $get['id'];
+        unset($get['id']);
+        $output['tx'] = $get;
+        $output['result'] = true;
+        return Response::json($output);
+    }      
+    
+    public function updateProvisionalTCATransaction($id)
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        //get tx
+        $query = DB::table('provisional_tca_txs')->where('id', $id)->orWhere('txid', $id)->orWhere('fingerprint', $id);
+        $get = $query->first();
+        if(!$get){
+            $output['error'] = 'Provisional tx not found';
+            return Response::json($output, 404);
+        }
+        
+        if($get->client_id != $valid_client->id){
+            $output['error'] = 'Cannot update provisional tx that does not belong to you';
+            return Response::json($output, 400);
+        }
+        
+        //get data to update
+        $update_data = array();
+        if(isset($input['expiration'])){
+            $time = time();
+            if(!is_int($input['expiration'])){
+                $input['expiration'] = strtotime($input['expiration']);
+            }
+            if($input['expiration'] <= $time){
+                $output['error'] = 'New expiration must be sometime in the future';
+                return Response::json($output, 400);
+            }
+            $update_data['expiration'] = $input['expiration'];
+        }
+        
+        if(isset($input['txid'])){
+            $update_data['txid'] = $input['txid'];
+        }
+        
+        if(isset($input['fingerprint'])){
+            $update_data['fingerprint'] = $input['fingerprint'];
+        }
+        
+        if(isset($input['ref'])){
+            $update_data['ref'] = $input['ref'];
+        }
+        
+        if(isset($input['quantity'])){
+            //make sure they still have enough balance
+            $quantity = intval($input['quantity']);
+            if($quantity <= 0){
+                $output['error'] = 'Invalid quantity, must be > 0';
+                return Response::json($output, 400);
+            }
+            try{
+                $total_promised = Provisional::getTotalPromised($get->source, $get->asset, $quantity, $get->id);
+                $valid_balance = Provisional::checkValidPromisedAmount($get->source, $get->asset, $total_promised);
+            }
+            catch(Exception $e){
+                $output['error'] = $e->getMessage();
+                return Response::json($output, 500);
+            }
+
+            if(!$valid_balance['valid']){
+                $output['error'] = 'Source address has insufficient asset balance to promise this transaction ('.round($total_promised/100000000,8).' '.$get->asset.' promised and only balance of '.round($valid_balance['balance']/100000000,8).')';
+                return Response::json($output, 400);
+            }
+            $update_data['quantity'] = $quantity;            
+        }
+        
+        if(count($update_data) == 0){
+            $output['error'] = 'Nothing to update';
+            return Response::json($output, 400);
+        }
+        $update_data['updated_at'] = date('Y-m-d H:i:s');
+        
+        $update = DB::table('provisional_tca_txs')->where('id', $get->id)->update($update_data);
+        
+        if(!$update){
+            $output['error'] = 'Error updating provisional transaction';
+            return Response::json($output, 500);
+        }
+        
+        return $this->getProvisionalTCATransaction($get->id);
+    }              
+    
+    public function deleteProvisionalTCATransaction($id)
+    {
+		$output = array();
+		$output['result'] = false;
+		$input = Input::all();
+        
+		//check if a valid application client_id
+		$valid_client = false;
+		if(isset($input['client_id'])){
+			$get_client = AuthClient::find(trim($input['client_id']));
+			if($get_client){
+				$valid_client = $get_client;
+			}
+		}
+		if(!$valid_client){
+			$output['error'] = 'Invalid API client ID';
+			return Response::json($output, 403);
+        }
+        
+        //get tx
+        $query = DB::table('provisional_tca_txs')->where('id', $id)->orWhere('txid', $id)->orWhere('fingerprint', $id);
+        $get = $query->first();
+        if(!$get){
+            $output['error'] = 'Provisional tx not found';
+            return Response::json($output, 404);
+        }
+        
+        if($get->client_id != $valid_client->id){
+            $output['error'] = 'Cannot delete provisional tx that does not belong to you';
+            return Response::json($output, 400);
+        }
+        
+        //perform deletion
+        $delete = $query->delete();
+        if(!$delete){
+            $output['error'] = 'Error deleting provisional tx';
+            return Response::json($output, 500);
+        }
+        
+        $output['result'] = true;
+        return Response::json($output);
+    }    
     
 }
