@@ -74,6 +74,7 @@ class XChainTransactionHandler {
                                     ->whereIn('address', $payload_addresses)->get();
                 if($find_provisional){
                     $valid_provisional = false;
+                    $provisional_client = null;
                     foreach($find_provisional as $prov_address){
                         //make sure asset is valid
                         if($prov_address->assets == null){
@@ -85,6 +86,7 @@ class XChainTransactionHandler {
                                 $valid_provisional = true;
                             }
                         }
+                        $provisional_client = $prov_address->client_id;
                     }
                     if($valid_provisional){
                         //add provisional tx
@@ -98,6 +100,7 @@ class XChainTransactionHandler {
                         $tx_data['quantity'] = $payload['quantitySat'];
                         $tx_data['created_at'] = $time;
                         $tx_data['updated_at'] = $time;
+                        $tx_data['client_id'] = $provisional_client;
                         $insert = DB::table('provisional_tca_txs')->insert($tx_data);
                     }
                 }
