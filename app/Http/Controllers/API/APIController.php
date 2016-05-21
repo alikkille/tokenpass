@@ -1454,7 +1454,7 @@ class APIController extends Controller
         $output['result'] = true;
         if($list){
             foreach($list as $item){
-                $output['whitelist'][] = array('address' => $item->address, 'assets' => json_decode($item->assets, true));
+                $output['whitelist'][$item->address] = array('address' => $item->address, 'assets' => json_decode($item->assets, true));
             }
         }
         return Response::json($output);
@@ -1713,7 +1713,7 @@ class APIController extends Controller
         $old_tx = false;
         if(isset($input['txid'])){
             $update_data['txid'] = $input['txid'];
-            $old_tx = DB::table('provisional_tca_tx')
+            $old_tx = DB::table('provisional_tca_txs')
                         ->where('txid', $input['txid'])
                         ->where('client_id', $valid_client->id)->first();
         }
@@ -1721,7 +1721,7 @@ class APIController extends Controller
         if(isset($input['fingerprint'])){
             $update_data['fingerprint'] = $input['fingerprint'];
             if(!$old_tx){
-                $old_tx = DB::table('provisional_tca_tx')
+                $old_tx = DB::table('provisional_tca_txs')
                             ->where('fingerprint', $input['fingerprint'])
                             ->where('client_id', $valid_client->id)->first();                
             }
