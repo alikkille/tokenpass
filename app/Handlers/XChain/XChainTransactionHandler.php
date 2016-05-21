@@ -3,12 +3,12 @@
 namespace TKAccounts\Handlers\XChain;
 
 use Exception;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use TKAccounts\Models\Address;
 use TKAccounts\Repositories\AddressRepository;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\Client as XChainClient;
-use TKAccounts\Models\Address;
 
 /**
  * This is invoked when a new block is received
