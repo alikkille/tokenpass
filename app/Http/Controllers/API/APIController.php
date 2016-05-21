@@ -1686,19 +1686,7 @@ class APIController extends Controller
             }
             $update_data['expiration'] = $input['expiration'];
         }
-        
-        if(isset($input['txid'])){
-            $update_data['txid'] = $input['txid'];
-        }
-        
-        if(isset($input['fingerprint'])){
-            $update_data['fingerprint'] = $input['fingerprint'];
-        }
-        
-        if(isset($input['ref'])){
-            $update_data['ref'] = $input['ref'];
-        }
-        
+                
         if(isset($input['quantity'])){
             //make sure they still have enough balance
             $quantity = intval($input['quantity']);
@@ -1721,6 +1709,36 @@ class APIController extends Controller
             }
             $update_data['quantity'] = $quantity;            
         }
+        
+        $old_tx = false;
+        if(isset($input['txid'])){
+            $update_data['txid'] = $input['txid'];
+            $old_tx = DB::table('provisional_tca_tx')
+                        ->where('txid', $input['txid'])
+                        ->where('client_id', $valid_client->id)->first();
+        }
+        
+        if(isset($input['fingerprint'])){
+            $update_data['fingerprint'] = $input['fingerprint'];
+            if(!$old_tx){
+                $old_tx = DB::table('provisional_tca_tx')
+                            ->where('fingerprint', $input['fingerprint'])
+                            ->where('client_id', $valid_client->id)->first();                
+            }
+        }
+        
+        if($old_tx AND $old_tx->id != $get->id){
+            //edge case where manually submitting provisional tx,
+            //then submitting transaction to network before updating manual promise may cause some overlap
+            //assume previous tx is the real one (from xchain notification), delete it but keep quantity
+            $update_data['quantity'] = $old_tx->quantity;
+            DB::table('provisional_tca_tx')->where('id', $old_tx->id)->delete();
+        }
+        
+        if(isset($input['ref'])){
+            $update_data['ref'] = $input['ref'];
+        }        
+        
         
         if(count($update_data) == 0){
             $output['error'] = 'Nothing to update';
