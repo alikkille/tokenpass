@@ -66,12 +66,8 @@ class XChainTransactionHandler {
             //check to see if this is coming from a provisional TCA source address
             if(!$find_prov_tx AND !$is_send){ //if provisional tx not already added
                 //get list of source addresses
-                $payload_addresses = array();
-                foreach($payload['bitcoinTx']['vin'] as $vin){
-                    if(!in_array($vin['addr'], $payload_addresses)){
-                        $payload_addresses[] = $vin['addr'];
-                    }
-                }
+                $payload_addresses = $payload['sources'];
+
                 //look for matches
                 $find_provisional = DB::table('provisional_tca_addresses')
                                     ->whereIn('address', $payload_addresses)->get();
