@@ -24,7 +24,7 @@ class XChainTransactionHandler {
 
     public function handleTransaction($payload) {
         // Log::debug("\$payload=".json_encode($payload, 192));
-        EventLog::log('transaction.'.$payload['event'].'.received', $payload, ['network', 'confirmations', 'quantity', 'asset', 'sources', 'destinations']);
+        //EventLog::log('transaction.'.$payload['event'].'.received', $payload, ['network', 'confirmations', 'quantity', 'asset', 'sources', 'destinations']);
 
         switch ($payload['event']) {
             case 'send': $is_send = true; break;
@@ -101,6 +101,7 @@ class XChainTransactionHandler {
                         $tx_data['updated_at'] = $time;
                         $tx_data['client_id'] = $provisional_client;
                         $insert = DB::table('provisional_tca_txs')->insert($tx_data);
+                        EventLog::log('transaction.provisional.received', $tx_data);
                     }
                 }
             }
