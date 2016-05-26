@@ -1210,6 +1210,14 @@ class APIController extends Controller
 			$output['error'] = 'msg invalid';
 			return Response::json($output, 400);
 		}
+
+        //verify address is already not in use
+        $address = Input::get('address');
+        $existing_addresses = Address::where('address', $address)->get();
+            if (!empty($existing_addresses[0])) {
+                $output['error'] = 'Address already authenticated';
+                return Response::json($output, '400');
+        }
 		
 		//verify signed message on xchain
 		$xchain = app('Tokenly\XChainClient\Client');
