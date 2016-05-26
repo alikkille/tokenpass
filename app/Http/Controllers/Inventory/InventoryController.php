@@ -28,7 +28,7 @@ class InventoryController extends Controller
 		$addresses = Address::getAddressList($this->user->id, null, null);
 		$balances = Address::getAllUserBalances($this->user->id);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
-		
+
 		$balance_addresses = array();
 		foreach($addresses as $address){
 			$bals = Address::getAddressBalances($address->id);
@@ -45,7 +45,8 @@ class InventoryController extends Controller
 				$balance_addresses[$asset][$address->address] = $amnt;
 			}
 		}
-		
+
+      //dd($addresses, $balances);
 		return view('inventory.index', array(
 			'addresses' => $addresses,
 			'balances' => $balances,
@@ -53,19 +54,19 @@ class InventoryController extends Controller
 			'disabled_tokens' => $disabled_tokens,
 		));
     }
-    
+
     public function registerAddress()
     {
 		//get input
 		$input = Input::all();
-		
+
 		//check required fields
 		if(!isset($input['address']) OR trim($input['address']) == ''){
 			Session::flash('message', 'Bitcoin address required');
 			Session::flash('message-class', 'alert-danger');
 			return redirect('inventory');
 		}
-		
+
 		//setup data
 		$address = trim($input['address']);
 		$label = '';
@@ -76,7 +77,7 @@ class InventoryController extends Controller
 		if(isset($input['public']) AND intval($input['public']) === 1){
 			$public = 1;
 		}
-		
+
 		//validate address
 		$xchain = app('Tokenly\XChainClient\Client');
 		$validate = $xchain->validateAddress($address);
@@ -85,7 +86,7 @@ class InventoryController extends Controller
 			Session::flash('message-class', 'alert-danger');
 			return redirect('inventory');
 		}
-		
+
 		//check if they have this address registered already
 		$user_addresses = Address::getAddressList($this->user->id, null, null);
 		if($user_addresses AND count($user_addresses) > 0){
@@ -102,7 +103,7 @@ class InventoryController extends Controller
 				return redirect('inventory');
 			}
 		}
-		
+
 		//register address
 		$new_address = app('TKAccounts\Repositories\AddressRepository')->create([
 			'user_id'  => $this->user->id,
@@ -113,7 +114,7 @@ class InventoryController extends Controller
 			'public'   => $public,
 		]);
 		$save = (!!$new_address);
-		
+
 		if(!$save){
 			Session::flash('message', 'Error saving address');
 			Session::flash('message-class', 'alert-danger');
@@ -122,12 +123,12 @@ class InventoryController extends Controller
 
 		// sync with XChain
         $new_address->syncWithXChain();
-		
+
 		Session::flash('message', 'Bitcoin address registered!');
 		Session::flash('message-class', 'alert-success');
 		return redirect('inventory');
 	}
-	
+
 	public function deleteAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
@@ -148,7 +149,7 @@ class InventoryController extends Controller
 		}
 		return redirect('inventory');
 	}
-	
+
 	public function editAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
@@ -157,21 +158,21 @@ class InventoryController extends Controller
 			Session::flash('message-class', 'alert-danger');
 		}
 		else{
-			
+
 			$input = Input::all();
-			
+
 			if(isset($input['label'])){
 				$get->label = trim(htmlentities($input['label']));
 			}
-			
+
 			$public = 0;
 			if(isset($input['public']) AND intval($input['public']) == 1){
 				$public = 1;
 			}
 			$get->public = $public;
-			
+
 			$save = $get->save();
-			
+
 			if(!$save){
 				Session::flash('message', 'Error updating address '.$address);
 				Session::flash('message-class', 'alert-danger');
@@ -183,32 +184,42 @@ class InventoryController extends Controller
 		}
 		return redirect('inventory');
 	}
-	
+
 	public function verifyAddressOwnership($address)
 	{
+        $existing_addresses = Address::where('address', $address)->get();
+        foreach($existing_addresses as $item) {
+            if (!$item->user_id == Auth::user()->user_did) {
+                Session::flash('message', 'The address '.$address.' is already in use by another account');
+                Session::flash('message-class', 'alert-danger');
+
+                return redirect('inventory');
+            }
+        }
+
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
 			Session::flash('message', 'Address not found');
 			Session::flash('message-class', 'alert-danger');
 		}
 		else{
-			
+
 			$input = Input::all();
-			
+
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
 				Session::flash('message', 'Signature required');
-				Session::flash('message-class', 'alert-danger');	
+				Session::flash('message-class', 'alert-danger');
 			}
 			else{
 				$sig = $this->extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
-				
+
 				$verify_message = $xchain->verifyMessage($get->address, $sig, Address::getVerifyCode($get));
 				$verified = false;
 				if($verify_message AND $verify_message['result']){
 					$verified = true;
 				}
-				
+
 				if(!$verified){
 					Session::flash('message', 'Signature for address '.$address.' is not valid');
 					Session::flash('message-class', 'alert-danger');
@@ -216,7 +227,7 @@ class InventoryController extends Controller
 				else{
 					$get->verified = 1;
 					$save = $get->save();
-					
+
 					if(!$save){
 						Session::flash('message', 'Error updating address '.$address);
 						Session::flash('message-class', 'alert-danger');
@@ -225,13 +236,13 @@ class InventoryController extends Controller
 						//Address::updateUserBalances($this->user->id); //do a fresh inventory update (disabled for now, too slow)
 						Session::flash('message', 'Address '.$address.' ownership proved successfully!');
 						Session::flash('message-class', 'alert-success');
-					}					
+					}
 				}
 			}
 		}
 		return redirect('inventory');
 	}
-	
+
 	public function toggleAddress($address)
 	{
 		$output = array('result' => false);
@@ -256,7 +267,7 @@ class InventoryController extends Controller
 					$toggle_val = 0;
 				}
 				$get->active_toggle = $toggle_val;
-				$save = $get->save();	
+				$save = $get->save();
 				if(!$save){
 					$output['error'] = 'Error updating address';
 					$response_code = 500;
@@ -264,11 +275,11 @@ class InventoryController extends Controller
 				else{
 					$output['result'] = true;
 				}
-			}	
+			}
 		}
 		return Response::json($output, $response_code);
 	}
-	
+
 	public function toggleAsset($asset)
 	{
 		$output = array('result' => false);
@@ -278,12 +289,12 @@ class InventoryController extends Controller
 		if(!is_array($disabled_tokens)){
 			$disabled_tokens = array();
 		}
-		
+
 		$input = Input::all();
 		if(!isset($input['toggle'])){
 			$output['error'] = 'Toggle option required';
 			$response_code = 400;
-		}		
+		}
 		else{
 			$toggle_val = $input['toggle'];
 			if($toggle_val == 'true' OR $toggle_val === true){
@@ -291,8 +302,8 @@ class InventoryController extends Controller
 			}
 			else{
 				$toggle_val = 0;
-			}		
-			
+			}
+
 			if($toggle_val == 1 AND in_array($asset, $disabled_tokens)){
 				$k = array_search($asset, $disabled_tokens);
 				unset($disabled_tokens[$k]);
@@ -312,7 +323,7 @@ class InventoryController extends Controller
 		}
 		return Response::json($output, $response_code);
 	}
-	
+
 	public function refreshBalances()
 	{
 		$update = Address::updateUserBalances($this->user->id);
@@ -326,7 +337,7 @@ class InventoryController extends Controller
 		}
 		return redirect('inventory');
 	}
-	
+
 	protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
 	{
 		$inputMessage = trim($text);
@@ -341,9 +352,9 @@ class InventoryController extends Controller
 				}
 			}
 		}
-		return $inputMessage;	
+		return $inputMessage;
 	}
-    
+
     public function checkPageRefresh()
     {
         $output = array('result' => false);
@@ -351,7 +362,7 @@ class InventoryController extends Controller
         if(!$user){
              return Response::json($output, 404);
         }
-        
+
         $check_refresh = intval(UserMeta::getMeta($user->id, 'force_inventory_page_refresh'));
         if($check_refresh === 1){
             $output['result'] = true;
