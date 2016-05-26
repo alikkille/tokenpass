@@ -124,16 +124,40 @@ class APIControllerTest extends TestCase {
         // create a user
         $user_helper = $this->buildUserHelper();
         $user = $user_helper->createNewUser();
+        $alt_user = $user_helper->createAltUser();
         $mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $mock_builder->setBalances(['BTC' => 0.123]);
         $mock = $mock_builder->installXChainMockClient($this);
         
         $user->uuid = '1234567890'; 
         $user->save(); //set a predictable uuid so we can test with a premade signature
-        
-        $new_address = '1GGsaA2kBEUW1HRc5KvMnzEKpmHbQqzcmP';
-        $address_sig = 'IHnyXpEMX+Dhu/em3SYEC+pLZPQYI1EblsjIGpPEVy2SmPJ1p6CBDvy71llh6lYMt5SxTx51SOImSpIp1PQoGUI=';
+
+        $alt_user->uuid = '1234';
+        $alt_user->save();
+
+        // Private key used is : KzPMHLZfubuRR8GxZyG2vygqWk391RuEGTqFH1jUtyWgKXrH3FFT
+        $new_address = '1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp';
+        $address_sig = 'IG528OHUJCPC7nNizE4G51+3ogrXV9zAV+pQjNNxCAXDSeZgXUHLp/hIiNH3FBz0ollMjOFU8XJHUPCMg/+4dlI=';
+        $alt_address_sig = 'Hzk9Inq3too7fJqiZKFcWbD/YhaYzl6e2LmoSYCLldYsPwYDiZTlZJaK/3izovOzd8/wissGMigqG36LB19k9nM=';
         $sig_message = Address::getInstantVerifyMessage($user);
+        $alt_sig_message = Address::getInstantVerifyMessage($alt_user);
+
+        //test with all correct info
+        $route = route('api.instant-verify', $user->username); //set proper route
+        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertTrue($json_data['result']);
+
+        //test with all correct info but duplicate address of different user
+        $route = route('api.instant-verify', $alt_user->username); //set proper route
+        $query_params = ['msg' => $alt_sig_message, 'sig' => $alt_address_sig, 'address' => $new_address];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertFalse($json_data['result']);
+        PHPUnit::assertContains('Address already authenticated', $json_data['error']);
 
         //test with a bogus user
         $route = route('api.instant-verify', 123123);
@@ -144,7 +168,6 @@ class APIControllerTest extends TestCase {
         PHPUnit::assertFalse($json_data['result']);
         
         //test with no address
-        $route = route('api.instant-verify', $user->username); //set proper route
         $query_params = ['msg' => $sig_message, 'sig' => $address_sig];
         $request = Request::create($route, 'POST', $query_params, []);
         $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
@@ -159,19 +182,12 @@ class APIControllerTest extends TestCase {
         PHPUnit::assertFalse($json_data['result']);        
         
         //test with wrong message
+        $route = route('api.instant-verify', $user->username);
         $query_params = ['msg' => 'qwerty', 'sig' => $address_sig, 'address' => $new_address];
         $request = Request::create($route, 'POST', $query_params, []);
         $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
         $json_data = json_decode($response->getContent(), true);
-        PHPUnit::assertFalse($json_data['result']);        
-        
-
-        //test with all correct info
-        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => $new_address];
-        $request = Request::create($route, 'POST', $query_params, []);
-        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
-        $json_data = json_decode($response->getContent(), true);
-        PHPUnit::assertTrue($json_data['result']);        
+        PHPUnit::assertFalse($json_data['result']);
         
     }
 

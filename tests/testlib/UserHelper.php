@@ -163,6 +163,24 @@ class UserHelper
         return $user;
     }
 
+    public function createAltUser($user_override_vars = []) {
+        $user_vars = array_merge($this->altUserVars(), $user_override_vars);
+
+        // unset null vars
+        foreach($user_override_vars as $key => $val) { if ($val === null) { unset($user_vars[$key]); }
+        }
+
+        // create the user (this also hashes the password)
+        $user = app('TKAccounts\Repositories\UserRepository')->create($user_vars);
+        if (!$user->getKey()) {
+        return null;
+        }
+
+        // get the user just created
+        return $user;
+
+    }
+
     public function loginWithForm($app, $user_override_vars = [])
     {
         $user = null;
@@ -268,6 +286,16 @@ class UserHelper
             'username'        => 'johndoe',
             'email'           => 'johndoe@tokenly.com',
             'confirmed_email' => 'johndoe@tokenly.com',
+            'password'        => 'abc123456',
+        ];
+    }
+
+    public function altUserVars() {
+        return [
+            'name'            => 'Jane Doe',
+            'username'        => 'janedoe',
+            'email'           => 'janedoe@tokenly.com',
+            'confirmed_email' => 'janedoe@tokenly.com',
             'password'        => 'abc123456',
         ];
     }
