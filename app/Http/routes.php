@@ -136,6 +136,14 @@ Route::post('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.
 Route::patch('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.edit', 'uses' => 'API\APIController@editAddress'));
 Route::delete('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.delete', 'uses' => 'API\APIController@deleteAddress'));
 Route::post('api/v1/tca/addresses', array('as' => 'api.tca.addresses.new', 'uses' => 'API\APIController@registerAddress'));
+Route::get('api/v1/tca/provisional', array('as' => 'api.tca.provisional.list', 'uses' => 'API\APIController@getProvisionalTCASourceAddressList'));
+Route::post('api/v1/tca/provisional/register', array('as' => 'api.tca.provisional.register', 'uses' => 'API\APIController@registerProvisionalTCASourceAddress'));
+Route::get('api/v1/tca/provisional/tx', array('as' => 'api.tca.provisional.tx.list', 'uses' => 'API\APIController@getProvisionalTCATransactionList'));
+Route::post('api/v1/tca/provisional/tx', array('as' => 'api.tca.provisional.tx.register', 'uses' => 'API\APIController@registerProvisionalTCATransaction'));
+Route::get('api/v1/tca/provisional/tx/{id}', array('as' => 'api.tca.provisional.tx.get', 'uses' => 'API\APIController@getProvisionalTCATransaction'));
+Route::patch('api/v1/tca/provisional/tx/{id}', array('as' => 'api.tca.provisional.tx.update', 'uses' => 'API\APIController@updateProvisionalTCATransaction'));
+Route::delete('api/v1/tca/provisional/tx/{id}', array('as' => 'api.tca.provisional.tx.delete', 'uses' => 'API\APIController@deleteProvisionalTCATransaction'));
+Route::delete('api/v1/tca/provisional/{address}', array('as' => 'api.tca.provisional.delete', 'uses' => 'API\APIController@deleteProvisionalTCASourceAddress'));
 Route::post('api/v1/oauth/request', array('as' => 'api.oauth.request', 'uses' => 'API\APIController@requestOAuth', 'middleware' => ['check-authorization-params']));
 Route::post('api/v1/oauth/token', array('as' => 'api.oauth.token', 'uses' => 'API\APIController@getOAuthToken', 'middleware' => ['check-authorization-params']));
 Route::get('api/v1/oauth/logout', array('as' => 'api.oauth.logout', 'uses' => 'API\APIController@invalidateOAuth'));
@@ -143,6 +151,7 @@ Route::patch('api/v1/update', array('as' => 'api.update-account', 'uses' => 'API
 Route::post('api/v1/register', array('as' => 'api.register', 'uses' => 'API\APIController@registerAccount'));
 Route::post('api/v1/login', array('as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword'));
 Route::get('api/v1/lookup/address/{address}', array('as' => 'api.lookup.address', 'uses' => 'API\APIController@lookupUserByAddress'));
+Route::post('api/v1/lookup/address/{address}', array('as' => 'api.lookup.address.post', 'uses' => 'API\APIController@lookupUserByAddress'));
 Route::get('api/v1/lookup/user/{username}', array('as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser'));
 Route::post('api/v1/instant-verify/{username}', array('as' => 'api.instant-verify', 'uses' => 'API\APIController@instantVerifyAddress'));
 
@@ -150,4 +159,4 @@ Route::post('api/v1/instant-verify/{username}', array('as' => 'api.instant-verif
 // XChain Receiver
 
 // webhook notifications
-$router->post('/_xchain_client_receive', 'XChain\XChainWebhookController@receive');
+Route::post('_xchain_client_receive', ['as' => 'xchain.receive', 'uses' => 'XChain\XChainWebhookController@receive']);

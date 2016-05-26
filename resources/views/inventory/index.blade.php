@@ -281,10 +281,21 @@
 								</thead>
 								<tbody>
 									@if(isset($balance_addresses[$asset]))
-										@foreach($balance_addresses[$asset] as $addr => $amnt)
+										@foreach($balance_addresses[$asset] as $addr => $row)
 											<tr>
 												<td><a href="https://blockscan.com/address/{{ $addr }}" target="_blank">{{ $addr }}</a></td>
-												<td>{{ number_format($amnt / 100000000, 8) }}</td>
+												<td>
+                                                    {{ rtrim(rtrim(number_format($row['real'] / 100000000, 8),"0"),".") }}
+                                                    @if(count($row['provisional']) > 0)
+                                                        @foreach($row['provisional'] as $promise)
+                                                            <br>
+                                                            <span class="promise-value text-success"
+                                                                title="promised from source address {{ $promise->source }}">
+                                                                {{ rtrim(rtrim(number_format($promise->quantity/100000000,8),"0"),".") }} promised
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                </td>
 											</tr>
 										@endforeach
 									@endif

@@ -9,7 +9,7 @@ Features bitcoin address proof-of-ownership and a "Token Controlled Access" API,
 
 In order to allow users to login to your application using their Tokenpass account, you first need to register the application and obtain a pair of API keys. Most available API methods require at least a ```client_id```. 
 
-Register and sign in to your Tokenpass account here: https://accounts.tokenly.com
+Register and sign in to your Tokenpass account here: https://tokenpass.tokenly.com
 
 Once signed in, go to the "API Keys / My Apps" link in the sidebar. Here you can register applications and manage your API keys.
 
@@ -23,14 +23,14 @@ See documentation below:
 
 * **Endpoint:** /api/v1/tca/check/{username}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000&client_id={CLIENT_API_ID}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=1000&client_id={CLIENT_API_ID}
 * **Authentication:** must pass in valid application ```client_id```
 * **Returns:** result (boolean)
 * **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
 * **Advanced usage:** for more complicated rule sets, you may include an ```op``` (logic operator) as well as a ```stackop``` (secondary logic operator) field in your query string. Append with "_0", "_1" etc. to apply different operators to different asset checks (depends on order of asset list).
 * Valid ```op``` values are [==, =, !, !=, >, >= (default), <, <=] and valid ```stackop``` values are [AND (default), OR]
 * **Advanced usage example:**
- * ```https://accounts.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=10000&op_0==&TOKENLY=1&stackop_1=OR```
+ * ```https://tokenpass.tokenly.com/api/v1/tca/check/cryptonaut?LTBCOIN=10000&op_0==&TOKENLY=1&stackop_1=OR```
  * translates to "return true if user Cryptonaut has exactly 10,000 LTBCOIN OR has at least 1 TOKENLY"
 * TCA component source code: https://github.com/tokenly/token-controlled-access/blob/master/src/Tokenly/TCA/Access.php
 * Any user you query must have authenticated with your client application at least once, with the "tca" scope applied.
@@ -41,7 +41,7 @@ See documentation below:
 
 $username = 'cryptonaut';
 $rules = array('LTBCOIN' => 1000); //check to see if user has at least 1000 LTBCOIN
-$api_url = 'https://accounts.tokenly.com/api/v1';
+$api_url = 'https://tokenpass.tokenly.com/api/v1';
 $call = file_get_contents($api_url.'/tca/check/'.$username.'?'.http_build_query($rules));
 $decode = json_decode($call, true);
 
@@ -60,7 +60,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses/{username}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut?client_id={CLIENT_API_ID}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses/cryptonaut?client_id={CLIENT_API_ID}
 * **Authentication:** must pass in valid application ```client_id```
 * **Returns:** 
  * result (array)
@@ -104,7 +104,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/check-address/{address}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/check/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?LTBCOIN=1000&sig={SIGNED_MESSAGE}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/check/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?LTBCOIN=1000&sig={SIGNED_MESSAGE}
 * **Authentication:** must pass in a ```sig``` field containing a signed message of the first 10 characters in the requested bitcoin address, from said address. e.g 1DB3rtNQ8W
 * **Returns:** result (boolean)
 * **Basic usage:** include a list of assets to check in your query string, in format ASSET=MIN_AMOUNT
@@ -119,7 +119,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses/{username}/{address}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
 * **Authentication:** Valid application client ID, tca scope must be applied, private-address scope to view private address details. OAuth token for viewing unverified or inactive address & obtaining verification code.
 * **Returns:** 
   * result
@@ -140,7 +140,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses
 * **Request Method:** POST
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
 * **Parameters:**
   * address (string, required)
   * label (string)
@@ -165,7 +165,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses/{username}/{address}
 * **Request Method:** POST
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
 * **Parameters:**
   * signature (string, required)
 * **Authentication:** Valid application client ID, OAuth access token
@@ -179,7 +179,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses/{username}/{address}
 * **Request Method:** PATCH
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
 * **Parameters:**
   * label (string)
   * public (boolean)
@@ -194,7 +194,7 @@ else{
 
 * **Endpoint:** /api/v1/tca/addresses/{username}/{address}
 * **Request Method:** DELETE
-* **Example URL:** https://accounts.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/tca/addresses/cryptonaut/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}&oauth_token={USER_AUTH_TOKEN}
 * **Authentication:** Valid application client ID, OAuth access token
 * **Returns:** 
   * result (boolean)
@@ -206,7 +206,7 @@ else{
 
 * **Endpoint:** /api/v1/lookup/user/{username}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/lookup/user/cryptonaut?client_id={CLIENT_ID}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/lookup/user/cryptonaut?client_id={CLIENT_ID}
 * **Authentication:** Valid application client ID
 * **Returns:**
   * result (array)
@@ -219,7 +219,7 @@ else{
 
 * **Endpoint:** /api/v1/lookup/address/{address}
 * **Request Method:** GET
-* **Example URL:** https://accounts.tokenly.com/api/v1/lookup/address/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/lookup/address/1DB3rtNQ8WkriAK225bktuxSYAmhSxndJe?client_id={CLIENT_ID}
 * **Authentication:** Valid application client ID
 * **Returns:**
   * result (array)
@@ -233,9 +233,9 @@ else{
 
 * **Endpoint:** /api/v1/instant-verify/{username}
 * **Request Method:** POST
-* **Example URL:** https://accounts.tokenly.com/api/v1/instant-verify/cryptonaut?msg={MSG}&address={BITCOIN_ADDRESS}&sig={SIGNATURE}
+* **Example URL:** https://tokenpass.tokenly.com/api/v1/instant-verify/cryptonaut?msg={MSG}&address={BITCOIN_ADDRESS}&sig={SIGNATURE}
 * **Authentication:** None needed
-* **URL Paremeters:** 
+* **URL Parameters:** 
   * msg - secret verification message, obtained from QR code on Tokenpass inventory page
   * address - the bitcoin address you want to register/verify
   * sig - signature of the secret message
@@ -246,6 +246,174 @@ else{
 
 ---------------------------
 
+###Provisional Transactions API
+
+Provisional transactions (a.k.a "token promises") are a feature
+which allows an application to provide instant Token Controlled Access functionality
+to a user, without requiring them to wait until the tokens are actually delivered and confirmed
+in their bitcoin wallets. Applications register "source addresses" to a whitelist using a proof-of-ownership
+method similar to what end users experience. The source address is then considered trusted and 
+transactions can be promised to destination addresses, either expiring after a period of time or updated to match
+the real corresponding bitcoin transaction. Source addresses can only promise amounts up to their current token balance. 
+0-conf transactions are automatically registered as promises and cleared when confirmed.
+
+**Register Source Address to Whitelist**
+
+* **Endpoint:** /api/v1/tca/provisional/register
+* **Request Method:** POST
+* **Authentication:** Valid application client ID
+* **Parameters:** 
+  * address - bitcoin source address
+  * proof - verification message signed by source address
+  * assets (optional) - comma separated list or array of assets to restrict this address for promises
+* **Returns:**
+  * result (boolean)
+* **Notes:** The ```proof``` parameter should be a signature of the following message: ```<btc_address>_<sha256 hash of client_id>```
+* Resubmit request with proof again to update list of restricted assets (or leave null to allow all)
+
+---------------------------
+
+**Delete Source Address from Whitelist**
+
+* **Endpoint:** /api/v1/tca/provisional/{address}
+* **Request Method:** DELETE
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (boolean)
+
+---------------------------
+
+**List Whitelisted Source Addresses**
+
+* **Endpoint:** /api/v1/tca/provisional
+* **Request Method:** GET
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (boolean)
+  * proof_suffix (string)
+  * whitelist (array)
+    * (array)
+        * address (string)
+        * assets (null|array)
+* **Notes:** ```proof_suffix``` value can be appended to a bitcoin address to produce the required proof-of-ownership message for registering to provisional whitelist.
+
+---------------------------
+
+**Manually Submit Provisional Transaction**
+
+* **Endpoint:** /api/v1/tca/provisional/tx
+* **Request Method:** POST
+* **Authentication:** Valid application client ID
+* **Parameters:** 
+  * source - source address, must be on provisional whitelist
+  * destination - destination bitcoin address
+  * asset - token to promise
+  * quantity - amount, in satoshis
+  * expiration - timestamp when this promise expires
+  * txid (optional) - txid if the bitcoin transaction has been generated/sent
+  * fingerprint (optional) - tx fingerprint from xchain, if applicable
+  * ref (optional) - extra optional reference data
+* **Returns:**
+  * result (boolean)
+  * tx (array)
+    * source (string)
+    * destination (string)
+    * asset (string)
+    * quantity (integer)
+    * fingerprint (string)
+    * txid (string)
+    * ref (string)
+    * expiration (unix timestamp)
+    * created_at (timestamp)
+    * updated_at (timestamp)
+    * promise_id (integer)
+* **Notes:** if a real txid/fingerprint is set, tokenpass will automatically remove this provisional tx after 2 confirmations (or when expire hits).
+* Cannot submit promise transactions which would exceed source addresses real balance
+
+---------------------------
+
+**List Provisional Transactions**
+
+* **Endpoint:** /api/v1/tca/provisional/tx
+* **Request Method:** GET
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (boolean)
+  * list (array)
+    * (array)
+        * source (string)
+        * destination (string)
+        * asset (string)
+        * quantity (integer)
+        * fingerprint (string)
+        * txid (string)
+        * ref (string)
+        * expiration (unix timestamp)
+        * created_at (timestamp)
+        * updated_at (timestamp)
+        * promise_id (integer)
+* **Notes:** Shows all provisional transactions associated with your API client_id
+
+---------------------------
+
+**Get Provisional Transaction**
+* **Endpoint:** /api/v1/tca/provisional/tx/{promise_id|txid|fingerprint}
+* **Request Method:** GET
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (boolean)
+  * tx (array)
+    * source (string)
+    * destination (string)
+    * asset (string)
+    * quantity (integer)
+    * fingerprint (string)
+    * txid (string)
+    * ref (string)
+    * expiration (unix timestamp)
+    * created_at (timestamp)
+    * updated_at (timestamp)
+    * promise_id (integer)
+    
+---------------------------
+    
+**Delete Provisional Transaction**
+* **Endpoint:** /api/v1/tca/provisional/{promise_id|txid|fingerprint}
+* **Request Method:** DELETE
+* **Authentication:** Valid application client ID
+* **Returns:**
+  * result (boolean)
+  
+  
+---------------------------
+
+**Update Provisional Transaction**
+* **Endpoint:** /api/v1/tca/provisional/tx/{promise_id|txid|fingerprint}
+* **Request Method:** PATCH
+* **Authentication:** Valid application client ID
+* **Parameters:** 
+  * quantity (optional) - amount, in satoshis
+  * expiration (optional) - timestamp when this promise expires
+  * txid (optional) - txid if the bitcoin transaction has been generated/sent
+  * fingerprint (optional) - tx fingerprint from xchain, if applicable
+  * ref (optional) - extra optional reference data
+* **Returns:**
+  * result (boolean)
+  * tx (array)
+    * source (string)
+    * destination (string)
+    * asset (string)
+    * quantity (integer)
+    * fingerprint (string)
+    * txid (string)
+    * ref (string)
+    * expiration (unix timestamp)
+    * created_at (timestamp)
+    * updated_at (timestamp)
+    * promise_id (integer)
+    
+---------------------------
+  
 
 # Local Development
 

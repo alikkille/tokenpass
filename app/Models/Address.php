@@ -38,7 +38,7 @@ class Address extends Model
         return $get->orderBy('id', 'asc')->get();
     }
     
-    public static function getAddressBalances($address_id, $filter_disabled = false)
+    public static function getAddressBalances($address_id, $filter_disabled = false, $and_provisional = true)
     {
         $address = Address::find($address_id);
         if(!$address OR $address->verified != 1 OR $address->active_toggle != 1){
@@ -49,6 +49,20 @@ class Address extends Model
         if($get AND count($get) > 0){
             foreach($get as $row){
                 $balances[$row->asset] = $row->balance;
+            }
+        }
+        if($and_provisional){
+            //add amounts from provisional txs
+            $get_provisional = DB::table('provisional_tca_txs')->where('destination', $address->address)->get();
+            if($get_provisional){
+                foreach($get_provisional as $prov_tx){
+                    if(isset($balances[$prov_tx->asset])){
+                        $balances[$prov_tx->asset] += $prov_tx->quantity;
+                    }
+                    else{
+                        $balances[$prov_tx->asset] = $prov_tx->quantity;
+                    }
+                }
             }
         }
         if($filter_disabled){
@@ -73,7 +87,7 @@ class Address extends Model
     }
 
 
-    public static function getAllUserBalances($user_id, $filter_disabled = false)
+    public static function getAllUserBalances($user_id, $filter_disabled = false, $and_provisional = true)
     {
         $address_list = Address::getAddressList($user_id);
         if(!$address_list OR count($address_list) == 0){
@@ -81,7 +95,7 @@ class Address extends Model
         }
         $balances = array();
         foreach($address_list as $address){
-            $addr_balances = Address::getAddressBalances($address->id);
+            $addr_balances = Address::getAddressBalances($address->id, false, $and_provisional);
             if(is_array($addr_balances)){
                 foreach($addr_balances as $asset => $val){
                     if(!isset($balances[$asset])){
@@ -162,12 +176,12 @@ class Address extends Model
                 throw $e;
             }
 
-            // $table->string('xchain_address_id', 36)->unique()->nullable();
-            // $table->string('receive_monitor_id', 36)->unique()->nullable();
-            // $table->string('send_monitor_id', 36)->unique()->nullable();
-
             // create an xchain send monitor
-            $webhook_endpoint = env('SITE_HOST').env('XCHAIN_CALLBACK_URL');
+            $webhook_endpoint = route('xchain.receive');
+            if(env('XCHAIN_CALLBACK_USE_NONCE') == 'true'){
+                $webhook_endpoint .= '?nonce='.env('XCHAIN_CALLBACK_NONCE');
+            }
+
             try {
                 $result = $xchain->newAddressMonitor($this['address'], $webhook_endpoint, 'send', true);
                 $send_monitor_id = $result['id'];
