@@ -245,4 +245,150 @@ class InventoryTest extends TestCase
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
     }
+
+    public function testRegisterAddress() {
+        $this->setupXChainMock();
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        // create a new user and login
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        // Test with a non existant address
+//        $response = $this->call('POST', '/inventory/address/new', array(
+//            "address" => "1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD",
+//            "label" => "My First Address",
+//            "public" => true
+//        ) , array());
+
+    }
+
+    public function testDeleteAddress() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        // Delete an entry correctly
+        $response = $this->call('GET', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/delete', array(
+            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
+        ) , array());
+        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD deleted!', Session::get('message'));
+
+        // Attempt to delete non existant address
+        $response = $this->call('GET', '/inventory/address/1FakeAddressNaow/delete', array(
+            'address' => '1FakeAddressNaow'
+        ) , array());
+        PHPUnit::assertContains('Address not found', Session::get('message'));
+    }
+
+    public function testEditAddress() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        // Attempt to edit non existant address
+        $response = $this->call('POST', '/inventory/address/1FakeAddressNaow/edit', array(
+            'address' => '1FakeAddressNaow'
+        ) , array());
+        PHPUnit::assertContains('Address not found', Session::get('message'));
+
+        // Edit an entry correctly
+        $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/edit', array(
+            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
+        ) , array());
+        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD updated!', Session::get('message'));
+    }
+
+    public function testToggleAddress() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        // Attempt to toggle non existant address
+        $response = $this->call('POST', '/inventory/address/1FakeAddressNaow/toggle', array(
+            'address' => '1FakeAddressNaow'
+        ) , array());
+
+        PHPUnit::assertEquals(400, $response->getStatusCode());
+
+        // toggle an entry correctly
+        $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggle', array(
+            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
+        ) , array());
+
+    }
+
+
+    public function testInventoryVerifyAddress() {
+
+        $this->setupXChainMock();
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        // create a new user and login
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user, [
+            'user_id' => '1',
+            'address' => '1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp'
+        ]);
+
+        $address = $address_helper->createNewAddress($user, [
+            'address' => '1sdBCPkJozaAqwLSomeAddress'
+        ]);
+
+        // Test with a non existant address
+        $response = $this->call('POST', '/inventory/address/1sd444444444444NS8Uu95NMVdp/verify', array(
+        ) , array());
+        PHPUnit::assertContains('Address not found', Session::get('message'));
+
+        // Test with a missing signature
+        $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLSomeAddress/verify', array(
+        ) , array());
+        PHPUnit::assertContains('Signature required', Session::get('message'));
+
+        // Private key used is : KzPMHLZfubuRR8GxZyG2vygqWk391RuEGTqFH1jUtyWgKXrH3FFT
+        $address_sig = 'IC8nBnxL1wE8P4jWGkVZI1IVucw4lDAQ3YVK7ZdeQCCbQwCoU+PcQUnEAN5C71pjVVqdyFzbgOJsbp6B0Agwsg8=';
+        $sig_message = '4cda873ee9';
+
+        // Test with all correct info
+        $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp/verify', array(
+            'sig' => $address_sig
+        ) , array());
+        PHPUnit::assertContains('Address 1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp ownership proved successfully!', Session::get('message'));
+        PHPUnit::assertEquals(302 , $response->status());
+
+        // Test with duplicate registered address
+        $alt_address = $address_helper->createNewAddress($user, [
+            'user_id' => '2',
+            'address' => '1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp'
+        ]);
+
+        $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp/verify', array(
+            'sig' => $address_sig
+        ) , array());
+        PHPUnit::assertContains('The address 1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp is already in use by another account', Session::get('message'));
+        PHPUnit::assertEquals(302 , $response->status());
+    }
+
+    protected function setupXChainMock() {
+        $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
+        $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
+    }
 }
