@@ -69,6 +69,7 @@ class InventoryController extends Controller
 		//get input
 		$input = Input::all();
 
+
 		//check required fields
 		if(!isset($input['address']) OR trim($input['address']) == ''){
 			Session::flash('message', 'Bitcoin address required');
@@ -88,8 +89,15 @@ class InventoryController extends Controller
 		}
 
 		//validate address
-		$xchain = app('Tokenly\XChainClient\Client');
-		$validate = $xchain->validateAddress($address);
+        try {
+            $xchain = app('Tokenly\XChainClient\Client');
+            $validate = $xchain->validateAddress($address);
+        } catch (Exception $e) {
+            Session::flash('message', $e);
+            Session::flash('message-class', 'alert-danger');
+            return redirect('inventory');
+        }
+
 		if(!$validate OR !$validate['result']){
 			Session::flash('message', 'Please enter a valid bitcoin address');
 			Session::flash('message-class', 'alert-danger');
@@ -198,23 +206,21 @@ class InventoryController extends Controller
 	{
         $existing_addresses = Address::where('address', $address)->get();
         foreach($existing_addresses as $item) {
-            if (!$item->user_id == Auth::user()->user_did) {
+            if ($item->user_id != Auth::user()->id) {
                 Session::flash('message', 'The address '.$address.' is already in use by another account');
                 Session::flash('message-class', 'alert-danger');
-
                 return redirect('inventory');
             }
         }
 
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+
 		if(!$get){
 			Session::flash('message', 'Address not found');
 			Session::flash('message-class', 'alert-danger');
 		}
 		else{
-
 			$input = Input::all();
-
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
 				Session::flash('message', 'Signature required');
 				Session::flash('message-class', 'alert-danger');
