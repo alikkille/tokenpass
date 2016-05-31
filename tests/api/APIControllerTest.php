@@ -119,6 +119,120 @@ class APIControllerTest extends TestCase {
         $json_data = json_decode($response->getContent(), true);
         PHPUnit::assertFalse($json_data['result']);
     }
+
+    public function testGetAddress() {
+
+        // create an oauth client
+        $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
+        $oauth_scope_tca = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'tca',
+            'description' => 'TCA Access',
+        ]);
+        $oauth_scope_pa = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'private-address',
+            'description' => 'Private-Address',
+        ]);
+
+        $oauth_client_id = $oauth_client['id'];
+        DB::table('client_connections')->insert([
+            'uuid'       => '00000001',
+            'user_id'    => 1,
+            'client_id'  => $oauth_client_id,
+            'created_at' => time(),
+            'updated_at' => time(),
+        ]);
+        $oauth_connection = (array)DB::table('client_connections')->where('uuid', '00000001')->first();
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_tca['uuid'],
+        ]);
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_pa['uuid'],
+        ]);
+
+        $vars = [
+            'client_id' => $oauth_client_id
+        ];
+
+        // Client ID is wrong
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses', ['username' => 'FakeUsername']), ['client_id' => 'fake123'], 403);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Invalid API client ID', $response['error']);
+
+        // User is non existant
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses', ['username' => 'FakeUsername']), $vars, 404);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Username not found', $response['error']);
+
+        // User has no addresses
+        $user_helper = $this->buildUserHelper();
+        $user = $user_helper->createNewUser();
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses', ['username' => $user->username ]), $vars);
+        PHPUnit::assertEmpty($response['addresses']);
+
+        // User has an address
+        $address_helper = app('AddressHelper');
+        $address_helper->createNewAddress($user, [
+            'address' => '1sdBCPkJozaAqwLSomeAddress'
+        ]);
+
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses', ['username' => $user->username ]), $vars);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('1sdBCPkJozaAqwLSomeAddress', $response['result'][0]['address']);
+    }
+
+    public function testGetAddressDetails() {
+
+        $this->buildOAuthScope();
+
+        // Invalid client ID
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses.details', ['username' => 'username', 'address' => '1NotRealAtAll']), ['client_id' => 'fake123'], 403);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Invalid API client ID', $response['error']);
+
+        // Address does not exist
+        $user_helper = $this->buildUserHelper();
+        $user = $user_helper->createNewUser();
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses.details', ['username' => $user->username, 'address' => '1NotRealAtAll']), $this->vars, 404);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Address details not found', $response['error']);
+
+
+        // User does not exist
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses.details', ['username' => 'FakeUser', 'address' => '1NotRealAtAll']), $this->vars, 404);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Username not found', $response['error']);
+
+        // User has an address
+        $address_helper = app('AddressHelper');
+        $address = $address_helper->createNewAddress($user, [
+            'address' => '1sdBCPkJozaAqwLSomeAddress'
+        ]);
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.addresses.details', ['username' => $user->username, 'address' => $address->address]), $this->vars);
+        PHPUnit::assertContains('btc', $response['result']['type']);
+        PHPUnit::assertContains('1sdBCPkJozaAqwLSomeAddress', $response['result']['address']);
+        PHPUnit::assertTrue($response['result']['verified']);
+    }
+
+    public function testRegisterAddress() {
+        $this->buildOAuthScope();
+
+        // Invalid API call
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.addresses.new'), ['client_id' => 'fake123'], 403);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Invalid API client ID', $response['error']);
+
+        // Invalid OAuthToken call
+        $this->vars['oauth_token'] = '1SomeToken';
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.addresses.new'), $this->vars, 403);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('Invalid user oauth token', $response['error']);
+
+        // Valid
+        $oauth_helper = app('OAuthHelper')->setTestCase($this);
+
+    }
     
     public function testInstantVerifyAddressAPI()
     {
@@ -430,13 +544,43 @@ class APIControllerTest extends TestCase {
         PHPUnit::assertArrayHasKey('SOUP', $balances);
         PHPUnit::assertEquals((2000+1)*self::SATOSHI, $balances['SOUP']);
     }
-    
-
-    
-
 
     ////////////////////////////////////////////////////////////////////////
 
+    protected function buildOAuthScope() {
+        // create an oauth client
+        $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
+        $oauth_scope_tca = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'tca',
+            'description' => 'TCA Access',
+        ]);
+        $oauth_scope_pa = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'private-address',
+            'description' => 'Private-Address',
+        ]);
+
+        $oauth_client_id = $oauth_client['id'];
+        DB::table('client_connections')->insert([
+            'uuid'       => '00000001',
+            'user_id'    => 1,
+            'client_id'  => $oauth_client_id,
+            'created_at' => time(),
+            'updated_at' => time(),
+        ]);
+        $oauth_connection = (array)DB::table('client_connections')->where('uuid', '00000001')->first();
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_tca['uuid'],
+        ]);
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_pa['uuid'],
+        ]);
+
+        $this->vars = [
+            'client_id' => $oauth_client_id
+        ];
+    }
 
     protected function buildUserHelper() {
         $user_helper = app('UserHelper')->setTestCase($this);
