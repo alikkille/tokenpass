@@ -71,6 +71,11 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
             $attributes['password'] = Hash::make($token_generator->generateToken(34));
         }
 
+        // username
+        if (!isset($attributes['username'])) {
+            $attributes['username'] = preg_replace('!^(.+?)@.*$!', '$1', $attributes['email']);
+        }
+
         // slugify username
         if (!isset($attributes['slug'])) {
             $attributes['slug'] = Util::slugify($attributes['username']);
