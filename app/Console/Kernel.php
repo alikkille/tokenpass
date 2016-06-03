@@ -21,10 +21,14 @@ class Kernel extends ConsoleKernel
         \TKAccounts\Console\Commands\ScanCoinAddresses::class,
         \TKAccounts\Console\Commands\ExpireProvisionalTransactions::class,
 
-        // Migration commands
+        // Migration Commands
         \TKAccounts\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
 
+        // Monitor Health
         \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,
+
+        // Platform Admin
+        \Tokenly\PlatformAdmin\Console\CreatePlatformAdmin::class,
     ];
 
     /**

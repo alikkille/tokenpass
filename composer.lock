@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2a1b6677d2d4e8e5dc591b8179148de8",
-    "content-hash": "acdf9f785e17f6b347c1f4adef2fe55e",
+    "hash": "d0a6343c0e59be169c0658f1a981bb6f",
+    "content-hash": "aefc9ae784e1c952766a238c2cd38150",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3462,6 +3462,46 @@
             "time": "2016-02-06 16:24:12"
         },
         {
+            "name": "tokenly/platform-admin",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tokenly/platform-admin.git",
+                "reference": "a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c",
+                "reference": "a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tokenly\\PlatformAdmin\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Devon Weller",
+                    "email": "devon@tokenly.com",
+                    "homepage": "http://tokenly.com"
+                }
+            ],
+            "description": "A platform administration module for Tokenly services",
+            "time": "2016-06-01 23:06:09"
+        },
+        {
             "name": "tokenly/token-controlled-access",
             "version": "dev-master",
             "source": {
@@ -4820,7 +4860,8 @@
         "tokenly/laravel-api-provider": 20,
         "cryptonaut/illuminate-html": 20,
         "tokenly/consul-health-daemon": 20,
-        "tokenly/token-controlled-access": 20
+        "tokenly/token-controlled-access": 20,
+        "tokenly/platform-admin": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
