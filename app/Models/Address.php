@@ -117,10 +117,28 @@ class Address extends Model
         }
         return $balances;
     }
+
+    public static function getInstantVerifyMessage($user)
+    {
+        $message = hash('sha256', $user->uuid);
+        return $message;
+    }
     
     public static function getVerifyCode($address)
     {
         return substr(hash('sha256', $address->address.':'.$address->user_id), 0, 10);
+    }
+
+    public static function getSecureCodeGeneration()
+    {
+
+        $file_content = file_get_contents(base_path()."/database/wordlists/english.txt");
+        $dictionary = explode(PHP_EOL, $file_content);
+        $one = mt_rand(0, 2047);
+        $two = mt_rand(0, 2047);
+        $code = mt_rand(0, 99);
+
+        return (string) $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
     
     public static function updateUserBalances($user_id)
@@ -250,13 +268,5 @@ class Address extends Model
         }
         return true;
     }
-
-	public static function getInstantVerifyMessage($user)
-	{
-		$message = hash('sha256', $user->uuid);
-		return $message;
-	}
-	
-
 }
 

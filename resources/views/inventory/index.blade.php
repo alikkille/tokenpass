@@ -81,7 +81,7 @@
 										<div class="well">
 											<h3 class="lg text-center">
 												<strong>Verification Code:</strong><br>
-												<span class="text-info">{{ \TKAccounts\Models\Address::getVerifyCode($address) }}</span>
+												<span class="text-info">{{ $address->secure_code }}</span>
 											</h3>
 										</div>
 										<div class="form-group">

@@ -327,7 +327,7 @@ class APIController extends Controller
 		$result['verified'] = boolval($getAddress->verified);
 		$result['balances'] = Address::getAddressBalances($getAddress->id, true);
 		if(!$result['verified']){
-			$result['verify_code'] = Address::getVerifyCode($getAddress);
+			$result['verify_code'] = Address::getSecureCodeGeneration();
 		}		
 		$output['result'] = $result;
 		
@@ -444,7 +444,7 @@ class APIController extends Controller
 		$result['label'] = $label;
 		$result['public'] = $public;
 		$result['active'] = $active;
-		$result['verify_code'] = Address::getVerifyCode($new);
+		$result['verify_code'] = Address::getSecureCodeGeneration();
 		$output['result'] = $result;
 		
 		return Response::json($output);
@@ -620,7 +620,7 @@ class APIController extends Controller
 			return Response::json($output, 400);
 		}			
 		
-		$verify_code = Address::getVerifyCode($getAddress);
+		$verify_code = Address::getSecureCodeGeneration();
 		
 		$sig = $this->extract_signature($input['signature']);
 		$xchain = app('Tokenly\XChainClient\Client');

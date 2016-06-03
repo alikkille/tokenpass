@@ -11,15 +11,28 @@ class BitcoinAuthTest extends TestCase {
     public function testBitcoinAuthorizeFormGet() {
         // check loading authorize form
         $response = $this->call('GET', '/auth/bitcoin');
-
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($response->getContent());
-        $sigval = $dom->getElementsByTagName('strong')->item(1)->textContent;
-
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('<form', $response->getContent());
-        $this->assertInternalType('string',$sigval);
+        PHPUnit::assertInternalType('string', Session::get('sigval'));
+    }
+
+    public function testPRNGeneration() {
+        $file_content = file_get_contents('database/wordlists/english.txt');
+        $dictionary = explode(PHP_EOL, $file_content);
+
+        $x = 1;
+        $list = [];
+        while($x <= 1000) {
+            $one = mt_rand(0, 2047);
+            $two = mt_rand(0, 2047);
+            $code = mt_rand(0, 99);
+            array_push($list, $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code);
+            $x++;
+        }
+
+        $unique = array_unique($list);
+        PHPUNIT::assertEquals($unique, $list);
+
     }
 
     public function testBitcoinAuthorizeFormPostCorrectData() {

@@ -192,11 +192,13 @@ class InventoryTest extends TestCase
         // Private key used is : KzPMHLZfubuRR8GxZyG2vygqWk391RuEGTqFH1jUtyWgKXrH3FFT
         $address_sig = 'IC8nBnxL1wE8P4jWGkVZI1IVucw4lDAQ3YVK7ZdeQCCbQwCoU+PcQUnEAN5C71pjVVqdyFzbgOJsbp6B0Agwsg8=';
         $sig_message = '4cda873ee9';
+        Session::flash('sigval', $sig_message);
 
         // Test with all correct info
         $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp/verify', array(
             'sig' => $address_sig
         ) , array());
+
         PHPUnit::assertContains('Address 1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp ownership proved successfully!', Session::get('message'));
         PHPUnit::assertEquals(302 , $response->status());
 

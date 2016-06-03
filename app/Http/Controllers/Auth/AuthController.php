@@ -264,7 +264,7 @@ class AuthController extends Controller
     public function getBitcoinLogin(Request $request) {
 
         // Generate message for signing and flash for POST results
-        $sigval = substr( "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" ,mt_rand( 0 ,51 ) ,1 ) .substr( md5( time() ), 1);
+        $sigval = Address::getSecureCodeGeneration();
         $request->session()->flash('sigval', $sigval);
 
         return view('auth.bitcoin', ['sigval' => $sigval]);

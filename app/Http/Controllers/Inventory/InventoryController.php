@@ -26,12 +26,19 @@ class InventoryController extends Controller
 
     public function index()
     {
+
 		$addresses = Address::getAddressList($this->user->id, null, null);
 		$balances = Address::getAllUserBalances($this->user->id);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
-
 		$balance_addresses = array();
 		foreach($addresses as $address){
+
+            // Generate message for signing and flash for POST results
+            if($address->verified == 0) {
+                $address['secure_code'] = Address::getSecureCodeGeneration();
+                Session::flash($address->address,$address['secure_code']);
+            }
+
 			$bals = Address::getAddressBalances($address->id, false, false);
 			if(!$bals OR count($bals) == 0){
 				continue;
@@ -56,12 +63,14 @@ class InventoryController extends Controller
                 $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
             }
 		}
-		return view('inventory.index', array(
-			'addresses' => $addresses,
-			'balances' => $balances,
-			'balance_addresses' => $balance_addresses,
-			'disabled_tokens' => $disabled_tokens,
-		));
+
+        $vars = [
+            'addresses' => $addresses,
+            'balances' => $balances,
+            'balance_addresses' => $balance_addresses,
+            'disabled_tokens' => $disabled_tokens];
+
+		return view('inventory.index', $vars);
     }
 
     public function registerAddress()
@@ -228,8 +237,7 @@ class InventoryController extends Controller
 			else{
 				$sig = $this->extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
-
-				$verify_message = $xchain->verifyMessage($get->address, $sig, Address::getVerifyCode($get));
+				$verify_message = $xchain->verifyMessage($get->address, $sig, Session::get($address));
 				$verified = false;
 				if($verify_message AND $verify_message['result']){
 					$verified = true;
