@@ -1247,7 +1247,7 @@ class APIController extends Controller
 			$output['error'] = 'Address required'; 
 			return Response::json($output, 400);
 		}
-		
+
 		//get the message needed to verify and check inputs
 		$verify_message = Address::getInstantVerifyMessage($user);
 		$input_sig = Input::get('sig');
@@ -1260,6 +1260,8 @@ class APIController extends Controller
 			$output['error'] = 'msg invalid';
 			return Response::json($output, 400);
 		}
+
+
 
         //verify address is already not in use
         $address = Input::get('address');

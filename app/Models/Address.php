@@ -120,7 +120,8 @@ class Address extends Model
 
     public static function getInstantVerifyMessage($user)
     {
-        $message = hash('sha256', $user->uuid);
+        $entropy = Address::getSecureCodeGeneration(8);
+        $message = hash('sha256', $user->uuid . ' ' . $entropy);
         return $message;
     }
     
@@ -129,14 +130,34 @@ class Address extends Model
         return substr(hash('sha256', $address->address.':'.$address->user_id), 0, 10);
     }
 
-    public static function getSecureCodeGeneration()
+    public static function getSecureCodeGeneration($entropy=null, $language=null)
     {
-
-        $file_content = file_get_contents(base_path()."/database/wordlists/english.txt");
+        if(is_null($language)) {
+            $file_content = file_get_contents(base_path() . "/database/wordlists/english.txt");
+        } else {
+            $file_content = file_get_contents(base_path() . '/database/wordlists/' . $language .'txt');
+        }
         $dictionary = explode(PHP_EOL, $file_content);
-        $one = mt_rand(0, 2047);
-        $two = mt_rand(0, 2047);
-        $code = mt_rand(0, 99);
+
+        if(is_null($entropy)) {
+            $one = mt_rand(0, 2047);
+            $two = mt_rand(0, 2047);
+            $code = mt_rand(0, 99);
+        } else {
+            $x = 0;
+            $generation = [];
+            while ($x < $entropy) {
+                $generation[$x] = mt_rand(0, 2047);
+                $x++;
+            }
+
+            $response = NULL;
+            foreach ($generation as $item) {
+                $response = $response . $dictionary[$item] . ' ' ;
+            }
+
+            return (string) trim($response);
+        }
 
         return (string) $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
