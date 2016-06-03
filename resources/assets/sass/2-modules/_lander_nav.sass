@@ -1,0 +1,102 @@
+$height: 80px
+.landing-nav
+  top: 0px
+  z-index: 1000
+  position: fixed
+  width: 100%
+  height: $height
+  line-height: $height
+  color: $white
+  background-color: $black
+  transition: all 0.5s ease
+  .landing-nav-container
+    transition: all 0.5s ease
+    padding: 0 $gutter-px
+    +tablet
+      padding: 0 $height
+    margin: 0 auto
+  &.pristine
+    top: 20px
+    background-color: transparent !important
+
+  .landing-nav-menu-btn
+    float: right
+    display: block
+    i
+      cursor: pointer
+      vertical-align: middle
+    +tablet
+      display: none
+  .landing-nav-menu
+    float: right
+    margin-top: 14px
+    display: none
+    +tablet
+      display: block
+    .btn-login, .btn-register
+      display: block
+      float: left
+      vertical-align: middle
+      line-height: 1
+    .btn-register 
+      +btn_static
+      color: $white
+      margin-top: 2px
+    .btn-login
+      +btn_border_white
+
+  .logo
+    color: $white
+    margin: 0 !important
+    font-size: 32px
+    font-weight: 200
+    vertical-align: middle
+
+$mobile-nav-width: 200px
+.landing-nav-menu-mobile
+  position: fixed
+  z-index: 2000
+  width: $mobile-nav-width
+  left: 0
+  top: 0
+  height: 100vh
+  margin: 0
+  padding: 0
+  display: block
+  overflow-y: scroll
+  color: $white
+  background-color: $gray-dark
+  box-shadow: 2px 0 5px $black
+  transition: all 0.2s ease
+  &::-webkit-scrollbar
+    display: none
+  // Default hidden and off the window
+  opacity: 0
+  left: -1 * $mobile-nav-width
+  // Active, visible and in the frame
+  &.active
+    opacity: 1
+    left: 0
+  +tablet
+    display: none
+  .landing-nav-menu-header
+    overflow: hidden
+    .title, .material-icons
+      vertical-align: middle
+    .material-icons
+      cursor: pointer
+      float: right
+      display: block
+      padding: 20px 28px 0 28px
+  ul
+    margin: 0
+    padding: 0
+    li
+      margin: 0
+      padding: 0
+      a
+        text-transform: uppercase
+        letter-spacing: 1px
+        color: $white
+        padding: 20px 28px
+        display: block

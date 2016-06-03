@@ -1,0 +1,166 @@
+body.dashboard
+  background-color: #f7f7f7
+  $navigation-height: 80px
+  .navigation
+    background-color: $gray
+    color: $white
+    height: $navigation-height
+    line-height: $navigation-height
+    overflow: hidden
+    .navigation-content
+      padding: 0 15px
+      +tablet
+        padding: 0 $gutter-px
+      .logo
+        font-size: 24px
+        letter-spacing: 1px
+        font-weight: 200
+        float: left
+      ul.menu
+        float: right
+        margin: 0
+        padding: 0
+        display: none
+        +tablet
+          display: block
+        li
+          list-style-type: none
+          font-size: 18px
+          float: left
+          a
+            text-transform: uppercase
+            color: $white
+            font-weight: bold
+            padding: 0 20px
+            display: block
+      .user
+        float: right
+        line-height: 80px
+        margin-left: 40px
+        display: none
+        &:hover
+          cursor: pointer
+        +tablet
+          display: block
+        .avatar
+          display: inline-block
+          vertical-align: middle
+          background-color: $brand-primary
+          width: 30px
+          height: 30px
+          border-radius: 100%
+          margin-right: 12px
+          overflow: hidden
+          img
+            float: left
+            width: 100%
+        i, svg
+          vertical-align: middle
+  section
+    display: block
+    margin-bottom: $gutter-px 
+    &:first-of-type
+      margin-top: $gutter-px
+    padding: 0 15px
+    +tablet
+      padding: 0 $gutter-px
+    .heading
+      font-size: 32px
+      font-weight: 200
+      color: $gray
+      margin-right: 40px
+  .search-wrapper
+    width: 100%
+    margin-top: 20px
+    +tablet
+      margin-top: 0
+      width: 350px
+    height: 40px
+    background-color: #fff
+    border-radius: 10px
+    border: 1px solid #C4C4C4
+    overflow: hidden
+    position: relative
+    input
+      margin: 0
+      line-height: 40px
+      border: none
+      outline: none
+      width: 80%
+      height: 100%
+      padding: 0 20px
+      letter-spacing: 1px
+      background-color: transparent
+    .icon
+      width: 20%
+      float: right
+      text-align: center
+      i
+        color: $gray-light
+        font-size: 22px
+        line-height: 40px
+  section.title
+    & > *
+      display: inline-block
+      vertical-align: middle
+
+.dash-nav-menu-btn
+  float: right
+  display: block
+  i
+    cursor: pointer
+    vertical-align: middle
+  +tablet
+    display: none
+
+$mobile-nav-width: 200px
+.dash-nav-menu-mobile
+  position: fixed
+  z-index: 2000
+  width: $mobile-nav-width
+  left: 0
+  top: 0
+  height: 100vh
+  margin: 0
+  padding: 0
+  display: block
+  overflow-y: scroll
+  color: $white
+  background-color: $gray-dark
+  box-shadow: 2px 0 5px $black
+  transition: all 0.2s ease
+  &::-webkit-scrollbar
+    display: none
+  // Default hidden and off the window
+  opacity: 0
+  left: -1 * $mobile-nav-width
+  // Active, visible and in the frame
+  &.active
+    opacity: 1
+    left: 0
+  +tablet
+    display: none
+  .landing-nav-menu-header
+    overflow: hidden
+    .title, .material-icons
+      vertical-align: middle
+    .material-icons
+      cursor: pointer
+      float: right
+      display: block
+      padding: 20px 28px 0 28px
+  ul
+    margin: 0
+    padding: 0
+    li
+      margin: 0
+      padding: 0
+      a
+        text-transform: uppercase
+        letter-spacing: 1px
+        color: $white
+        padding: 20px 28px
+        display: block
+  hr
+    margin: 5px 26px
+    opacity: 0.5

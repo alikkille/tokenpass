@@ -1,58 +1,23 @@
 @extends('layouts.guest')
 
+@section('body_class') login @endsection
+
 @section('body_content')
-
-
-<h1>Register a New Tokenly Account</h1>
-
-@include('partials.errors', ['errors' => $errors])
-
-<p><strong>Note:</strong> If you already have an existing <a href="https://letstalkbitcoin.com">LetsTalkBitcoin.com</a> username and password, please <a href="/auth/login">login with those credentials</a> to create your new Tokenly account.</p>
-
-<div class="spacer2"></div>
-
-<form method="POST" action="/auth/register">
-
-    {!! csrf_field() !!}
-
-    <div class="form-group">
-        <label for="Name">Name</label>
-        <input required="required" name="name" type="text" class="form-control" id="Name" placeholder="Satoshi Nakamoto" value="{{ old('name') }}">
-    </div>
-
-    <div class="form-group">
-        <label for="Name">Username</label>
-        <input required="required" name="username" type="text" class="form-control" id="Name" placeholder="satoshi" value="{{ old('username') }}">
-    </div>
-
-    <div class="form-group">
-        <label for="Email">Email address</label>
-        <input required="required" name="email" type="email" class="form-control" id="Email" placeholder="youremail@yourwebsite.com" value="{{ old('email') }}">
-    </div>
-
-    <div class="spacer1"></div>
-
-    <div class="form-group">
-        <label for="Password">Password</label>
-        <input required="required" type="password" class="form-control" id="Password" name="password">
-    </div>
-
-    <div class="form-group">
-        <label for="Password">Confirm Password</label>
-        <input required="required" type="password" class="form-control" id="Password" name="password_confirmation">
-    </div>
-
-    <div class="spacer2"></div>
-
-    <div>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </div>
-
-</form>
-
-<div class="spacer4"></div>
-<p>Already have an account?  <a href="/auth/login">Login</a></p>
-
-
-
+<div class="everything">
+    <div class="logo">token<strong>pass</strong></div>
+        <div class="form-wrapper">
+            @include('partials.errors', ['errors' => $errors])
+            <form method="POST" action="/auth/register">
+                {!! csrf_field() !!}
+                <input type="text" name="name" placeholder="name" value="{{ old('name') }}" reqiuired>
+                <input type="text" name="username" placeholder="username" value="{{ old('username') }}" reqiuired>
+                <input type="password" name="password" placeholder="password" reqiuired>
+                <button type="submit" class="login-btn">Register</button>
+            </form>
+        </div>
+        <div class="register-subtext">
+            <span>Already have an account? <a href="/auth/login">Login</a></span>
+        </div>
+</div>
 @endsection
+
