@@ -46,7 +46,7 @@ class ListUserAddresses extends Command
             $all = true;
         }
         else{
-            $get_rows = User::where('username', $username)->orWhere('email', $username)->get();
+            $get_rows = User::where('username', $username)->orWhere('confirmed_email', $username)->get();
         }
         if(!$get_rows OR count($get_rows) == 0){
             $this->error('User not found');
