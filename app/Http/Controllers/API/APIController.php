@@ -779,7 +779,7 @@ class APIController extends Controller
 			return Response::json($output);
 		}		
 		
-		$user = User::where('username', $input['username'])->orWhere('slug', $username)->first();
+		$user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
 		if(!$user){
 			$error = true;
 			$output['error'] = 'Invalid credentials';
