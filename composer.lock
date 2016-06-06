@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d0a6343c0e59be169c0658f1a981bb6f",
-    "content-hash": "aefc9ae784e1c952766a238c2cd38150",
+    "hash": "5452fe200f2b6c516b04b3ab8f482c28",
+    "content-hash": "e6452dcad31dcb6c2f1964e8d4d28d16",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3467,12 +3467,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/platform-admin.git",
-                "reference": "a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c"
+                "reference": "acd1f4babc70a58b390af9aa744c963267f335b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c",
-                "reference": "a91ee448cf7c492cc1db9e2ab92ed6ceffac9b3c",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/acd1f4babc70a58b390af9aa744c963267f335b3",
+                "reference": "acd1f4babc70a58b390af9aa744c963267f335b3",
                 "shasum": ""
             },
             "require": {
@@ -3499,7 +3499,7 @@
                 }
             ],
             "description": "A platform administration module for Tokenly services",
-            "time": "2016-06-01 23:06:09"
+            "time": "2016-06-06 12:52:17"
         },
         {
             "name": "tokenly/token-controlled-access",
@@ -3507,17 +3507,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/token-controlled-access.git",
-                "reference": "42ea7f57a92d642a86ce822751b0a5e0c7eecd9d"
+                "reference": "522967578e036a450a9b3403ae6b2a4ea5947b79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/token-controlled-access/zipball/42ea7f57a92d642a86ce822751b0a5e0c7eecd9d",
-                "reference": "42ea7f57a92d642a86ce822751b0a5e0c7eecd9d",
+                "url": "https://api.github.com/repos/tokenly/token-controlled-access/zipball/522967578e036a450a9b3403ae6b2a4ea5947b79",
+                "reference": "522967578e036a450a9b3403ae6b2a4ea5947b79",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "tokenly/xchain-client": "^0.2"
+                "tokenly/xchain-client": "^0"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4"
@@ -3539,7 +3539,7 @@
                 }
             ],
             "description": "Library for providing Token Controlled Access functionality",
-            "time": "2016-04-29 12:33:08"
+            "time": "2016-06-06 11:32:41"
         },
         {
             "name": "tokenly/token-generator",
@@ -3583,16 +3583,16 @@
         },
         {
             "name": "tokenly/xchain-client",
-            "version": "v0.2.6",
+            "version": "v0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/xchain-client.git",
-                "reference": "3f9814b98b058a5478af3b212f0369e3f75f3fcc"
+                "reference": "61027bdb917d9f7989e15ed563335a234de9d017"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/3f9814b98b058a5478af3b212f0369e3f75f3fcc",
-                "reference": "3f9814b98b058a5478af3b212f0369e3f75f3fcc",
+                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/61027bdb917d9f7989e15ed563335a234de9d017",
+                "reference": "61027bdb917d9f7989e15ed563335a234de9d017",
                 "shasum": ""
             },
             "require": {
@@ -3622,7 +3622,7 @@
                 }
             ],
             "description": "A library",
-            "time": "2016-05-21 17:44:41"
+            "time": "2016-06-06 11:21:51"
         },
         {
             "name": "vlucas/phpdotenv",
