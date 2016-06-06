@@ -16,6 +16,8 @@ body.dashboard
         letter-spacing: 1px
         font-weight: 200
         float: left
+        a
+          color: $white
       ul.menu
         float: right
         margin: 0
@@ -164,3 +166,14 @@ $mobile-nav-width: 200px
   hr
     margin: 5px 26px
     opacity: 0.5
+
+.btn-dash-title
+  +btn_fill($gray)
+  +btn_small
+  display: block
+  width: 100%
+  margin-top: 10px
+  +tablet
+    width: inherit
+    display: inline-block
+    float: right

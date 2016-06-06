@@ -12,16 +12,30 @@
 </div>
 <div class="navigation">
   <div class="navigation-content">
-    <div class="logo"><span>token<strong>pass</strong></span></div>
+    <div class="logo">
+      <a href="/">
+        <span>token<strong>pass</strong></span>
+      </a>
+    </div>
     <div class="user">
-      <div class="avatar"><img src="https://randomuser.me/api/portraits/thumb/women/60.jpg"></div><i>
+      <div class="avatar">
+        <a href="/auth/update">
+          <img src="https://randomuser.me/api/portraits/thumb/women/60.jpg">
+        </a>
+      </div>
+      <i>
         <a href="/auth/logout">
           <svg style="width:24px;height:24px" viewBox="0 0 24 24">
             <path fill="#fff" d="M17,17.25V14H10V10H17V6.75L22.25,12L17,17.25M13,2A2,2 0 0,1 15,4V8H13V4H4V20H13V16H15V20A2,2 0 0,1 13,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H13Z"></path>
-          </svg></i>
+          </svg>
         </a>
+      </i>
     </div>
-    <div class="dash-nav-menu-btn"><i class="material-icons toggle-mobile-nav">dehaze</i></div>
+    <div class="dash-nav-menu-btn">
+      <i class="material-icons toggle-mobile-nav">
+        dehaze
+      </i>
+    </div>
     <ul class="menu">
       <li><a href="/inventory">Inventory</a></li>
       <li><a href="/pockets">Pockets</a></li>
