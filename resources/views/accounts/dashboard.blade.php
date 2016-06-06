@@ -1,10 +1,8 @@
 @extends('accounts.base')
 
+@section('body_class') dashboard inventory @endsection
+
 @section('accounts_content')
-
-
-
-
 
 <h1>Your Dashboard</h1>
 

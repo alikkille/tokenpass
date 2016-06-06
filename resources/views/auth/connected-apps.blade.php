@@ -1,5 +1,7 @@
 @extends('accounts.base')
 
+@section('body_class') dashboard inventory @endsection
+
 @section('accounts_content')
 
 <h1>My Connected Apps</h1>
