@@ -23,7 +23,7 @@ class Address extends Model
     ];
 
     
-    public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false)
+    public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false, $login_toggle=null)
     {
         $get = Address::where('user_id', '=', $userId);
         if($verified_only){
@@ -34,6 +34,9 @@ class Address extends Model
         }
         if($active_toggle !== null){
             $get = $get->where('active_toggle', '=', intval($active_toggle));
+        }
+        if($active_toggle !== null){
+            $get = $get->where('login_toggle', '=', intval($login_toggle));
         }
         return $get->orderBy('id', 'asc')->get();
     }

@@ -33,6 +33,7 @@
 					<th>Address</th>
 					<th>Public</th>
 					<th>Active</th>
+					<th>Use for Login</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -51,6 +52,9 @@
 						<td class="active-toggle">
 							<input type="checkbox" @if(intval($address->active_toggle) == 1 AND intval($address->verified) == 1) checked="checked" @endif data-toggle="toggle" data-width="30" data-height="20" data-address="{{ $address->address }}" @if(intval($address->verified) != 1) disabled @endif >
 						</td>
+						<td class="login-toggle">
+                        	<input type="checkbox" @if(intval($address->login_toggle) == 1 AND intval($address->verified) == 1) checked="checked" @endif data-toggle="toggleLogin" data-width="30" data-height="20" data-address="{{ $address->address }}" @if(intval($address->verified) != 1) disabled @endif >
+                        </td>
 						<td class="table-action">
 							@if($address->verified == 0)
 								<a href="#" class="btn btn-warning" title="Verify Address Ownership"  data-toggle="modal" data-target="#verify-address-modal-{{ $address->id }}"><i class="fa fa-check"></i> Verify</a>
@@ -243,7 +247,7 @@
 					<th>Asset</th>
 					<th>Balance</th>
 					<th>Active</th>
-					<th></th>
+					<th>Use for Login</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -21,6 +21,20 @@ $(document).ready(function(){
 			return true;
 		});
 	});
+
+    $('.address-table .login-toggle').find('.toggle').click(function(e){
+        var address = $(this).find('input[type="checkbox"]').data('address');
+        var checked = !$(this).find('input[type="checkbox"]').is(':checked'); //reverse check
+
+        var url = '/inventory/address/' + address + '/toggleLogin';
+        $.post(url, {toggle: checked}, function(data){
+            if(typeof data.error != 'undefined'){
+                alert(data.error);
+                return false;
+            }
+            return true;
+        });
+    });
 	
 	$('.asset-balance-toggle').click(function(e){
 		e.preventDefault();

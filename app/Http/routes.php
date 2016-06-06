@@ -62,6 +62,7 @@ Route::post('inventory/address/new', 'Inventory\InventoryController@registerAddr
 Route::post('inventory/address/{address}/edit', 'Inventory\InventoryController@editAddress');
 Route::post('inventory/address/{address}/verify', 'Inventory\InventoryController@verifyAddressOwnership');
 Route::post('inventory/address/{address}/toggle', 'Inventory\InventoryController@toggleAddress');
+Route::post('inventory/address/{address}/toggleLogin', 'Inventory\InventoryController@toggleLogin');
 Route::get('inventory/address/{address}/delete', 'Inventory\InventoryController@deleteAddress');
 Route::get('inventory/refresh', 'Inventory\InventoryController@refreshBalances');
 Route::get('inventory/check-refresh', 'Inventory\InventoryController@checkPageRefresh');
