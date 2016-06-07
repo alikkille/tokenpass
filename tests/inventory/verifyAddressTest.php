@@ -22,7 +22,6 @@ class InventoryTest extends TestCase
         $response = $this->call('GET', '/inventory');
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('<h1>Token Inventory', $response->getContent());
     }
 
     public function testRegisterAddress() {
