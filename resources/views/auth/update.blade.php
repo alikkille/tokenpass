@@ -25,20 +25,20 @@
                     <input required="required" name="name" type="text" id="Name" placeholder="Satoshi Nakamoto" value="{{ old('name') }}">
 
                     <label for="Name">Username</label>
-                    <p class="form-control-static">{{ $model['username'] }}</p>
+                    <input disabled value="{{ $model['username'] }}">
 
                     <label for="Email">Email address</label>
                     <input required="required" name="email" type="email" id="Email" placeholder="youremail@yourwebsite.com" value="{{ old('email') }}">
 
-                    <div class="sublabel">Enter a new password only if you wish to update your password</div>
                     <label for="Password">New Password</label>
+                    <div class="sublabel">Enter a new password only if you wish to update your password</div>
                     <input type="password" id="Password" name="new_password">
 
                     <label for="Password">Confirm New Password</label>
                     <input type="password" id="Password" name="new_password_confirmation">
 
-                    <div class="sublabel">Please verify your current password to save your changes</div>
                     <label for="Password">Current Password</label>
+                    <div class="sublabel">Please verify your current password to save your changes</div>
                     <input required="required" type="password" id="Password" name="password">
 
                     <button type="submit">Save</button>
