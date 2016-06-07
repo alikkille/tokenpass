@@ -150,7 +150,6 @@ return [
         Tokenly\XChainClient\XChainServiceProvider::class,
         Tokenly\LaravelEventLog\EventLogServiceProvider::class,
         Tokenly\LaravelApiProvider\APIServiceProvider::class,
-        Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -161,6 +160,9 @@ return [
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
         TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
         
+        // make sure to call this after all other service providers
+        Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
+
 
     ],
 

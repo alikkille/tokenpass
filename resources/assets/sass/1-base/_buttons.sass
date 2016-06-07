@@ -1,0 +1,50 @@
+$padding-v: 16px
+$padding-h: 50px
+
+@mixin btn_small
+  padding: 15px 24px
+  font-size: 14px
+
+@mixin btn_border_white
+  +btn_static
+  background-color: transparent
+  border: 2px solid $white
+  color: $white
+  &:hover
+    background-color: darken($white, 4%)
+    color: $black
+    border: 2px solid $white
+
+@mixin btn_fill($color)
+  +btn_static
+  background-color: $color
+  // compensate for lack of border
+  padding: ($padding-v + 2px) ($padding-h + 2px)
+  color: $white
+  &:hover
+    color: $white
+    background-color: lighten($color, 4%)
+
+@mixin btn_border($color)
+  +btn_static
+  background-color: transparent
+  border: 2px solid $color
+  color: $color
+  &:hover
+    background-color: darken($color, 4%)
+    color: $white
+    border: 2px solid $color
+
+@mixin btn_static
+  background-color: transparent
+  padding: $padding-v $padding-h
+  border: none
+  outline: none
+  font-size: 16px
+  font-weight: normal
+  letter-spacing: 1px
+  text-transform: uppercase
+  transition: all 0.1s ease-in-out
+  &:hover
+    outline: none
+    cursor: pointer

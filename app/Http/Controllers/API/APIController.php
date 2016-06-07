@@ -59,7 +59,7 @@ class APIController extends Controller
             $include_provisional = false;
         }
 		
-		$getUser = User::where('username', $username)->first();
+		$getUser = User::where('username', $username)->orWhere('slug', $username)->first();
 		if(!$getUser){
 			//try falling back to CMS - temporary
 			$cms = new CMSAccountLoader(env('CMS_ACCOUNTS_HOST'));
@@ -169,7 +169,7 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}		
 		
-		$user = User::where('username', $username)->first();
+		$user = User::where('username', $username)->orWhere('slug', $username)->first();
 		if(!$user){
 			$http_code = 404;
 			$output['result'] = false;
@@ -267,7 +267,7 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}		
 		
-		$user = User::where('username', $username)->first();
+		$user = User::where('username', $username)->orWhere('slug', $username)->first();
 		if(!$user){
 			$http_code = 404;
 			$output['result'] = false;
@@ -476,7 +476,7 @@ class APIController extends Controller
 				$user = $user['user'];
 			}
 		}			
-		$matchedUser = User::where('username', $username)->first();
+		$matchedUser = User::where('username', $username)->orWhere('slug', $username)->first();
 				
 		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
 			$output['error'] = 'Invalid user oauth token';
@@ -539,7 +539,7 @@ class APIController extends Controller
 				$user = $user['user'];
 			}
 		}			
-		$matchedUser = User::where('username', $username)->first();
+		$matchedUser = User::where('username', $username)->orWhere('slug', $username)->first();
 				
 		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
 			$output['error'] = 'Invalid user oauth token';
@@ -592,7 +592,7 @@ class APIController extends Controller
 				$user = $user['user'];
 			}
 		}			
-		$matchedUser = User::where('username', $username)->first();
+		$matchedUser = User::where('username', $username)->orWhere('slug', $username)->first();
 				
 		if(!$user OR !$matchedUser OR $user->id != $matchedUser->id){
 			$output['error'] = 'Invalid user oauth token';
@@ -779,7 +779,7 @@ class APIController extends Controller
 			return Response::json($output);
 		}		
 		
-		$user = User::where('username', $input['username'])->first();
+		$user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
 		if(!$user){
 			$error = true;
 			$output['error'] = 'Invalid credentials';
@@ -1210,7 +1210,7 @@ class APIController extends Controller
 			$output['error'] = 'Invalid API client ID';
 			return Response::json($output, 403);
 		}			
-		$get = User::where('username', $username)->first();
+		$get = User::where('username', $username)->orWhere('slug', $username)->first();
 		if(!$get){
 			$output['error'] = 'User not found';
 			return Response::json($output, 404);
@@ -1235,7 +1235,7 @@ class APIController extends Controller
 		$output['result'] = false;
 		
 		//find user
-		$user = User::where('username', $username)->first();
+		$user = User::where('username', $username)->orWhere('slug', $username)->first();
 		if(!$user){
 			$output['error'] = 'User not found'; 
 			return Response::json($output, 404);

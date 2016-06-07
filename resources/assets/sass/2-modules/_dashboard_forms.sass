@@ -1,0 +1,28 @@
+body.dashboard
+  form
+    label, input
+      display: block
+    label
+      text-transform: uppercase
+      color: $gray-light
+      margin-bottom: 4px
+      font-size: 12px
+    input
+      width: 100%
+      border: 1px solid $gray-lighter
+      outline: none
+      padding: 10px 20px
+      letter-spacing: 1px
+      margin-bottom: 10px
+    input[disabled]
+      background-color: $gray-lighter
+      color: $white
+    .sublabel
+      float: left
+      color: $gray-dark
+      font-size: 11px
+      font-weight: 200
+      margin-bottom: 3px
+    button
+      +btn_fill($gray-dark)
+      +btn_small
