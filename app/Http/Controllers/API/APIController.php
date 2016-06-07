@@ -1131,8 +1131,8 @@ class APIController extends Controller
 		if(!$valid_client){
 			$output['error'] = 'Invalid API client ID';
 			return Response::json($output, 403);
-		}			
-        
+		}
+
         if(isset($input['address_list']) AND is_array($input['address_list'])){
             //lookup multiple users at once
             $get = Address::select('address', 'user_id', 'public', 'active_toggle', 'verified')->whereIn('address', $input['address_list'])->get();
