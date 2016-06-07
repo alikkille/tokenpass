@@ -26,5 +26,6 @@
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DATABASE_DRIVER" value="testing"/>
         <env name="MAIL_DRIVER" value="log"/>
+        <env name="PLATFORM_ADMIN_DEVELOPMENT_MODE_ENABLED" value="false"/>
     </php>
 </phpunit>
