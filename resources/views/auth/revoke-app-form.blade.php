@@ -18,8 +18,6 @@
 
     {!! csrf_field() !!}
 
-
-
     <div class="spacer1"></div>
 
     <div>

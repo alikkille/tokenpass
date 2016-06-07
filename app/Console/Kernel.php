@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
         \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
         \TKAccounts\Console\Commands\ScanCoinAddresses::class,
         \TKAccounts\Console\Commands\ExpireProvisionalTransactions::class,
+        \TKAccounts\Console\Commands\ListUserAddresses::class,
+        \TKAccounts\Console\Commands\ListUsers::class,
+        \TKAccounts\Console\Commands\GetUser::class,
 
         // Migration Commands
         \TKAccounts\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
