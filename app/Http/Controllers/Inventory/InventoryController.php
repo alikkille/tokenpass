@@ -389,4 +389,14 @@ class InventoryController extends Controller
         return Response::json($output);
     }
 
+
+    public function getPockets()
+    {
+		$addresses = Address::getAddressList($this->user->id, null, null);
+		return view('inventory.pockets', array(
+			'addresses' => $addresses,
+		));
+    }
+
+
 }

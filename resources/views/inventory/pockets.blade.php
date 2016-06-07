@@ -12,9 +12,14 @@
   </div>
 </section>
 
+@foreach ($addresses as $address)
+
 <!-- TODO foreach pocket in pockets -->
 <section class="pockets">
   <div class="pocket">
+    <!-- DEBUG information -->
+    <pre>{{ json_encode($address, 192) }}</pre>
+
     <div class="active-toggle-wrapper">
       <div class="active-toggle-module" data-toggle="true">
         <div class="module-switch"></div>
@@ -32,5 +37,7 @@
     </div>
   </div>
 </section>
+
+@endforeach
 
 @endsection
