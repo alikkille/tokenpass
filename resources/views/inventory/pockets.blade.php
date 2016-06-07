@@ -1,6 +1,6 @@
 @extends('accounts.base')
 
-@section('body_class') dashboard inventory @endsection
+@section('body_class') dashboard pockets @endsection
 
 @section('accounts_content')
 
@@ -16,23 +16,25 @@
 
 <!-- TODO foreach pocket in pockets -->
 <section class="pockets">
+  <!-- DEBUG information -->
+  <!-- <pre>{{ json_encode($address, 192) }}</pre> -->
   <div class="pocket">
-    <!-- DEBUG information -->
-    <pre>{{ json_encode($address, 192) }}</pre>
-
     <div class="active-toggle-wrapper">
-      <div class="active-toggle-module" data-toggle="true">
+      <div class="active-toggle-module" data-toggle="{{ ($address['active_toggle']) ? 'true' : 'false' }}">
         <div class="module-switch"></div>
         <div class="module-background"></div>
       </div>
     </div>
     <div class="primary-info">
       <span class="name">
-        <a href="#">LTBcoin Compatible Address</a>
+        <a href="#">
+          {{ ($address['label']) ? $address['label'] : 'n/a' }}
+        </a>
       </span>
-      <span class="address">1JztwoasonzzoaONGSonazon3902eg</span>
+      <span class="address">{{ $address['address'] }}</span>
     </div>
-    <div class="settings-btn">
+    <div class="settings-btn">  
+      <!-- TODO Address details and settings page -->
       <i class="material-icons">settings</i>
     </div>
   </div>

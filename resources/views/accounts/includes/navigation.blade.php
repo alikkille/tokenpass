@@ -20,7 +20,7 @@
     <div class="user">
       <div class="avatar">
         <a href="/auth/update">
-          <img src="https://randomuser.me/api/portraits/thumb/women/60.jpg">
+          <i class="material-icons">person</i>
         </a>
       </div>
       <i>
