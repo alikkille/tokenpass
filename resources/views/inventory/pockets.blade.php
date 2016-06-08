@@ -12,15 +12,10 @@
   </div>
 </section>
 
-@foreach ($addresses as $address)
-
-<!-- TODO foreach pocket in pockets -->
-<section class="pockets">
-  <!-- DEBUG information -->
-  <!-- <pre>{{ json_encode($address, 192) }}</pre> -->
-  <div class="pocket">
+<section class="pockets" id="ele">
+  <div class="pocket" v-for="pocket in pockets">
     <div class="active-toggle-wrapper">
-      <div class="active-toggle-module" data-toggle="{{ ($address['active_toggle']) ? 'true' : 'false' }}">
+      <div class="active-toggle-module" data-toggle="@{{ pocket.label || 'n/a' }}">
         <div class="module-switch"></div>
         <div class="module-background"></div>
       </div>
@@ -28,10 +23,10 @@
     <div class="primary-info">
       <span class="name">
         <a href="#">
-          {{ ($address['label']) ? $address['label'] : 'n/a' }}
+          @{{ pocket.label || 'n/a' }}</
         </a>
       </span>
-      <span class="address">{{ $address['address'] }}</span>
+      <span class="address">@{{ pocket.address }}</span>
     </div>
     <div class="settings-btn">  
       <!-- TODO Address details and settings page -->
@@ -40,6 +35,16 @@
   </div>
 </section>
 
-@endforeach
+@endsection
 
+@section('page-js')
+<script>
+var pockets = JSON.parse('{!! json_encode($addresses) !!}');
+var pocket_el = new Vue({
+  el: '#ele',
+  data: {
+    pockets: pockets
+  }
+});
+</script>
 @endsection

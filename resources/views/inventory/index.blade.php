@@ -10,6 +10,9 @@
     <input type="text" placeholder="Search for a token...">
     <div class="icon"><i class="material-icons">search</i></div>
   </div>
+  <a href="/inventory/refresh" class="btn-dash-title">
+  	<i class="material-icons">refresh</i>Refresh Token Balances
+	</a>
 </section>
 
 @if($balances AND count($balances) > 0)
