@@ -61,7 +61,7 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
     {
         $get_user = DB::table('users')
             ->join('coin_addresses', 'coin_addresses.user_id', '=', 'users.id')
-            ->where('coin_addresses.address', '=', $data->request->get('address'))
+            ->where('coin_addresses.address', '=', $data)
             ->where('coin_addresses.verified', '=', 1)
             ->where('coin_addresses.login_toggle', '=', 1)
             ->where('coin_addresses.active_toggle', '=', 1)

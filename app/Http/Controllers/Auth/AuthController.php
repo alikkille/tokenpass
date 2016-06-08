@@ -3,6 +3,7 @@
 namespace TKAccounts\Http\Controllers\Auth;
 
 use Exception;
+use BitWasp\BitcoinLib\BitcoinLib;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -26,6 +27,7 @@ use TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
 use Validator;
+
 
 class AuthController extends Controller
 {
@@ -271,14 +273,25 @@ class AuthController extends Controller
     }
 
     public function postBitcoinLogin(Request $request) {
+
+        $sigval = $request->session()->get('sigval');
+        $sig = $request->request->get('sig');
+
+        try {
+            $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+            ]);
+        }
+
         $data = [
-            'sigval'  => $request->session()->get('sigval'),
-            'address' => $request->request->get('address'),
-            'sig'     => $request->request->get('sig')];
+            'sigval'  => $sigval,
+            'address' => $address,
+            'sig'     => $sig];
 
         if($this->verifySigniture($data)) {
             try {
-                $result = User::getByVerifiedAddress($request);
+                $result = User::getByVerifiedAddress($address);
             } catch(Exception $e) {
                 return redirect()->back()->withErrors([$this->getFailedLoginMessage()
                 ]);

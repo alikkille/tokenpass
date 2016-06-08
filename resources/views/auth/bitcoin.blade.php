@@ -32,10 +32,6 @@
         </h3>
     </div>
     <div class="form-group">
-        <label for="btc-address">BTC Address:</label>
-        <input type="text" id="btc-address" class="form-control" name="address" value="" required/>
-    </div>
-    <div class="form-group">
         <label for="btc-sign">Enter Message Signature:</label>
         <textarea class="form-control" name="sig" style="height: 150px;" required></textarea>
     </div>

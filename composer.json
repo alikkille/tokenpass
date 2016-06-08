@@ -19,7 +19,8 @@
         "mockery/mockery": "^0.9",
         "doctrine/dbal": "^2.5",
         "simplesoftwareio/simple-qrcode": "^1.4",
-        "satooshi/php-coveralls": "^1.0"
+        "satooshi/php-coveralls": "^1.0",
+        "bitwasp/bitcoin-lib": "dev-master@dev"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -32,7 +33,12 @@
         {
             "type": "vcs",
             "url": "https://github.com/cryptonaut420/html"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/tokenly/bitcoin-lib-php.git"
         }
+
     ],    
     "autoload": {
         "classmap": [
