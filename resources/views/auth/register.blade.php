@@ -9,9 +9,11 @@
             @include('partials.errors', ['errors' => $errors])
             <form method="POST" action="/auth/register">
                 {!! csrf_field() !!}
-                <input type="text" name="name" placeholder="name" value="{{ old('name') }}" reqiuired>
-                <input type="text" name="username" placeholder="username" value="{{ old('username') }}" reqiuired>
-                <input type="password" name="password" placeholder="password" reqiuired>
+                <input type="text" name="name" placeholder="name" value="{{ old('name') }}" required>
+                <input type="text" name="username" placeholder="username" value="{{ old('username') }}" required>
+                <input type="email" name="email" placeholder="email" value="{{ old('email') }}" required>
+                <input type="password" name="password" placeholder="password" required>
+                <input type="password" name="password_confirmation" placeholder="password (again)" required>
                 <button type="submit" class="login-btn">Register</button>
             </form>
         </div>
