@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "34ded0e4f6ff9496202722df51cc00e3",
+    "hash": "2c5638e60ba5d95627fbc3da67d281a6",
     "content-hash": "4c7deae4d1b872b4ea5710a4441b4c0f",
     "packages": [
         {
@@ -3684,12 +3684,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/platform-admin.git",
-                "reference": "1625fc857f07d516a72b1fd3df756e1cc1511a46"
+                "reference": "5e4d994a718aea0917655dec625e462ceace46a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/1625fc857f07d516a72b1fd3df756e1cc1511a46",
-                "reference": "1625fc857f07d516a72b1fd3df756e1cc1511a46",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/5e4d994a718aea0917655dec625e462ceace46a3",
+                "reference": "5e4d994a718aea0917655dec625e462ceace46a3",
                 "shasum": ""
             },
             "require": {
@@ -3716,7 +3716,7 @@
                 }
             ],
             "description": "A platform administration module for Tokenly services",
-            "time": "2016-06-07 20:05:15"
+            "time": "2016-06-08 15:47:56"
         },
         {
             "name": "tokenly/token-controlled-access",
