@@ -32,7 +32,11 @@ $('[data-tooltip]').on('click', function (e) {
 });
 
 $('.active-toggle-module').on('click', function(e) {
+  console.log('clicked')
   var $this = $(this);
-  var currentState = $this.attr('data-toggle') === 'true';
-  $this.attr('data-toggle', !currentState);
+  var currentState = parseInt($this.attr('data-toggle'));
+  console.log(currentState);
+  var newState = currentState ? 0 : 1;
+  console.log(newState);
+  $this.attr('data-toggle', newState);
 });
