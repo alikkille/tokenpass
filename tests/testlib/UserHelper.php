@@ -149,6 +149,15 @@ class UserHelper
         return $this->createNewUser($user_vars);
     }
 
+    public function getOrCreateSampleUser() {
+        $email = $this->defaultUserVars()['email'];
+        $user = app('TKAccounts\Repositories\UserRepository')->findByEmail($email);
+        if (!$user) {
+            $user = $this->createNewUser();
+        }
+        return $user;
+    }
+
     public function createNewUser($user_override_vars = []) {
         $user_vars = array_merge($this->defaultUserVars(), $user_override_vars);
 
