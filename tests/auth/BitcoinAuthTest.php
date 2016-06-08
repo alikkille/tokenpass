@@ -23,9 +23,9 @@ class BitcoinAuthTest extends TestCase {
         $x = 1;
         $list = [];
         while($x <= 1000) {
-            $one = mt_rand(0, 2047);
-            $two = mt_rand(0, 2047);
-            $code = mt_rand(0, 99);
+            $one = random_int(0, 2047);
+            $two = random_int(0, 2047);
+            $code = random_int(0, 99);
             array_push($list, $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code);
             $x++;
         }

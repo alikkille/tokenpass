@@ -143,14 +143,14 @@ class Address extends Model
         $dictionary = explode(PHP_EOL, $file_content);
 
         if(is_null($entropy)) {
-            $one = mt_rand(0, 2047);
-            $two = mt_rand(0, 2047);
-            $code = mt_rand(0, 99);
+            $one = random_int(0, 2047);
+            $two = random_int(0, 2047);
+            $code = random_int(0, 99);
         } else {
             $x = 0;
             $generation = [];
             while ($x < $entropy) {
-                $generation[$x] = mt_rand(0, 2047);
+                $generation[$x] = random_int(0, 2047);
                 $x++;
             }
 
