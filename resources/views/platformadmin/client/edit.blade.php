@@ -19,8 +19,12 @@
 
     <div class="row">
         <div class="six columns">
+            
             {!! Form::label('id', 'Client ID') !!}
             {{ $model['id'] }}
+            <br><br>
+            {!! Form::label('secret', 'Client Secret') !!}
+            {{ $model['secret'] }}            
         </div>
 
         <div class="six columns">
