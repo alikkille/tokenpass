@@ -8,7 +8,9 @@
     <div class="row">
         <h1>Clients</h1>
     </div>
-
+    <p>
+        <strong># Clients:</strong> {{ count($models) }}
+    </p>
     <table class="u-full-width">
       <thead>
         <tr>
