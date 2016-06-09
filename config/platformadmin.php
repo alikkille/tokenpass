@@ -11,14 +11,12 @@ return [
             'options'         => ['except' => 'show',],
         ],
         [
-            'developmentMode' => true,
             'type'            => 'resource',
             'name'            => 'platform.admin.connectedapps',
             'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ConnectedApplicationsController::class,
             'options'         => ['except' => 'show',],
         ],
         [
-            'developmentMode' => true,
             'type'            => 'resource',
             'name'            => 'platform.admin.client',
             'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ClientController::class,
@@ -28,9 +26,10 @@ return [
 
     'navigation' => [
         [
-            'route'        => 'promise.index',
-            'activePrefix' => 'promise',
-            'label'        => 'Promises',
+            'developmentMode' => true,
+            'route'           => 'promise.index',
+            'activePrefix'    => 'promise',
+            'label'           => 'Promises',
         ],
 
         [

@@ -3684,12 +3684,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/platform-admin.git",
-                "reference": "fe0635f36995cfb1088431dc4a585aeb689daec1"
+                "reference": "d47339290ea9bd0a5f22bf36e9d9f7789ed388fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/fe0635f36995cfb1088431dc4a585aeb689daec1",
-                "reference": "fe0635f36995cfb1088431dc4a585aeb689daec1",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/d47339290ea9bd0a5f22bf36e9d9f7789ed388fc",
+                "reference": "d47339290ea9bd0a5f22bf36e9d9f7789ed388fc",
                 "shasum": ""
             },
             "require": {
@@ -3719,7 +3719,7 @@
                 }
             ],
             "description": "A platform administration module for Tokenly services",
-            "time": "2016-06-09 00:19:35"
+            "time": "2016-06-09 01:56:59"
         },
         {
             "name": "tokenly/token-controlled-access",
