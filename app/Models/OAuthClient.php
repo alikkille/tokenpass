@@ -34,6 +34,16 @@ class OAuthClient extends APIModel {
 		}
 		return true;
 	}
+    
+    public function countConnections()
+    {
+        return DB::table('client_connections')->where('client_id', $this->id)->count();
+    }
+    
+    public function user()
+    {
+        return User::find($this->user_id);
+    }
 	
 
 }

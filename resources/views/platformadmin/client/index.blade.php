@@ -13,7 +13,9 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Owner</th>
           <th>ID</th>
+          <th>Connections</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -21,7 +23,17 @@
         @foreach ($models as $model)
         <tr>
           <td>{{ $model['name'] }}</td>
+          <td>
+              <strong>
+            @if($model['user_id'] == 0)
+                Platform
+            @else
+                {{ $model->user()->username }}
+            @endif
+                </strong>
+          </td>
           <td>{{ $model['id'] }}</td>
+          <td>{{ $model->countConnections() }}</td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.client.edit', ['id' => $model['id']]) }}">Edit</a>
 
