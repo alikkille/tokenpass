@@ -8,7 +8,9 @@
     <div class="row">
         <h1>Connections</h1>
     </div>
-
+    <p>
+        <strong>Total # Connections:</strong> {{ number_format(count($models)) }}
+    </p>
     <table class="u-full-width">
       <thead>
         <tr>

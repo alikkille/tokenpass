@@ -35,7 +35,7 @@
                 </strong>
           </td>
           <td>{{ $model['id'] }}</td>
-          <td>{{ $model->countConnections() }}</td>
+          <td><a href="{{ route('platform.admin.connectedapps.index', array('client_id' => $model['id'])) }}">{{ $model->countConnections() }}</a></td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.client.edit', ['id' => $model['id']]) }}">Edit</a>
 
