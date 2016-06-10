@@ -22,6 +22,12 @@ return [
             'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ClientController::class,
             'options'         => ['except' => 'show',],
         ],
+        [
+            'type'            => 'resource',
+            'name'            => 'platform.admin.scopes',
+            'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ScopeController::class,
+            'options'         => ['except' => 'show',],
+        ],        
     ],
 
     'navigation' => [
@@ -43,6 +49,11 @@ return [
             'activePrefix' => 'connectedapps',
             'label'        => 'Connected Apps',
         ],
+        [
+            'route'        => 'scopes.index',
+            'activePrefix' => 'scopes',
+            'label'        => 'OAuth Scopes',
+        ],        
 
     ],
 ];
