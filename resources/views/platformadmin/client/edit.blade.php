@@ -30,6 +30,9 @@
         <div class="six columns">
             {!! Form::label('name', 'Client Name') !!}
             {!! Form::text('name', $model['name'], ['class' => 'u-full-width']) !!}
+            <br><br>
+            {!! Form::label('endpoints', 'OAuth Endpoints') !!}
+            {!! Form::textarea('endpoints', $model->endpointsText(), ['class' => 'u-full-width']) !!}            
         </div>
 
         <div class="six columns">
