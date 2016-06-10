@@ -40,7 +40,7 @@
             <a class="button button-primary" href="{{ route('platform.admin.client.edit', ['id' => $model['id']]) }}">Edit</a>
 
             {{-- inline delete form --}}
-            <form onsubmit="return confirm('Are you sure you want to delete this balance?')" action="{{ route('platform.admin.client.destroy', ['id' => $model['id']]) }}" method="POST" style="margin-bottom: 0; display: inline;">
+            <form onsubmit="return confirm('Are you sure you want to delete this client?')" action="{{ route('platform.admin.client.destroy', ['id' => $model['id']]) }}" method="POST" style="margin-bottom: 0; display: inline;">
             <input type="hidden" name="_method" value="DELETE">
               <button type="submit" class="button-primary">Delete</button>
             </form>
