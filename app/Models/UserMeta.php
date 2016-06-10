@@ -26,6 +26,19 @@ class UserMeta extends Model
 		}
 		return $get->meta_value;
 	}
+
+    public static function getDurationValueHasBeenSet($value)
+    {
+        $get = UserMeta::where('meta_value', '=', $value)->first();
+        $time_diff =  time() - strtotime($get->updated_at);
+        return $time_diff;
+    }
+
+    public static function getMetaExtraValue($value)
+    {
+        $get = UserMeta::where('meta_value', '=', $value)->first();
+        return $get->extra;
+    }
 	
 	public static function setMeta($id, $key, $value, $access_level = 0, $owner_client = 0, $extra = '')
 	{
@@ -39,6 +52,7 @@ class UserMeta extends Model
 			$get->extra = $extra;
 		}
 		$get->meta_value = $value;
+        $get->extra = $extra;
 		$get->save();
 		return true;
 	}

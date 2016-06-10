@@ -134,6 +134,8 @@ Route::get('oauth/user', [
 
 Route::get('api/v1/tca/check/{username}', array('as' => 'api.tca.check', 'uses' => 'API\APIController@checkTokenAccess'));
 Route::get('api/v1/tca/check-address/{address}', array('as' => 'api.tca.check-address', 'uses' => 'API\APIController@checkAddressTokenAccess'));
+Route::get('api/v1/tca/check-sign/{address}', array('as' => 'api.tca.check-sign', 'uses' => 'API\APIController@checkSignRequirement'));
+//Route::get('api/v1/tca/set-sign/{username}/{signature}', array('as' => 'api.tca.set-sign', 'uses' => 'API\APIController@setSignRequirement'));
 Route::get('api/v1/tca/addresses/{username}', array('as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses'));
 Route::get('api/v1/tca/addresses/{username}/refresh', array('as' => 'api.tca.addresses.refresh', 'uses' => 'API\APIController@getRefreshedAddresses'));
 Route::get('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.details', 'uses' => 'API\APIController@getAddressDetails'));

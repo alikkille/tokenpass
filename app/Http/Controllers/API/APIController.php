@@ -1,6 +1,7 @@
 <?php
 namespace TKAccounts\Http\Controllers\API;
 use DB, Exception, Response, Input, Hash;
+use BitWasp\BitcoinLib\BitcoinLib;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -148,6 +149,91 @@ class APIController extends Controller
 		}
 		return Response::json($output, $http_code);
 	}
+
+    public function checkSignRequirement($username) {
+        $output = array();
+        $input = Input::all();
+
+        //check if a valid application client_id
+        $valid_client = false;
+        if(isset($input['client_id'])){
+            $get_client = AuthClient::find(trim($input['client_id']));
+            if($get_client){
+                $valid_client = $get_client;
+            }
+        }
+        if(!$valid_client){
+            $output['error'] = 'Invalid API client ID';
+            $output['result'] = false;
+            return Response::json($output, 403);
+        }
+
+        $user = User::where('username', $username)->orWhere('slug', $username)->first();
+        if(!$user) {
+            $output['result'] = false;
+            $output['error'] = 'Username not found';
+            return Response::json($output, 404);
+        }
+
+        $details = Address::getUserVerificationCode($user);
+        $output['result'] = $details['extra'];
+
+        return Response::json($output);
+    }
+
+    // disabled until encoding of url is fixed
+    public function setSignRequirement($username, $signature) {
+
+        $output = array();
+        $input = Input::all();
+
+        //check if a valid application client_id
+        $valid_client = false;
+        if(isset($input['client_id'])){
+            $get_client = AuthClient::find(trim($input['client_id']));
+            if($get_client){
+                $valid_client = $get_client;
+            }
+        }
+        if(!$valid_client){
+            $output['error'] = 'Invalid API client ID';
+            $output['result'] = false;
+            return Response::json($output, 403);
+        }
+
+        $user = User::where('username', $username)->orWhere('slug', $username)->first();
+        if(!$user) {
+            $output['result'] = false;
+            $output['error'] = 'Username not found';
+            return Response::json($output, 404);
+        }
+
+        // calculate address for signing.
+        $user = User::where('username', $username)->orWhere('slug', $username)->first();
+        $address = BitcoinLib::deriveAddressFromSignature($signature, Address::getUserVerificationCode($user));
+        if(!$address) {
+            $output['result'] = false;
+            $output['error'] = 'Signature dervice function failed';
+            return Response::json($output, 403);
+        }
+
+        //verify signed message on xchain
+        $xchain = app('Tokenly\XChainClient\Client');
+        try{
+            $verify = $xchain->verifyMessage($address, $signature, Address::getUserVerificationCode($user));
+        } catch(Exception $e) {
+            $verify = false;
+        }
+        if(!$verify OR !isset($verify['result']) OR !$verify['result']){
+            $output['error'] = 'Signature invalid';
+            return Response::json($output, 400);
+        }
+        if($verify) {
+            UserMeta::setMeta($user->id,'sign_auth',Address::getUserVerificationCode($user),0,0,'signed');
+            $output['result'] = 'Signed';
+            return Response::json($output);
+        }
+    }
 	
 	public function getAddresses($username, $force_refresh = false)
 	{
@@ -170,8 +256,7 @@ class APIController extends Controller
 		}		
 		
 		$user = User::where('username', $username)->orWhere('slug', $username)->first();
-		if(!$user){
-			$http_code = 404;
+		if(!$user) {
 			$output['result'] = false;
 			$output['error'] = 'Username not found';
 			return Response::json($output, 404);

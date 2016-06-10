@@ -127,6 +127,26 @@ class Address extends Model
         $message = hash('sha256', $user->uuid . ' ' . $entropy);
         return $message;
     }
+
+    public static function getUserVerificationCode($user)
+    {
+        $result = [];
+        $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
+        if ($sign_auth == false) {
+            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user));
+            $sign_auth = UserMeta::getMeta($user->id, 'sign_auth');
+        }
+        if ($sign_auth != false) {
+            $result['seconds'] = UserMeta::getDurationValueHasBeenSet($sign_auth);
+            $result['extra'] = UserMeta::getMetaExtraValue($sign_auth);
+        }
+        if ($result['seconds'] > 7200) {
+            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
+        }
+
+        $result['user_meta'] = UserMeta::getMeta($user->id,'sign_auth');
+        return $result;
+    }
     
     public static function getVerifyCode($address)
     {
