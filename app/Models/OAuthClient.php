@@ -34,6 +34,38 @@ class OAuthClient extends APIModel {
 		}
 		return true;
 	}
+    
+    public function countConnections()
+    {
+        return DB::table('client_connections')->where('client_id', $this->id)->count();
+    }
+    
+    public function connections()
+    {
+        return DB::table('client_connections')->where('client_id', $this->id)->get();
+    }
+    
+    public function user()
+    {
+        return User::find($this->user_id);
+    }
+    
+    public function endpoints()
+    {
+        return DB::table('oauth_client_endpoints')->where('client_id', $this->id)->get();
+    }
+    
+    public function endpointsText()
+    {
+        $get = $this->endpoints();
+        $text = '';
+        if($get){
+            foreach($get as $row){
+                $text .= $row->redirect_uri.PHP_EOL;
+            }
+        }
+        return $text;
+    }
 	
 
 }

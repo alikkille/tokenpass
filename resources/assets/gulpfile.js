@@ -37,7 +37,7 @@ gulp.task('scripts', function () {
     .pipe(concat("application.js"))
     .pipe(gulp.dest(JS_DEST))
     .pipe(rename("application.min.js"))
-    .pipe(uglify())
+    // .pipe(uglify())
     .pipe(gulp.dest(JS_DEST))
     .pipe(browserSync.reload({ stream:true }))
 });

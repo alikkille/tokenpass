@@ -1,9 +1,16 @@
 <?php
 namespace TKAccounts\Models;
 use Exception, DB;
+use Illuminate\Database\Eloquent\Model;
 
-class Provisional
+class Provisional extends Model
 {
+
+    protected static $unguarded = true;
+
+    protected $table = 'provisional_tca_txs';
+
+
     public static function getProofMessage($address, $client_id)
     {
         return $address.'_'.Provisional::getProofHash($client_id);

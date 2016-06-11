@@ -77,5 +77,10 @@ class ClientConnectionRepository extends APIRepository
         }
         return $out;
     }
+    
+    public function findByClientId($client_id)
+    {
+        return $this->prototype_model->where('client_id', $client_id)->get();
+    }
 
 }

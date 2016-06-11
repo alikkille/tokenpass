@@ -78,14 +78,6 @@ Route::post('auth/apps/new', 'Auth\AppsController@registerApp');
 Route::post('auth/apps/{app}/edit', 'Auth\AppsController@updateApp');
 Route::get('auth/apps/{app}/delete', 'Auth\AppsController@deleteApp');
 
-// -------------------------------------------------------------------------
-// Admin routes
-
-Route::get('admin', ['middleware' => ['auth','admin',], function() {
-    return view('admin.index');
-}]);
-Route::resource('admin/oauthclients', 'Admin\OAuthClientsController');
-Route::resource('admin/oauthscopes', 'Admin\OAuthScopesController');
 
 
 // -------------------------------------------------------------------------
