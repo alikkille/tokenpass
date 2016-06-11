@@ -33,12 +33,6 @@ class InventoryController extends Controller
 		$balance_addresses = array();
 		foreach($addresses as $address){
 
-            // Generate message for signing and flash for POST results
-            if($address->verified == 0) {
-                $address['secure_code'] = Address::getSecureCodeGeneration();
-                Session::flash($address->address,$address['secure_code']);
-            }
-
 			$bals = Address::getAddressBalances($address->id, false, false);
 			if(!$bals OR count($bals) == 0){
 				continue;
@@ -442,6 +436,15 @@ class InventoryController extends Controller
     public function getPockets()
     {
 		$addresses = Address::getAddressList($this->user->id, null, null);
+		foreach($addresses as $address) {
+
+			// Generate message for signing and flash for POST results
+			if ($address->verified == 0) {
+				$address['secure_code'] = Address::getSecureCodeGeneration();
+				Session::flash($address->address, $address['secure_code']);
+			}
+		}
+
 		return view('inventory.pockets', array(
 			'addresses' => $addresses,
 		));
