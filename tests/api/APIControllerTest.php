@@ -749,6 +749,26 @@ class APIControllerTest extends TestCase {
 
     }
 
+    public function testCheckSignRequirement() {
+        $this->buildOAuthScope();
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        // Bad client ID
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.check-sign', ['username' => 'johndoe', 'client_id' => 'fakeID']),[],403);
+        PHPUnit::assertContains('Invalid API client ID', $response['error']);
+
+        // Non existent user
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.check-sign', ['username' => 'fakename', 'client_id' => 'MY_API_TOKEN']),[],404);
+        PHPUnit::assertContains('Username not found', $response['error']);
+
+        // Real result
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.check-sign', ['username' => 'johndoe', 'client_id' => 'MY_API_TOKEN']),[],200);
+        PHPUnit::assertContains('unsigned', $response['result']);
+    }
+
     ////////////////////////////////////////////////////////////////////////
 
     protected function buildOAuthScope() {

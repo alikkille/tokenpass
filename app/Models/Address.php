@@ -133,7 +133,7 @@ class Address extends Model
         $result = [];
         $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
         if ($sign_auth == false) {
-            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user));
+            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
             $sign_auth = UserMeta::getMeta($user->id, 'sign_auth');
         }
         if ($sign_auth != false) {
@@ -145,12 +145,8 @@ class Address extends Model
         }
 
         $result['user_meta'] = UserMeta::getMeta($user->id,'sign_auth');
+
         return $result;
-    }
-    
-    public static function getVerifyCode($address)
-    {
-        return substr(hash('sha256', $address->address.':'.$address->user_id), 0, 10);
     }
 
     public static function getSecureCodeGeneration($entropy=null, $language=null)
