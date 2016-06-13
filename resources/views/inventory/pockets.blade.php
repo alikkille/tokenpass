@@ -188,13 +188,6 @@ var vm = new Vue({
     },
     setCurrentPocket: function(pocket){
       this.currentPocket = pocket;
-    },
-    getVerificationCode: function(pocket){
-      // $.ajax('/getPocketVerificationCode' , {
-      //   success: function(data) {
-      //     pocket.verificationCode = data.verificationCode;
-      //   }
-      // })
     }
   }
 });

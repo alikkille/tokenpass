@@ -10,6 +10,7 @@ body.inventory
       border-right: 1px solid #EEEEEE
       overflow: hidden
       padding: 0 20px
+      display: flex
       &:last-of-type
         border-bottom: 1px solid #EEEEEE
       .token-indicator
@@ -32,16 +33,22 @@ body.inventory
           float: left
         font-size: 18px
         font-weight: 200
+        display: flex
         .quantity
           display: inline-block
           margin-right: 10px
           width: 140px
           text-align: right
+        .nickname
+          width: 200px
+          display: inline-block
       .secondary-info
         float: right
         font-size: 14px
         color: $gray-light
         display: none
+        word-wrap: wrap
+
         +tablet
           display: block
         .expiration

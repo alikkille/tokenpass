@@ -22,29 +22,32 @@
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
     	-->
     	<div class="token-indicator">
-    		<input class="toggle toggle-round-flat" id="token-@{{ $index }}" type="checkbox" checked="">
-    		<label for="token-@{{ $index }}"></label>
+    		<input class="toggle toggle-round-flat" id="token-@{{ $key }}" type="checkbox" checked="">
+    		<label for="token-@{{ $key }}"></label>
     	</div>
+
 	    <div class="primary-info">
 	    	<span class="muted quantity">
-	    		@{{ formatQuantity(token.quantity) }}
+	    		@{{ formatQuantity(token) }}
     		</span>
 	    	<span class="nickname">
-          <!-- TODO: Link to Token details page  -->
-	    		@{{ token.name }}
+          <a href="https://blockscan.com/assetInfo/@{{ $key }}" target="_blank">@{{ $key }}</a>
     		</span>
 	    </div>
-	    <div class="secondary-info">
-	    	<!-- TODO: Token expiration
-    		<span class="expiration">Expires at 12AM EST, July 17th, 2016</span> 
-    		-->
-				
-	    	<!-- TODO: Token official name
-	    	<span class="name">
-	    		<a href="#">1 Sponsorship of the Let’s Talk Bitcoin Show!</a>
-	    	</span>
-	    	-->
-	  	</div>
+
+      <div class="secondary-info">
+        <!-- TODO: Token expiration
+        <span class="expiration">Expires at 12AM EST, July 17th, 2016</span> 
+        -->
+        
+        <!-- TODO: Token official name
+        <span class="name">
+          <a href="#">1 Sponsorship of the Let’s Talk Bitcoin Show!</a>
+        </span>
+        -->
+        @{{ getBalanceAddresses($key) }}
+      </div>
+
 		</div>
 	</section>
 </div>
@@ -59,23 +62,33 @@ var addresses = {!! json_encode($addresses) !!};
 var balance_addresses = {!! json_encode($balance_addresses) !!};
 var disabled_tokens = {!! json_encode($disabled_tokens) !!};
 
-var balances_arr = [];
-for (var key in balances) {
-	balances_arr.push({
-		name: key,
-		quantity: balances[key]
-	})
-}
 var vm = new Vue({
   el: '#tokensController',
   data: {
     search: '',
-    tokens: balances_arr
+    tokens: balances,
+    balance_addresses: balance_addresses
   },
   methods: {
   	formatQuantity: function(q){
   		return (q / 100000000).toFixed(8)
-  	}
+  	},
+    getBalanceAddresses: function(token){
+      console.log(token)
+      var balance_addresses_arr = [];
+      var balances = this.balance_addresses[token]
+      for (var key in balances){
+        console.log(key)
+        console.log(balances)
+        balance_addresses_arr.push({
+          address: key,
+          provisional: balances[key]['provisional'],
+          real: balances[key]['real']
+        })
+        console.log(balances[key]['provisional'])
+      }
+      return JSON.stringify(balance_addresses_arr);
+    }
   }
 });
 </script>
