@@ -27,6 +27,12 @@ return [
             'name'            => 'platform.admin.scopes',
             'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ScopeController::class,
             'options'         => ['except' => 'show',],
+        ],
+        [
+            'type'            => 'resource',
+            'name'            => 'platform.admin.address',
+            'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\AddressController::class,
+            'options'         => ['except' => 'show',],
         ],        
     ],
 
@@ -54,6 +60,10 @@ return [
             'activePrefix' => 'scopes',
             'label'        => 'OAuth Scopes',
         ],        
-
+        [
+            'route'        => 'address.index',
+            'activePrefix' => 'address',
+            'label'        => 'Pocket Addresses',
+        ],        
     ],
 ];
