@@ -26,11 +26,12 @@
     		<label for="token-@{{ $index }}"></label>
     	</div>
 	    <div class="primary-info">
-	    	<span class="quantity">
+	    	<span class="muted quantity">
 	    		@{{ formatQuantity(token.quantity) }}
     		</span>
 	    	<span class="nickname">
-	    		<a href="#">@{{ token.name }}</a>
+          <!-- TODO: Link to Token details page  -->
+	    		@{{ token.name }}
     		</span>
 	    </div>
 	    <div class="secondary-info">
@@ -54,6 +55,10 @@
 
 // Convert php object of key-value pairs into array of balance objects.
 var balances = JSON.parse('{!! json_encode($balances) !!}');
+var addresses = JSON.parse('{!! json_encode($addresses) !!}');
+var balance_addresses = JSON.parse('{!! json_encode($balance_addresses) !!}');
+var disabled_tokens = JSON.parse('{!! json_encode($disabled_tokens) !!}');
+
 var balances_arr = [];
 for (var key in balances) {
 	balances_arr.push({
