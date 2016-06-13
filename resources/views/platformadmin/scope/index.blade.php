@@ -14,16 +14,20 @@
     <table class="u-full-width">
       <thead>
         <tr>
+          <th>Label</th>
           <th>Scope ID</th>
           <th>Description</th>
+          <th>Notice Level</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         @foreach ($models as $model)
         <tr>
+          <td>{{ $model['label'] }}</td>
           <td>{{ $model['id'] }}</td>
           <td>{{ $model['description'] }}</td>
+          <td>{{ $model['notice_level'] }}</td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.scopes.edit', ['id' => $model['id']]) }}">Edit</a>
 

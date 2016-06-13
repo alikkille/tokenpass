@@ -21,10 +21,20 @@
 
         <div class="six columns">
             {!! Form::label('id', 'Scope ID') !!}
-            {!! Form::text('id', null, ['class' => 'u-full-width']) !!}
+            {!! Form::text('id', null, ['class' => 'u-full-width']) !!}            
             <br><br>
+            {!! Form::label('label', 'Label') !!}
+            {!! Form::text('label', null, ['class' => 'u-full-width']) !!}            
+            <br><br>            
             {!! Form::label('description', 'Description') !!}
-            {!! Form::textarea('description', null, ['class' => 'u-full-width', ]) !!}            
+            {!! Form::textarea('description', null, ['class' => 'u-full-width', ]) !!}      
+            <br><br>
+            {!! Form::label('notice_level', 'Notice Level') !!}
+            <select id="notice_label" name="notice_level">
+                @for($i = 0; $i < 4; $i++)
+                    <option value="{{ $i }}">{{ $i }}</option>
+                @endfor;
+            </select>                       
         </div>
 
         <div class="six columns">
