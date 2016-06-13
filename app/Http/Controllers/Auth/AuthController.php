@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -263,20 +264,18 @@ class AuthController extends Controller
 
     }
 
-    public function getBitcoinLogin(Request $request) {
+    public function getBitcoinLogin() {
 
         // Generate message for signing and flash for POST results
         $sigval = Address::getSecureCodeGeneration();
-        $request->session()->flash('sigval', $sigval);
-
+        Session::flash('sigval', $sigval);
         return view('auth.bitcoin', ['sigval' => $sigval]);
     }
 
     public function postBitcoinLogin(Request $request) {
-
-        $sigval = $request->session()->get('sigval');
-        $sig = $request->request->get('sig');
-
+        $sigval = Session::get('sigval');
+        $sig = $request->request->get('signed_message');
+        
         try {
             $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
         } catch(Exception $e) {
