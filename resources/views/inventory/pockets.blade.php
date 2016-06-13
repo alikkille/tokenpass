@@ -28,7 +28,7 @@
         
           <label for="verify-code">Verification Code</label>
           
-          <input type="text" id="verify-code" value="code-@{{ currentPocket.address }}" disabled>
+          <input type="text" id="verify-code" value="@{{ currentPocket.secure_code }}" disabled>
 
           <label for="verify-address">BTC Address:</label>
           <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
