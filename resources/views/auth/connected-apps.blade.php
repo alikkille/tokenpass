@@ -13,7 +13,8 @@
         <ul class="connection_entries">
             @foreach ($connection_entries as $entry)
                 <li class="connection_entry">
-
+                    <!-- TODO: Access level text -->
+                    <div class="access-level">Access level</div>
                     <div class="entry-module client-name">
                         <div class="title">Client Name</div>
                         <div class="details">{{$entry['client']['name']}}</div>
@@ -26,7 +27,8 @@
                         <div class="title">Options</div>
                         <div class="details">
                             <a href="/auth/revokeapp/{{$entry['client']['uuid']}}">
-                                <i class="material-icons">cancel</i> Revoke
+                                <i class="material-icons">cancel</i>
+                                Revoke
                             </a>
                         </div>
                     </div>
@@ -44,7 +46,7 @@
 <script>
 
 // Convert php object of key-value pairs into array of balance objects.
-var connection_entries = JSON.parse('{!! json_encode($connection_entries) !!}');
+// var connection_entries = JSON.parse('{!! json_encode($connection_entries) !!}');
 
 </script>
 @endsection

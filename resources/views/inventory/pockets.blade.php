@@ -10,6 +10,9 @@
     <div class="modal-bg"></div>
     <div class="modal-content">
       <h3 class="light">Verify Pocket</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">cancel</i>
+      </div>
       <p>
         In order for Tokenpass to track your address balances
         and provide access to "Token Controlled Access" features, you must 
