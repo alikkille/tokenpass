@@ -54,10 +54,10 @@
 <script>
 
 // Convert php object of key-value pairs into array of balance objects.
-var balances = JSON.parse('{!! json_encode($balances) !!}');
-var addresses = JSON.parse('{!! json_encode($addresses) !!}');
-var balance_addresses = JSON.parse('{!! json_encode($balance_addresses) !!}');
-var disabled_tokens = JSON.parse('{!! json_encode($disabled_tokens) !!}');
+var balances = {!! json_encode($balances) !!};
+var addresses = {!! json_encode($addresses) !!};
+var balance_addresses = {!! json_encode($balance_addresses) !!};
+var disabled_tokens = {!! json_encode($disabled_tokens) !!};
 
 var balances_arr = [];
 for (var key in balances) {

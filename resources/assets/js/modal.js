@@ -5,6 +5,9 @@
     self.init = function(modal){
       self.$modal = $(modal);
       self.bindEvents();
+      self.animationTime = 200;
+      self.hideOffsetTop = '-10px';
+      self.$modal.css({top: self.hideOffsetTop});
     };
 
     self.bindEvents = function(){
@@ -15,11 +18,14 @@
     };
 
     self.showModal = function(){
-      self.$modal.show();
+      self.$modal.css({'display': 'block'});
+      self.$modal.animate({opacity: 1, top: '0'}, self.animationTime);
     };
 
     self.hideModal = function(){
-      self.$modal.hide();
+      self.$modal.animate({opacity: 0, top: self.hideOffsetTop}, self.animationTime, function(){
+        self.$modal.css({'display': 'none'});
+      });
     };
 
   }

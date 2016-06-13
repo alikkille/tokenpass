@@ -46,7 +46,7 @@
 <script>
 
 // Convert php object of key-value pairs into array of balance objects.
-// var connection_entries = JSON.parse('{!! json_encode($connection_entries) !!}');
+var connection_entries = {!! json_encode($connection_entries) !!};
 
 </script>
 @endsection

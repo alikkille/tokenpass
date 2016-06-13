@@ -162,7 +162,7 @@
 @section('page-js')
 <script>
 
-var pockets = JSON.parse('{!! json_encode($addresses) !!}');
+var pockets = {!! json_encode($addresses) !!};
 
 var vm = new Vue({
   el: '#pocketsController',
