@@ -17,18 +17,20 @@
 		</a>
 	</section>
 	<section class="tokens">
-		<!-- TODO: Replace static demo information with  -->
 	  <div class="token" v-for="token in tokens | filterBy search">
 	    <!-- TODO: Token's have avatars
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
     	-->
+    	<div class="token-indicator">
+    		<input class="toggle toggle-round-flat" id="token-@{{ $index }}" type="checkbox" checked="">
+    		<label for="token-@{{ $index }}"></label>
+    	</div>
 	    <div class="primary-info">
 	    	<span class="quantity">
-	    		<!-- @{{ number_format($quantity / 100000000, 8) }} -->
-	    		@{{ token.quantity }}
+	    		@{{ formatQuantity(token.quantity) }}
     		</span>
 	    	<span class="nickname">
-	    		<a href="token_details.html">@{{ token.name }}</a>
+	    		<a href="#">@{{ token.name }}</a>
     		</span>
 	    </div>
 	    <div class="secondary-info">
@@ -64,6 +66,11 @@ var vm = new Vue({
   data: {
     search: '',
     tokens: balances_arr
+  },
+  methods: {
+  	formatQuantity: function(q){
+  		return (q / 100000000).toFixed(8)
+  	}
   }
 });
 </script>

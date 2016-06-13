@@ -6,4 +6,7 @@
 
   @yield('accounts_content')
 
+  @include('accounts.includes.footer')
+  
 @endsection
+
