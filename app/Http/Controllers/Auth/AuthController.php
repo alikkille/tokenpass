@@ -62,8 +62,8 @@ class AuthController extends Controller
     {
         $this->user_repository = $user_repository;
 
-        $this->middleware('guest', ['except' => ['getLogout','getUpdate','postUpdate']]);
-        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate']]);
+        $this->middleware('guest', ['except' => ['getLogout','getUpdate','postUpdate', 'getSignRequirement', 'setSigned']]);
+        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate', 'getSignRequirement', 'setSigned']]);
 
     }
 
@@ -262,6 +262,31 @@ class AuthController extends Controller
             throw new HttpResponseException($this->buildFailedValidationResponse($request, [0 => $e->getMessage()]));
         }
 
+    }
+
+    public function getSignRequirement() {
+        $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
+        return view('auth.sign', ['sigval' => $sigval['user_meta']]);
+    }
+
+    public function setSigned(Request $request) {
+        $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
+        $sig = $request->request->get('signed_message');
+        try {
+            $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
+        } catch(Exception $e) {
+            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+            ]);
+        }
+
+        //verify signed message on xchain
+        $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
+        if($verify) {
+            UserMeta::setMeta(Auth::user()->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
+            return redirect()->back();
+        } else {
+            return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+        }
     }
 
     public function getBitcoinLogin() {
