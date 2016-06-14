@@ -27,13 +27,13 @@
             {!! Form::label('user_id', 'User') !!}
             {!! Form::select('user_id', $user_options, $model['user_id'], ['class' => 'u-full-width']) !!}
         </div>
-
+    </div>
+    <div class="row">
         <div class="six columns">
+            {!! Form::label('scope_ids', 'Scope IDs') !!}
+            {!! Form::textarea('scope_ids', $scope_ids, array('placeholder' => 'Comma separated')) !!}
         </div>
     </div>
-
-
-
 
     <div class="row" style="margin-top: 3%;">
         <div class="three columns">
