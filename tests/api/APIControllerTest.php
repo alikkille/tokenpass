@@ -843,6 +843,7 @@ class APIControllerTest extends TestCase {
         $address_helper->createNewAddress($user, ['address' =>'1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp']);
         $user_uuid = DB::table('users')->first();
         $this->forceUserCryptographicData($user);
+        $this->buildXChainMock();
 
         $user_meta = DB::table('user_meta')->get();
 
