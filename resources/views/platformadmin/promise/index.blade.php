@@ -33,6 +33,7 @@
               @else
                 {{ date('F j\, Y \a\t g:i A', $model['expiration']) }}
              @endif
+         </td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.promise.edit', ['id' => $model['id']]) }}">Edit</a>
 

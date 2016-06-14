@@ -11,6 +11,13 @@ return [
             'options'         => ['except' => 'show',],
         ],
         [
+            'developmentMode' => true,
+            'type'            => 'resource',
+            'name'            => 'platform.admin.whitelist',
+            'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\PromiseWhitelistController::class,
+            'options'         => ['except' => 'show',],
+        ],        
+        [
             'type'            => 'resource',
             'name'            => 'platform.admin.connectedapps',
             'controller'      => TKAccounts\Http\Controllers\PlatformAdmin\ConnectedApplicationsController::class,
@@ -43,7 +50,12 @@ return [
             'activePrefix'    => 'promise',
             'label'           => 'Promises',
         ],
-
+        [
+            'developmentMode' => true,
+            'route'           => 'whitelist.index',
+            'activePrefix'    => 'whitelist',
+            'label'           => 'Promise Whitelist',
+        ],
         [
             'route'        => 'client.index',
             'activePrefix' => 'client',
