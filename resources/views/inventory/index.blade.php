@@ -17,6 +17,7 @@
 		</a>
 	</section>
 	<section class="tokens" v-if="tokens.length">
+    <p class="muted">* contains promised tokens</p>
 	  <div class="token" v-for="token in tokens | filterBy search">
 	    <!-- TODO: Token's have avatars
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
@@ -29,7 +30,7 @@
 	    <div class="primary-info">
 	    	<span class="muted quantity">
           <div v-if="token.hasPromisedTokens">
-            <em>@{{ formatQuantity(token.balance) }}</em>
+            <em>* @{{ formatQuantity(token.balance) }}</em>
           </div>
           <div v-else>
             @{{ formatQuantity(token.balance) }}
@@ -41,15 +42,27 @@
 	    </div>
 
       <div class="secondary-info">
-        <!-- TODO: Token expiration
-        <span class="expiration">Expires at 12AM EST, July 17th, 2016</span> 
-        -->
-        
-        <!-- TODO: Token official name
-        <span class="name">
-          <a href="#">1 Sponsorship of the Let’s Talk Bitcoin Show!</a>
+        <!-- <span class="expiration">@{{ totalPromised(token, totalReal(token)) }}</span>  -->
+       
+        <span class="pockets tooltip">
+          Pockets [@{{ token.balanceAddresses.length }}]
+          <span class="tooltiptext">
+            <ul>
+              <li v-for="pocket in token.balanceAddresses">@{{ pocket.address }}</li>
+            </ul>
+          </span>
         </span>
-        -->
+
+        <span class="tooltip">
+          Balance Breakdown
+          <span class="tooltiptext">
+            <strong>Real</strong>
+            @{{ totalReal(token) }}
+            <strong>Promised</strong>
+            @{{ totalPromised(token, totalReal(token)) }}
+          </span>
+        </span>
+       
         <!-- @{{ getBalanceAddresses($key) }} -->
       </div>
 
@@ -67,22 +80,18 @@ var BALANCE_ADDRESSES = {!! json_encode($balance_addresses) !!};
 var disabled_tokens = {!! json_encode($disabled_tokens) !!};
 
 // Process tokens for vue consumption
-var tokens = (function(BALANCES, BALANCE_ADDRESSES){
+var data = (function(BALANCES, BALANCE_ADDRESSES){
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
   for(var key in BALANCES){
+    var balanceAddress = getBalanceAddresses(key);
     tokens_arr.push({
       name: key,
-      balance: BALANCES[key]
-    })
-  }
-
-  // Process array of tokens with data for rendering
-  for (var i = 0; i < tokens_arr.length; i++) {
-    var token = tokens_arr[i];
-    token.balanceAddresses = getBalanceAddresses(token.name);
-    token.hasPromisedTokens = hasPromisedTokens(token.balanceAddresses)
+      balance: BALANCES[key],
+      balanceAddresses: balanceAddress,
+      hasPromisedTokens: hasPromisedTokens(balanceAddress)
+    });
   }
 
   // Get array of address balances of each token
@@ -118,12 +127,24 @@ var vm = new Vue({
   el: '#tokensController',
   data: {
     search: '',
-    tokens: tokens.tokens
+    tokens: data.tokens
   },
   methods: {
   	formatQuantity: function(q){
   		return (q / 100000000).toFixed(8)
-  	}
+  	},
+    totalPromised: function(token, realBalance){
+      var totalBalance = token.balance;
+      return totalBalance - this.totalReal(token);
+    },
+    totalReal: function(token){
+      var realBalance = 0;
+      for(var i = 0; i < token.balanceAddresses.length; i++){
+        var address = token.balanceAddresses[i];
+        realBalance += address.real;
+      }
+      return realBalance;
+    }
   }
 });
 

@@ -2,13 +2,11 @@ body.inventory
   section.tokens
     $token-height: 41px
     .token
-      height: $token-height
       line-height: $token-height
       background-color: #fff
       border-top: 1px solid #EEEEEE
       border-left: 1px solid #EEEEEE
       border-right: 1px solid #EEEEEE
-      overflow: hidden
       padding: 0 20px
       display: flex
       &:last-of-type
@@ -27,13 +25,19 @@ body.inventory
         overflow: hidden
         img
           width: 100%
+      .primary-info, .secondary-info
+        display: flex
+        align-items: center
+        *
+          vertical-align: middle
+          line-height: 1.6
+
       .primary-info
         float: right
         +tablet
           float: left
         font-size: 18px
         font-weight: 200
-        display: flex
         .quantity
           display: inline-block
           margin-right: 10px
@@ -47,12 +51,7 @@ body.inventory
         font-size: 14px
         color: $gray-light
         display: none
-        word-wrap: wrap
-
-        +tablet
-          display: block
-        .expiration
-          display: none
-          +desktop
-            display: inline-block
+        >:not(:last-of-type)
           margin-right: 20px
+        +tablet
+          display: inherit
