@@ -128,12 +128,12 @@ class Address extends Model
         return $message;
     }
 
-    public static function getUserVerificationCode($user)
+    public static function getUserVerificationCode($user, $type='complex')
     {
         $result = [];
         $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
         if ($sign_auth == false) {
-            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
+            Address::getVerificationType($type, $user);
             $sign_auth = UserMeta::getMeta($user->id, 'sign_auth');
         }
         if ($sign_auth != false) {
@@ -141,12 +141,29 @@ class Address extends Model
             $result['extra'] = UserMeta::getMetaExtraValue($sign_auth);
         }
         if ($result['seconds'] > 7200) {
-            UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
+            Address::getVerificationType($type, $user);
         }
 
         $result['user_meta'] = UserMeta::getMeta($user->id,'sign_auth');
 
         return $result;
+    }
+
+    private static function getVerificationType($type, $user=null) {
+        switch ($type) {
+            case 'complex':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
+        break;
+            case 'readable':
+                UserMeta::setMeta($user->id,'sign_auth','TOKENPASS ' . Address::getSecureCodeGeneration() .' '. time(),0,0,'unsigned');
+        break;
+            case 'complex readable':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(8),0,0,'unsigned');
+        break;
+            case 'simple':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(),0,0,'unsigned');
+        break;
+        }
     }
 
     public static function getSecureCodeGeneration($entropy=null, $language=null)
@@ -308,5 +325,40 @@ class Address extends Model
         }
         return true;
     }
+    
+    public function user()
+    {
+        return User::find($this->user_id);
+    }
+
+    public function balances()
+    {
+        $get = Address::getAddressBalances($this->id, false, false);
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    public function promises()
+    {
+        return Address::getPromiseBalances($this->id);
+    }
+    
+    public function getPromiseBalances($addressId)
+    {
+        $address = Address::find($addressId);
+        if(!$address){
+            return false;
+        }
+        $get = DB::table('provisional_tca_txs')->where('destination', $address->address)->get();
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    
+
 }
 

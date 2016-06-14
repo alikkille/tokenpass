@@ -182,8 +182,7 @@ class APIController extends Controller
     }
 
     // disabled until encoding of url is fixed
-    public function setSignRequirement($username, $signature) {
-
+    public function setSignRequirement() {
         $output = array();
         $input = Input::all();
 
@@ -201,26 +200,44 @@ class APIController extends Controller
             return Response::json($output, 403);
         }
 
-        $user = User::where('username', $username)->orWhere('slug', $username)->first();
+        $user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
         if(!$user) {
             $output['result'] = false;
             $output['error'] = 'Username not found';
             return Response::json($output, 404);
         }
 
+		$user = User::where('uuid', $input['user_id'])->first();
+
+		$get_token = DB::table('oauth_access_tokens')->where('id', $input['token'])->first();
+		$valid_access = false;
+		if($get_token AND $user){
+			$get_sesh = DB::table('oauth_sessions')->where('id', $get_token->session_id)->first();
+			if($get_sesh AND $get_sesh->client_id == $input['client_id'] AND $get_sesh->owner_id == $user->id){
+				$valid_access = true;
+			}
+		}
+
+		if(!$valid_access){
+			$output['error'] = 'Invalid access token, client ID or user ID';
+			return Response::json($output);
+		}
+
         // calculate address for signing.
-        $user = User::where('username', $username)->orWhere('slug', $username)->first();
-        $address = BitcoinLib::deriveAddressFromSignature($signature, Address::getUserVerificationCode($user));
+        $user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
+		$verification = Address::getUserVerificationCode($user);
+
+        $address = BitcoinLib::deriveAddressFromSignature($input['signature'], $verification['user_meta']);
         if(!$address) {
             $output['result'] = false;
-            $output['error'] = 'Signature dervice function failed';
+            $output['error'] = 'Signature derive function failed';
             return Response::json($output, 403);
         }
 
         //verify signed message on xchain
         $xchain = app('Tokenly\XChainClient\Client');
         try{
-            $verify = $xchain->verifyMessage($address, $signature, Address::getUserVerificationCode($user));
+            $verify = $xchain->verifyMessage($address, $input['signature'], $verification['user_meta']);
         } catch(Exception $e) {
             $verify = false;
         }
@@ -229,7 +246,7 @@ class APIController extends Controller
             return Response::json($output, 400);
         }
         if($verify) {
-            UserMeta::setMeta($user->id,'sign_auth',Address::getUserVerificationCode($user),0,0,'signed');
+            UserMeta::setMeta($user->id,'sign_auth',$verification['user_meta'],0,0,'signed');
             $output['result'] = 'Signed';
             return Response::json($output);
         }
@@ -1334,25 +1351,24 @@ class APIController extends Controller
 		}
 
 		//get the message needed to verify and check inputs
-		$verify_message = Address::getInstantVerifyMessage($user);
+		$verify_message = Address::getUserVerificationCode($user);
 		$input_sig = Input::get('sig');
 		$input_message = Input::get('msg');
 		if(!$input_sig OR trim($input_sig) == ''){
 			$output['error'] = 'sig required';
 			return Response::json($output, 400);
 		}
-		if(!$input_message OR $input_message != $verify_message){
+
+		if(!$input_message OR $input_message != $verify_message['user_meta']){
 			$output['error'] = 'msg invalid';
 			return Response::json($output, 400);
 		}
-
-
 
         //verify address is already not in use
         $address = Input::get('address');
         $existing_addresses = Address::where('address', $address)->get();
             if (!empty($existing_addresses[0])) {
-                $output['error'] = 'Address already authenticated';
+                $output['error'] = 'Address already exists';
                 return Response::json($output, '400');
         }
 		

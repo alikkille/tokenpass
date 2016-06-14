@@ -28,6 +28,8 @@ Route::get('auth/logout', 'Auth\AuthController@getLogout');
 // Bitcoin Authentication routes...
 Route::get('auth/bitcoin', 'Auth\AuthController@getBitcoinLogin');
 Route::post('auth/bitcoin', 'Auth\AuthController@postBitcoinLogin');
+Route::get('auth/sign', 'Auth\AuthController@getSignRequirement');
+Route::post('auth/signed', 'Auth\AuthController@setSigned');
 
 // Registration routes...
 Route::get('auth/register', 'Auth\AuthController@getRegister');
@@ -50,7 +52,6 @@ Route::post('password/email', 'Auth\PasswordController@postEmail');
 Route::get('password/reset/{token}', 'Auth\PasswordController@getReset');
 Route::post('password/reset', 'Auth\PasswordController@postReset');
 
-
 // Connected apps routes...
 Route::get('auth/connectedapps', 'Auth\ConnectedAppsController@getConnectedApps');
 Route::get('auth/revokeapp/{clientid}', 'Auth\ConnectedAppsController@getRevokeAppForm');
@@ -71,14 +72,11 @@ Route::post('inventory/asset/{asset}/toggle', 'Inventory\InventoryController@tog
 // new route/controller for pockets
 Route::get('pockets', 'Inventory\InventoryController@getPockets');
 
-
 //client applications / API keys
 Route::get('auth/apps', 'Auth\AppsController@index');
 Route::post('auth/apps/new', 'Auth\AppsController@registerApp');
 Route::post('auth/apps/{app}/edit', 'Auth\AppsController@updateApp');
 Route::get('auth/apps/{app}/delete', 'Auth\AppsController@deleteApp');
-
-
 
 // -------------------------------------------------------------------------
 // User routes
@@ -127,7 +125,7 @@ Route::get('oauth/user', [
 Route::get('api/v1/tca/check/{username}', array('as' => 'api.tca.check', 'uses' => 'API\APIController@checkTokenAccess'));
 Route::get('api/v1/tca/check-address/{address}', array('as' => 'api.tca.check-address', 'uses' => 'API\APIController@checkAddressTokenAccess'));
 Route::get('api/v1/tca/check-sign/{address}', array('as' => 'api.tca.check-sign', 'uses' => 'API\APIController@checkSignRequirement'));
-Route::get('api/v1/tca/set-sign/{username}/{signature}', array('as' => 'api.tca.set-sign', 'uses' => 'API\APIController@setSignRequirement'));
+Route::post('api/v1/tca/set-sign', array('as' => 'api.tca.set-sign', 'uses' => 'API\APIController@setSignRequirement'));
 Route::get('api/v1/tca/addresses/{username}', array('as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses'));
 Route::get('api/v1/tca/addresses/{username}/refresh', array('as' => 'api.tca.addresses.refresh', 'uses' => 'API\APIController@getRefreshedAddresses'));
 Route::get('api/v1/tca/addresses/{username}/{address}', array('as' => 'api.tca.addresses.details', 'uses' => 'API\APIController@getAddressDetails'));

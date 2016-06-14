@@ -229,8 +229,25 @@ class APIControllerTest extends TestCase {
         PHPUnit::assertNotEmpty($response);
         PHPUnit::assertContains('Invalid user oauth token', $response['error']);
 
+        // Missing bitcoin address
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user = $user_helper->createNewUser();
+        $this->buildOAuthToken();
+        $user_uuid = DB::table('users')->first();
+        $this->vars['oauth_token'] = $this->vars['token'];
+
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.addresses.new'), $this->vars, 400);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('btc address required', $response['error']);
+
         // Valid
-        $oauth_helper = app('OAuthHelper')->setTestCase($this);
+        $this->buildXChainMock();
+        $this->vars['address'] = '1NLwKTJVa5VMvaP62hNaPt3ddbpXLBE9Ug';
+        $this->vars['type'] = 'btc';
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.addresses.new'), $this->vars);
+        PHPUnit::assertNotEmpty($response);
+        PHPUnit::assertContains('success', $response['result']);
 
     }
     
@@ -252,27 +269,10 @@ class APIControllerTest extends TestCase {
 
         // Private key used is : KzPMHLZfubuRR8GxZyG2vygqWk391RuEGTqFH1jUtyWgKXrH3FFT
         $new_address = '1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp';
-        $address_sig = 'IG528OHUJCPC7nNizE4G51+3ogrXV9zAV+pQjNNxCAXDSeZgXUHLp/hIiNH3FBz0ollMjOFU8XJHUPCMg/+4dlI=';
+        $address_sig = 'IM46C3aqnn6vVeV1RtTfS+HbBbHehOt/yOrzyRKqTJRNegZRrjm1cxFlZLUfCHSO5HNJL7gDXFPB/+r4atxSkJQ=';
         $alt_address_sig = 'Hzk9Inq3too7fJqiZKFcWbD/YhaYzl6e2LmoSYCLldYsPwYDiZTlZJaK/3izovOzd8/wissGMigqG36LB19k9nM=';
         $sig_message = 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646';
         $alt_sig_message = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
-
-        //test with all correct info
-        $route = route('api.instant-verify', $user->username); //set proper route
-        $query_params = ['msg' => $sig_message, 'sig' => $address_sig, 'address' => $new_address];
-        $request = Request::create($route, 'POST', $query_params, []);
-        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
-        $json_data = json_decode($response->getContent(), true);
-       // PHPUnit::assertTrue($json_data['result']);
-
-        //test with all correct info but duplicate address of different user
-        $route = route('api.instant-verify', $alt_user->username); //set proper route
-        $query_params = ['msg' => $alt_sig_message, 'sig' => $alt_address_sig, 'address' => $new_address];
-        $request = Request::create($route, 'POST', $query_params, []);
-        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
-        $json_data = json_decode($response->getContent(), true);
-        PHPUnit::assertFalse($json_data['result']);
-       // PHPUnit::assertContains('Address already authenticated', $json_data['error']);
 
         //test with a bogus user
         $route = route('api.instant-verify', 123123);
@@ -295,7 +295,7 @@ class APIControllerTest extends TestCase {
         $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
         $json_data = json_decode($response->getContent(), true);
         PHPUnit::assertFalse($json_data['result']);        
-        
+
         //test with wrong message
         $route = route('api.instant-verify', $user->username);
         $query_params = ['msg' => 'qwerty', 'sig' => $address_sig, 'address' => $new_address];
@@ -303,6 +303,19 @@ class APIControllerTest extends TestCase {
         $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
         $json_data = json_decode($response->getContent(), true);
         PHPUnit::assertFalse($json_data['result']);
+
+        //test with all correct info
+        $address_helper = app('AddressHelper');
+        $address_helper->createNewAddress($user, ['address' =>'1Z5bsDeHrtCr2K8xmWFjb8kfzT7hgTrqa']);
+        $signature = 'H9jrg5kSpW8Wffbp1ZIAWu1uytjN156DHcvTGIktgA9RfhFk8u39OKz0JV8cXltOZeh7cJ5H7eoFN+YWSxjWqmw=';
+        $this->forceUserCryptographicData($user);
+
+        $route = route('api.instant-verify', $user->username); //set proper route
+        $query_params = ['msg' => '1', 'sig' => $signature, 'address' => '1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp'];
+        $request = Request::create($route, 'POST', $query_params, []);
+        $response = app('Illuminate\Contracts\Http\Kernel')->handle($request);
+        $json_data = json_decode($response->getContent(), true);
+        PHPUnit::assertTrue($json_data['result']);
         
     }
     
@@ -641,7 +654,7 @@ class APIControllerTest extends TestCase {
 
         // Wrong Token
         $missing_email = [
-            'user_id' => 'Tekj4b3t4otboto34ster',
+            'user_id' => '1',
             'current_password' => 'abc123456',
             'client_id' =>  'MY_API_TOKEN',
             'token'   => '1Token'
@@ -650,6 +663,39 @@ class APIControllerTest extends TestCase {
         $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('PATCH', route('api.update-account'), $missing_email);
         PHPUnit::assertContains('Invalid access token, client ID or user ID', $response['error']);
 
+
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user = $user_helper->createNewUser();
+        $address_helper->createNewAddress($user);
+        $this->buildOAuthToken();
+        $user_uuid = DB::table('users')->first();
+
+
+        // Real result
+        $vars = [
+            'user_id' => $user_uuid->uuid,
+            'current_password' => 'abc123456',
+            'client_id' =>  'MY_API_TOKEN',
+            'email'   => 'test@tokenly.com',
+            'token'   => $this->vars['token']
+        ];
+
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('PATCH', route('api.update-account'), $vars);
+        PHPUnit::assertContains('success', $response['result']);
+
+        // Wrong password
+
+        $vars = [
+            'user_id' => $user_uuid->uuid,
+            'current_password' => 'Nefarious_logger',
+            'client_id' =>  'MY_API_TOKEN',
+            'email'   => 'test@tokenly.com',
+            'token'   => $this->vars['token']
+        ];
+
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('PATCH', route('api.update-account'), $vars);
+        PHPUnit::assertContains('Invalid password', $response['error']);
     }
 
     public function testLookupUserByAddress() {
@@ -769,6 +815,51 @@ class APIControllerTest extends TestCase {
         PHPUnit::assertContains('unsigned', $response['result']);
     }
 
+    public function testSetSignRequirement() {
+        $this->buildOAuthScope();
+
+        $vars = [
+          'username' => 'johndoe'
+        ];
+
+        // Bad client ID
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.set-sign'), $vars, 403);
+        PHPUnit::assertContains('Invalid API client ID', $response['error']);
+
+        $vars = [
+            'username' => 'johndoe',
+            'client_id' => 'MY_API_TOKEN'
+        ];
+
+        // Non existent user
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.set-sign'), $vars, 404);
+        PHPUnit::assertContains('Username not found', $response['error']);
+
+        // Valid Signature
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $this->buildOAuthToken();
+        $user = $user_helper->createNewUser();
+        $address_helper->createNewAddress($user, ['address' =>'1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp']);
+        $user_uuid = DB::table('users')->first();
+        $this->forceUserCryptographicData($user);
+        $this->buildXChainMock();
+
+        $user_meta = DB::table('user_meta')->get();
+
+        $vars = [
+            'username' => 'johndoe',
+            'client_id' => 'MY_API_TOKEN',
+            'user_id'   => $user_uuid->uuid,
+            'token' => $this->vars['token'],
+            'signature' => 'IM46C3aqnn6vVeV1RtTfS+HbBbHehOt/yOrzyRKqTJRNegZRrjm1cxFlZLUfCHSO5HNJL7gDXFPB/+r4atxSkJQ='
+        ];
+
+        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.tca.set-sign'), $vars);
+        PHPUnit::assertContains('Signed', $response['result']);
+
+    }
+
     ////////////////////////////////////////////////////////////////////////
 
     protected function buildOAuthScope() {
@@ -806,10 +897,40 @@ class APIControllerTest extends TestCase {
         ];
     }
 
+    protected function buildOAuthToken() {
+        DB::table('oauth_access_tokens')->insert([
+            'id' => 'TFR1QrIFQTdaLqlr',
+            'session_id' => '1',
+            'expire_time' => time() + 50000
+        ]);
+
+        DB::table('oauth_sessions')->insert([
+            'client_id' => 'MY_API_TOKEN',
+            'owner_type' => 'user',
+            'owner_id' => '1',
+            'client_redirect_uri' => 'http://fake.url'
+        ]);
+
+        $this->vars['token'] = 'TFR1QrIFQTdaLqlr';
+    }
+
+    protected function forceUserCryptographicData($user) {
+
+       $result = Address::getUserVerificationCode($user);
+
+        DB::table('user_meta')->update([
+            'meta_value' => '1',
+            'updated_at' => time() + 50000
+        ]);
+    }
+
     protected function buildUserHelper() {
         $user_helper = app('UserHelper')->setTestCase($this);
         return $user_helper;
     }
 
-
+    protected function buildXChainMock() {
+        $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
+        $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
+    }
 }
