@@ -18,6 +18,7 @@
           <th>Owner</th>
           <th>ID</th>
           <th>Connections</th>
+          <th>Created At</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -36,6 +37,7 @@
           </td>
           <td>{{ $model['id'] }}</td>
           <td><a href="{{ route('platform.admin.connectedapps.index', array('client_id' => $model['id'])) }}">{{ $model->countConnections() }}</a></td>
+          <td>{{ $model->created_at->format('F j\, Y \a\t g:i A') }}</td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.client.edit', ['id' => $model['id']]) }}">Edit</a>
 
