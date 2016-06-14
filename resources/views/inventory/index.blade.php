@@ -16,22 +16,27 @@
 	  	<i class="material-icons">refresh</i>Refresh Token Balances
 		</a>
 	</section>
-	<section class="tokens">
+	<section class="tokens" v-if="tokens.length">
 	  <div class="token" v-for="token in tokens | filterBy search">
 	    <!-- TODO: Token's have avatars
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
     	-->
     	<div class="token-indicator">
-    		<input class="toggle toggle-round-flat" id="token-@{{ $key }}" type="checkbox" checked="">
-    		<label for="token-@{{ $key }}"></label>
+    		<input class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox" checked="">
+    		<label for="token-@{{ token.name }}"></label>
     	</div>
 
 	    <div class="primary-info">
 	    	<span class="muted quantity">
-	    		@{{ formatQuantity(token) }}
+          <div v-if="token.hasPromisedTokens">
+            <em>@{{ formatQuantity(token.balance) }}</em>
+          </div>
+          <div v-else>
+            @{{ formatQuantity(token.balance) }}
+          </div>
     		</span>
 	    	<span class="nickname">
-          <a href="https://blockscan.com/assetInfo/@{{ $key }}" target="_blank">@{{ $key }}</a>
+          <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
     		</span>
 	    </div>
 
@@ -45,7 +50,7 @@
           <a href="#">1 Sponsorship of the Let’s Talk Bitcoin Show!</a>
         </span>
         -->
-        @{{ getBalanceAddresses($key) }}
+        <!-- @{{ getBalanceAddresses($key) }} -->
       </div>
 
 		</div>
@@ -57,39 +62,70 @@
 <script>
 
 // Convert php object of key-value pairs into array of balance objects.
-var balances = {!! json_encode($balances) !!};
-var addresses = {!! json_encode($addresses) !!};
-var balance_addresses = {!! json_encode($balance_addresses) !!};
+var BALANCES = {!! json_encode($balances) !!};
+var BALANCE_ADDRESSES = {!! json_encode($balance_addresses) !!};
 var disabled_tokens = {!! json_encode($disabled_tokens) !!};
+
+// Process tokens for vue consumption
+var tokens = (function(BALANCES, BALANCE_ADDRESSES){
+
+  // Convert balances into an array of token objects
+  var tokens_arr = [];
+  for(var key in BALANCES){
+    tokens_arr.push({
+      name: key,
+      balance: BALANCES[key]
+    })
+  }
+
+  // Process array of tokens with data for rendering
+  for (var i = 0; i < tokens_arr.length; i++) {
+    var token = tokens_arr[i];
+    token.balanceAddresses = getBalanceAddresses(token.name);
+    token.hasPromisedTokens = hasPromisedTokens(token.balanceAddresses)
+  }
+
+  // Get array of address balances of each token
+  function getBalanceAddresses(token){
+    var balance_addresses_arr = [];
+    var balances = BALANCE_ADDRESSES[token]
+    for (var key in balances){
+      balance_addresses_arr.push({
+        address: key,
+        provisional: balances[key]['provisional'],
+        real: balances[key]['real']
+      })
+    }
+    return balance_addresses_arr;
+  }
+
+  function hasPromisedTokens(balanceAddresses){
+    for (var i = 0; i < balanceAddresses.length; i++) {
+      if (balanceAddresses[i]["provisional"].length > 0){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return {
+    tokens: tokens_arr
+  };
+
+})(BALANCES, BALANCE_ADDRESSES)
 
 var vm = new Vue({
   el: '#tokensController',
   data: {
     search: '',
-    tokens: balances,
-    balance_addresses: balance_addresses
+    tokens: tokens.tokens
   },
   methods: {
   	formatQuantity: function(q){
   		return (q / 100000000).toFixed(8)
-  	},
-    getBalanceAddresses: function(token){
-      console.log(token)
-      var balance_addresses_arr = [];
-      var balances = this.balance_addresses[token]
-      for (var key in balances){
-        console.log(key)
-        console.log(balances)
-        balance_addresses_arr.push({
-          address: key,
-          provisional: balances[key]['provisional'],
-          real: balances[key]['real']
-        })
-        console.log(balances[key]['provisional'])
-      }
-      return JSON.stringify(balance_addresses_arr);
-    }
+  	}
   }
 });
+
 </script>
 @endsection

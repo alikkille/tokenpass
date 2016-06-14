@@ -172,9 +172,6 @@ var vm = new Vue({
     currentPocket: {}
   },
   methods: {
-    to_bool: function(n) {
-      return n == 1;
-    },
     toggleEdit: function(event){
       var $pocket = $(event.target).closest('.pocket');
       var $settingsButton = $pocket.find('.settings-btn i');
