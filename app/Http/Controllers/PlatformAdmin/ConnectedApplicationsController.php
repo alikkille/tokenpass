@@ -40,14 +40,16 @@ class ConnectedApplicationsController extends ResourceController
         $users = app('TKAccounts\Repositories\UserRepository')->findAll();
         $view_data['user_options'] = $users->pluck('id')->combine($users->pluck('username'));
         
-        $scopes = $view_data['model']->scopes();
-        $view_data['scope_ids'] = '';
-        if($scopes){
-            $scope_ids = array();
-            foreach($scopes as $scope){
-                $scope_ids[] = $scope->id;
+        if(isset($view_data['model']) AND is_object($view_data['model'])){
+            $scopes = $view_data['model']->scopes();
+            $view_data['scope_ids'] = '';
+            if($scopes){
+                $scope_ids = array();
+                foreach($scopes as $scope){
+                    $scope_ids[] = $scope->id;
+                }
+                $view_data['scope_ids'] = join(', ', $scope_ids);
             }
-            $view_data['scope_ids'] = join(', ', $scope_ids);
         }
 
         return $view_data;
