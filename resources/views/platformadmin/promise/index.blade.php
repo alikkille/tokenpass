@@ -8,7 +8,9 @@
     <div class="row">
         <h1>Token Promises</h1>
     </div>
-
+    <p>
+        <strong># Promises:</strong> {{ number_format(count($models)) }}
+    </p>
     <table class="u-full-width">
       <thead>
         <tr>
