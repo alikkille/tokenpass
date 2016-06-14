@@ -1,12 +1,12 @@
 @extends('platformAdmin::layouts.app')
 
-@section('title_name') Promise Deleted @endsection
+@section('title_name') Token Promise Deleted @endsection
 
 @section('body_content')
 
 <div class="container" style="margin-top: 3%">
     <div class="row">
-        <h1>Promise Deleted</h1>
+        <h1>Token Promise Deleted</h1>
     </div>
 
     <p>{{ goodbyeInterjection() }} This promise was deleted.</p>

@@ -42,7 +42,38 @@
         <div class="four columns">
         </div>
     </div>
+    <div class="row">
+        <div class="four columns">
+            {!! Form::label('expiration', 'Expiration Date') !!}
+            {!! Form::text('expiration', null, ['class' => 'u-full-width']) !!}
+        </div>
 
+        <div class="four columns">
+            {!! Form::label('ref', 'Reference data') !!}
+            {!! Form::text('ref', null, ['class' => 'u-full-width']) !!}
+        </div>
+    </div>
+    <div class="row">
+        <div class="four columns">
+            {!! Form::label('txid', 'TX ID') !!}
+            {!! Form::text('txid', null, ['class' => 'u-full-width']) !!}
+        </div>
+
+        <div class="four columns">
+            {!! Form::label('fingerprint', 'TX Fingerprint') !!}
+            {!! Form::text('fingerprint', null, ['class' => 'u-full-width']) !!}
+        </div>
+    </div>
+    <div class="row">
+        <div class="six columns">
+            {!! Form::label('client_id', 'Client App ID') !!}
+            <select id="client_id" name="client_id">
+                @foreach($clients as $client)
+                    <option value="{{ $client->id }}" >{{ $client->name }} - {{ $client->id }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
 
     <div class="row" style="margin-top: 3%;">
         <div class="three columns">

@@ -8,22 +8,34 @@
     <div class="row">
         <h1>Token Promises</h1>
     </div>
-
+    <p>
+        <strong># Promises:</strong> {{ number_format(count($models)) }}
+    </p>
     <table class="u-full-width">
       <thead>
         <tr>
           <th>Destination</th>
           <th>Quantity</th>
           <th>Asset</th>
+          <th>Expires</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         @foreach ($models as $model)
         <tr>
-          <td>{{ $model['destination'] }}</td>
+          <td>{{ $model['destination'] }}<br>
+            <small>(Client ID {{ $model->client_id }}</small>
+            </td>
           <td>{{ Tokenly\CurrencyLib\CurrencyUtil::satoshisToValue($model['quantity']) }}</td>
           <td>{{ $model['asset'] }}</td>
+          <td>
+              @if($model['expiration'] == 0)
+                null
+              @else
+                {{ date('F j\, Y \a\t g:i A', $model['expiration']) }}
+             @endif
+         </td>
           <td>
             <a class="button button-primary" href="{{ route('platform.admin.promise.edit', ['id' => $model['id']]) }}">Edit</a>
 

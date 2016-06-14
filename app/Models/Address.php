@@ -308,5 +308,40 @@ class Address extends Model
         }
         return true;
     }
+    
+    public function user()
+    {
+        return User::find($this->user_id);
+    }
+
+    public function balances()
+    {
+        $get = Address::getAddressBalances($this->id, false, false);
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    public function promises()
+    {
+        return Address::getPromiseBalances($this->id);
+    }
+    
+    public function getPromiseBalances($addressId)
+    {
+        $address = Address::find($addressId);
+        if(!$address){
+            return false;
+        }
+        $get = DB::table('provisional_tca_txs')->where('destination', $address->address)->get();
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    
+
 }
 

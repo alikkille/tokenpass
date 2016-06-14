@@ -16,6 +16,8 @@ class ScopeController extends ResourceController
         return [
             'id' => 'required|max:40',
             'description' => 'max:255',
+            'label' => 'max:255',
+            'notice_level' => 'numeric',
         ];
     }    
 

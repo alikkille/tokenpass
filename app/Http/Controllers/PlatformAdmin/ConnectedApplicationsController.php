@@ -5,7 +5,9 @@ namespace TKAccounts\Http\Controllers\PlatformAdmin;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
-use Input;
+use Input, DB;
+use Illuminate\Http\Request;
+use TKAccounts\Models\OAuthScope;
 
 class ConnectedApplicationsController extends ResourceController
 {
@@ -37,6 +39,16 @@ class ConnectedApplicationsController extends ResourceController
 
         $users = app('TKAccounts\Repositories\UserRepository')->findAll();
         $view_data['user_options'] = $users->pluck('id')->combine($users->pluck('username'));
+        
+        $scopes = $view_data['model']->scopes();
+        $view_data['scope_ids'] = '';
+        if($scopes){
+            $scope_ids = array();
+            foreach($scopes as $scope){
+                $scope_ids[] = $scope->id;
+            }
+            $view_data['scope_ids'] = join(', ', $scope_ids);
+        }
 
         return $view_data;
     }
@@ -55,6 +67,25 @@ class ConnectedApplicationsController extends ResourceController
         return view('platformadmin.'.$this->view_prefix.'.index', $this->modifyViewData([
             'models' => $models,
         ], __FUNCTION__));
+    }
+    
+    public function update($id, Request $request)
+    {
+        $scope_ids = explode(',',Input::get('scope_ids'));
+        $scope_list = array();
+        foreach($scope_ids as $scope_id){
+            $scope_id = trim($scope_id);
+            $get = OAuthScope::where('id', $scope_id)->first();
+            if($get){
+                $scope_list[] = $get->uuid;
+            }
+        }
+        DB::table('client_connection_scopes')->where('connection_id', $id)->delete();
+        foreach($scope_list as $scope){
+            DB::table('client_connection_scopes')->insert(array('connection_id' => $id, 'scope_id' => $scope));
+        }
+        
+        return parent::update($id, $request);
     }
 
 }
