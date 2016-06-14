@@ -78,10 +78,10 @@
       </p>
       <p class="text-center">
         <?php
-        $verify_message = \TKAccounts\Models\Address::getInstantVerifyMessage($user);
+        $verify_message = \TKAccounts\Models\Address::getUserVerificationCode($user);
         ?>
-        <span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
-          <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message) ?>
+        <span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message['user_meta'] }}">
+          <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message['user_meta']) ?>
         </span>
       </p>
     </div>
