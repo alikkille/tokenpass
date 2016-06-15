@@ -9,7 +9,7 @@ use Rhumsaa\Uuid\Uuid;
 use TKAccounts\Repositories\OAuthClientRepository;
 use InvalidArgumentException;
 
-class AppsController extends \TKAccounts\Http\Controllers\Admin\OAuthClientsController
+class AppsController extends Controller
 {
 
     public function __construct(OAuthClientRepository $repository)
@@ -141,4 +141,55 @@ class AppsController extends \TKAccounts\Http\Controllers\Admin\OAuthClientsCont
 		return redirect('auth/apps');
 	}
 	
+   protected function updateEndpoints(OAuthClient $client, $endpoints_string) {
+        $endpoints = [];
+        foreach (explode("\n", $endpoints_string) as $endpoint) {
+            $endpoint = trim($endpoint);
+            if (!strlen($endpoint)) { continue; }
+
+            $url = parse_url($endpoint);
+            $scheme = isset($url['scheme']) ? $url['scheme'].'://' : '';
+            $host = isset($url['host']) ? $url['host'] : '';
+            $port = isset($url['port']) ? ':'.$url['port'] : '';
+            $user = isset($url['user']) ? $url['user'] : '';
+            $pass = isset($url['pass']) ? ':'.$url['pass']  : '';
+            $pass = ($user || $pass) ? "$pass@" : '';
+            $path = isset($url['path']) ? $url['path'] : '';
+            $query = isset($url['query']) && $url['query'] ? '?'.$url['query'] : '';
+            $fragment = isset($url['fragment']) ? '#'.$url['fragment'] : '';
+
+            if (!$host OR !$scheme) { throw new InvalidArgumentException("URL was invalid", 1); }
+
+            $endpoint = $scheme.$user.$pass.$host.$port.$path.$query.$fragment;
+
+            if (strlen($endpoint)) { $endpoints[] = $endpoint; }
+        }
+
+        DB::transaction(function() use ($client, $endpoints) {
+            // delete all
+            DB::table('oauth_client_endpoints')
+                ->where('client_id', $client['id'])
+                ->delete();
+
+            // add new
+            foreach($endpoints as $endpoint) {
+                DB::table('oauth_client_endpoints')
+                    ->insert([
+                        'client_id' => $client['id'],
+                        'redirect_uri' => $endpoint,
+                    ]);
+            }
+        });
+    }
+
+    protected function loadEndpoints(OAuthClient $client) {
+        $out = '';
+        foreach (DB::table('oauth_client_endpoints')->where('client_id', $client['id'])->get() as $endpoint) {
+            // Log::debug("\$endpoint=".json_encode($endpoint, 192));
+            $out .= $endpoint->redirect_uri."\n";
+        }
+
+        return trim($out);
+    }    
+    
 }
