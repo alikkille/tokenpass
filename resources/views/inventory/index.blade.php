@@ -22,12 +22,12 @@
 	    <!-- TODO: Token's have avatars
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
     	-->
-    	<div class="token-indicator">
-    		<input class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox" checked="">
-    		<label for="token-@{{ token.name }}"></label>
-    	</div>
 
 	    <div class="primary-info">
+        <div class="token-indicator">
+          <input class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox" checked="">
+          <label for="token-@{{ token.name }}"></label>
+        </div>
 	    	<span class="muted quantity">
           <div v-if="token.hasPromisedTokens">
             <em>* @{{ formatQuantity(token.balance) }}</em>
@@ -36,34 +36,43 @@
             @{{ formatQuantity(token.balance) }}
           </div>
     		</span>
+
 	    	<span class="nickname">
           <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
     		</span>
-	    </div>
+	 
+        <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
+          Balance Breakdown
+          <i class="material-icons">keyboard_arrow_down</i>
+        </div>
+      </div>
 
       <div class="secondary-info">
-        <!-- <span class="expiration">@{{ totalPromised(token, totalReal(token)) }}</span>  -->
-       
-        <span class="pockets tooltip">
-          Pockets [@{{ token.balanceAddresses.length }}]
-          <span class="tooltiptext">
-            <ul>
-              <li v-for="pocket in token.balanceAddresses">@{{ pocket.address }}</li>
-            </ul>
-          </span>
-        </span>
-
-        <span class="tooltip">
-          Balance Breakdown
-          <span class="tooltiptext">
-            <strong>Real</strong>
-            @{{ totalReal(token) }}
-            <strong>Promised</strong>
-            @{{ totalPromised(token, totalReal(token)) }}
-          </span>
-        </span>
-       
-        <!-- @{{ getBalanceAddresses($key) }} -->
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Address</th>
+              <th>Real</th>
+              <th>Promised</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="pocket in token.balanceAddresses">
+              <td>
+                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+              </td>
+              <td>@{{ formatQuantity(pocket.real) }}</td>
+              <td>
+                <div v-if="pocket.provisional.length > 0">
+                  @{{ formatQuantity(totalProvisional(pocket)) }}
+                </div>
+                <div v-else>
+                  n/a
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
 		</div>
@@ -133,17 +142,24 @@ var vm = new Vue({
   	formatQuantity: function(q){
   		return (q / 100000000).toFixed(8)
   	},
-    totalPromised: function(token, realBalance){
-      var totalBalance = token.balance;
-      return totalBalance - this.totalReal(token);
-    },
-    totalReal: function(token){
-      var realBalance = 0;
-      for(var i = 0; i < token.balanceAddresses.length; i++){
-        var address = token.balanceAddresses[i];
-        realBalance += address.real;
+    totalProvisional: function(balanceAddress){
+      var total = 0;
+      for (var i = 0; i < balanceAddress.provisional.length; i++){
+        total += balanceAddress.provisional[i].quantity;
       }
-      return realBalance;
+      return total;
+    },
+    toggleSecondaryInfo: function(event){
+      var $toggleBtn = $(event.target).closest('.detail-toggle');
+      var $token = $toggleBtn.closest('.token');
+     
+      if ($token.hasClass('show-secondary')) {
+        $token.removeClass('show-secondary');
+        $toggleBtn.find("i.material-icons").text('keyboard_arrow_down');
+      } else {
+        $token.addClass('show-secondary');
+        $toggleBtn.find("i.material-icons").text('keyboard_arrow_up');
+      }
     }
   }
 });

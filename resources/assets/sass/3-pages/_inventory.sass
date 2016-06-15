@@ -2,13 +2,18 @@ body.inventory
   section.tokens
     $token-height: 41px
     .token
+      max-height: $token-height
       line-height: $token-height
       background-color: #fff
       border-top: 1px solid #EEEEEE
       border-left: 1px solid #EEEEEE
       border-right: 1px solid #EEEEEE
       padding: 0 20px
-      display: flex
+      overflow: hidden
+      transition: max-height 0.5s ease
+      &.show-secondary
+        max-height: 300px
+
       &:last-of-type
         border-bottom: 1px solid #EEEEEE
       .token-indicator
@@ -28,14 +33,13 @@ body.inventory
       .primary-info, .secondary-info
         display: flex
         align-items: center
+        width: 100%
         *
           vertical-align: middle
           line-height: 1.6
 
       .primary-info
-        float: right
-        +tablet
-          float: left
+        height: $token-height
         font-size: 18px
         font-weight: 200
         .quantity
@@ -46,12 +50,17 @@ body.inventory
         .nickname
           width: 200px
           display: inline-block
+        .detail-toggle
+          margin-left: auto
+          border-left: 1px solid #EEEEEE
+          padding: 0 0 0 20px
+          text-transform: uppercase
+          font-weight: bold
+          color: $brand-primary
+          font-size: 14px
+          &:hover
+            cursor: pointer
+            color: tint($brand-primary, 25%)
+
       .secondary-info
-        float: right
-        font-size: 14px
-        color: $gray-light
-        display: none
-        >:not(:last-of-type)
-          margin-right: 20px
-        +tablet
-          display: inherit
+        padding: 10px 0 5px 0
