@@ -28,23 +28,25 @@
           <input class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox" checked="">
           <label for="token-@{{ token.name }}"></label>
         </div>
-	    	<span class="muted quantity">
-          <div v-if="token.hasPromisedTokens">
-            <em>* @{{ formatQuantity(token.balance) }}</em>
-          </div>
-          <div v-else>
-            @{{ formatQuantity(token.balance) }}
-          </div>
-    		</span>
+        <div class="token-info">
+  	    	<span class="muted quantity">
+            <div v-if="token.hasPromisedTokens">
+              <em>* @{{ formatQuantity(token.balance) }}</em>
+            </div>
+            <div v-else>
+              @{{ formatQuantity(token.balance) }}
+            </div>
+      		</span>
 
-	    	<span class="nickname">
-          <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
-    		</span>
-	 
+  	    	<span class="nickname">
+            <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
+      		</span>
+        </div>
         <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
           Balance Breakdown
           <i class="material-icons">keyboard_arrow_down</i>
         </div>
+        <div class="clear"></div>
       </div>
 
       <div class="secondary-info">
@@ -132,6 +134,8 @@ var data = (function(BALANCES, BALANCE_ADDRESSES){
 
 })(BALANCES, BALANCE_ADDRESSES)
 
+Vue.config.async = false;
+
 var vm = new Vue({
   el: '#tokensController',
   data: {
@@ -150,19 +154,19 @@ var vm = new Vue({
       return total;
     },
     toggleSecondaryInfo: function(event){
-      var $toggleBtn = $(event.target).closest('.detail-toggle');
-      var $token = $toggleBtn.closest('.token');
-     
-      if ($token.hasClass('show-secondary')) {
-        $token.removeClass('show-secondary');
-        $toggleBtn.find("i.material-icons").text('keyboard_arrow_down');
-      } else {
-        $token.addClass('show-secondary');
-        $toggleBtn.find("i.material-icons").text('keyboard_arrow_up');
-      }
+      var $token = $(event.target).closest('.token');
+      var $secondaryInfo = $token.find('.secondary-info');
+      console.log($secondaryInfo.html());
+      $secondaryInfo.slideToggle();
+    },
+    hideAllSecondaryInfo: function(){
+      $('.token .secondary-info').hide();
     }
   }
 });
+
+vm.hideAllSecondaryInfo();
+
 
 </script>
 @endsection

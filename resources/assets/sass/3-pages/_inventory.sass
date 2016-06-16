@@ -2,23 +2,26 @@ body.inventory
   section.tokens
     $token-height: 41px
     .token
-      max-height: $token-height
       line-height: $token-height
       background-color: #fff
       border-top: 1px solid #EEEEEE
       border-left: 1px solid #EEEEEE
       border-right: 1px solid #EEEEEE
+      border-bottom: 1px solid #EEEEEE
       padding: 0 20px
       overflow: hidden
-      transition: max-height 0.5s ease
-      &.show-secondary
-        max-height: 300px
-
+      margin-bottom: 10px
+      +tablet
+        border-bottom: 0
+        margin-bottom: 0
       &:last-of-type
         border-bottom: 1px solid #EEEEEE
       .token-indicator
-        float: left
+        +tablet
+          width: auto
+          float: left
         label
+          text-align: center
           margin-top: 5px
       .avatar
         float: left
@@ -31,7 +34,10 @@ body.inventory
         img
           width: 100%
       .primary-info, .secondary-info
-        display: flex
+        display: inherit
+        overflow: hidden
+        +tablet
+          display: flex
         align-items: center
         width: 100%
         *
@@ -39,28 +45,41 @@ body.inventory
           line-height: 1.6
 
       .primary-info
-        height: $token-height
         font-size: 18px
         font-weight: 200
+        .token-info
+          text-align: right
+          +tablet
+            text-align: inherit
         .quantity
           display: inline-block
           margin-right: 10px
-          width: 140px
+          +tablet
+            width: 140px
           text-align: right
         .nickname
-          width: 200px
-          display: inline-block
+          +tablet
+            width: 200px
+            display: inline-block
         .detail-toggle
-          margin-left: auto
-          border-left: 1px solid #EEEEEE
-          padding: 0 0 0 20px
+          text-align: right
           text-transform: uppercase
           font-weight: bold
           color: $brand-primary
           font-size: 14px
+          width: 100%
+          border-top: 1px solid #EEEEEE
+          +tablet
+            text-align: left
+            padding: 0 0 0 20px
+            width: auto
+            border-top: none
+            border-left: 1px solid #EEEEEE
+            margin-left: auto
           &:hover
             cursor: pointer
             color: tint($brand-primary, 25%)
 
       .secondary-info
+        overflow-x: auto
         padding: 10px 0 5px 0
