@@ -45,7 +45,7 @@
 				
 					<button class="reveal-modal" data-modal="editAppModal" v-on:click="setCurrentApp(app)" ><i class="material-icons">edit</i> Edit</button>
 
-					<a class="reveal-modal" data-modal="addAppModal" v-on:click="setCurrentApp(app)" href="/auth/apps/@{{ app.id }}/delete"><i class="material-icons">delete</i> Delete</a>
+					<a href="/auth/apps/@{{ app.id }}/delete" onclick="return confirm('Are you sure you want to delete this API key?')"><i class="material-icons">delete</i> Delete</a>
 				</td>
 			</tr>
 		</tbody>

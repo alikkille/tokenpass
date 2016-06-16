@@ -2,7 +2,7 @@ body.dashboard
   background-color: #f7f7f7
   $navigation-height: 80px
   .navigation
-    background-color: $gray
+    background-color: $gray-dark
     color: $white
     height: $navigation-height
     line-height: $navigation-height
@@ -38,6 +38,23 @@ body.dashboard
             font-weight: bold
             padding: 0 20px
             display: block
+            position: relative
+            span.linktext
+              position: relative
+              &:after
+                transition: all 0.1s ease
+                opacity: 0
+                position: absolute
+                content: ''
+                width: 100%
+                height: 2px
+                left: 0
+                bottom: -4px
+                right: 0
+                background-color: #fff
+            &:hover
+              span.linktext:after
+                opacity: 1
       .user
         float: right
         line-height: 80px
@@ -178,24 +195,28 @@ $mobile-nav-width: 200px
         color: $white
         padding: 20px 28px
         display: block
+        transition: all 0.1s ease
+        &:hover, &:focus
+          padding-left: 32px
   hr
     margin: 5px 26px
     opacity: 0.5
 
-.btn-dash-title
-  +btn_fill($gray)
-  +btn_small
-  display: block
-  width: 100%
-  margin-top: 10px
-  +desktop
-    margin-top: 0
-    width: inherit
-    display: inline-block
-    float: right
-  i
-    margin-right: 10px
-    vertical-align: middle
-    position: relative
-    top: -1px
-    font-size: 13px
+body.dashboard
+  .btn-dash-title
+    +btn_fill($gray-light)
+    +btn_small
+    display: block
+    width: 100%
+    margin-top: 20px
+    +desktop
+      margin-top: 0
+      width: inherit
+      display: inline-block
+      float: right
+    i
+      margin-right: 10px
+      vertical-align: middle
+      position: relative
+      top: -1px
+      font-size: 13px
