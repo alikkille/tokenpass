@@ -86,21 +86,21 @@
 			<div class="input-group">
 				<label>App:</label>
 				<div class="name">
-					<strong>@{{ currentApp.name }}</strong>
+					@{{ currentApp.name }}
 				</div>
 			</div>
 
 			<div class="input-group">
 				<label>Client ID:</label>
 				<div class="client-id">
-					<strong>@{{ currentApp.id }}</strong>
+					@{{ currentApp.id }}
 				</div>
 			</div>
 
 			<div class="input-group">
 				<label>API Secret:</label>
 				<div class="api-secret">
-					<strong>@{{ currentApp.secret }}</strong>
+					@{{ currentApp.secret }}
 				</div>
 			</div>
 

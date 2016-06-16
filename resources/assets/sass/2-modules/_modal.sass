@@ -23,9 +23,15 @@
       font-weight: 200
     background-color: $white
     position: relative
-    max-width: 800px
-    margin: 8% auto
-    padding: 40px
+    max-width: ($tablet - 10)
+    margin: 8% 10px
+    padding: 20px
+    +mobile
+      padding: 40px
+    +tablet
+      margin: 8% auto
+      padding: 40px
+    
   .modal-x
     position: absolute
     top: 15px
