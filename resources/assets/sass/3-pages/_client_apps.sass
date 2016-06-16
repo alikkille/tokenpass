@@ -1,0 +1,18 @@
+body.client_apps
+  #appsController
+    table
+      button, a
+        background-color: transparent
+        text-transform: uppercase
+        font-weight: bold
+        margin: 0
+        &:not(:last-child)
+          margin-right: 20px
+        padding: 0
+        color: $brand-primary
+        *
+          vertical-align: middle
+      tr
+        th,td
+          &:last-of-type
+            text-align: right
