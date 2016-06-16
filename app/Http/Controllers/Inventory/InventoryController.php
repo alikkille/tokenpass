@@ -77,7 +77,7 @@ class InventoryController extends Controller
 		if(!isset($input['address']) OR trim($input['address']) == ''){
 			Session::flash('message', 'Bitcoin address required');
 			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+			return redirect('inventory.pockets');
 		}
 
 		//setup data
@@ -98,13 +98,13 @@ class InventoryController extends Controller
         } catch (Exception $e) {
             Session::flash('message', $e);
             Session::flash('message-class', 'alert-danger');
-            return redirect('inventory');
+            return redirect('inventory.pockets');
         }
 
 		if(!$validate OR !$validate['result']){
 			Session::flash('message', 'Please enter a valid bitcoin address');
 			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+			return redirect('inventory.pockets');
 		}
 
 		//check if they have this address registered already
@@ -120,7 +120,7 @@ class InventoryController extends Controller
 			if($found){
 				Session::flash('message', 'Address has already been registered for this account');
 				Session::flash('message-class', 'alert-danger');
-				return redirect('inventory');
+				return redirect('inventory.pockets');
 			}
 		}
 
@@ -138,7 +138,7 @@ class InventoryController extends Controller
 		if(!$save){
 			Session::flash('message', 'Error saving address');
 			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+			return redirect('inventory.pockets');
 		}
 
 		// sync with XChain
@@ -146,7 +146,7 @@ class InventoryController extends Controller
 
 		Session::flash('message', 'Bitcoin address registered!');
 		Session::flash('message-class', 'alert-success');
-		return redirect('inventory');
+		return redirect('inventory.pockets');
 	}
 
 	public function deleteAddress($address)
@@ -167,7 +167,7 @@ class InventoryController extends Controller
 				Session::flash('message-class', 'alert-success');
 			}
 		}
-		return redirect('inventory');
+		return redirect('inventory.pockets');
 	}
 
 	public function editAddress($address)
@@ -202,7 +202,7 @@ class InventoryController extends Controller
 				Session::flash('message-class', 'alert-success');
 			}
 		}
-		return redirect('inventory');
+		return redirect('inventory.pockets');
 	}
 
 	public function verifyAddressOwnership($address)
@@ -212,7 +212,7 @@ class InventoryController extends Controller
             if ($item->user_id != Auth::user()->id) {
                 Session::flash('message', 'The address '.$address.' is already in use by another account');
                 Session::flash('message-class', 'alert-danger');
-                return redirect('inventory');
+                return redirect('inventory.pockets');
             }
         }
 
@@ -257,7 +257,7 @@ class InventoryController extends Controller
 				}
 			}
 		}
-		return redirect('inventory');
+		return redirect('inventory.pockets');
 	}
 
 	public function toggleAddress($address)
