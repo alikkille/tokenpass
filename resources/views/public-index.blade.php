@@ -11,7 +11,7 @@
   </ul>
 </div>
 <div class="landing-nav pristine">
-  <div class="landing-nav-container"><span class="logo">token<strong>pass</strong></span>
+  <div class="landing-nav-container"><a href="/"><span class="logo">token<strong>pass</strong></span></a>
     <div class="landing-nav-menu"><a class="btn-register" href="/auth/register">Register</a><a class="btn-login" href="/auth/login">Login</a></div>
     <div class="landing-nav-menu-btn"><i class="material-icons toggle-mobile-nav">dehaze</i></div>
   </div>
