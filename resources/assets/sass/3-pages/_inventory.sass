@@ -48,19 +48,16 @@ body.inventory
         font-size: 18px
         font-weight: 200
         .token-info
+          display: flex
+          justify-content: flex-end
           text-align: right
           +tablet
+            margin-left: 20px
             text-align: inherit
         .quantity
           display: inline-block
           margin-right: 10px
-          +tablet
-            width: 140px
           text-align: right
-        .nickname
-          +tablet
-            width: 200px
-            display: inline-block
         .detail-toggle
           text-align: right
           text-transform: uppercase

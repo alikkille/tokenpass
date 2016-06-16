@@ -1,18 +1,24 @@
 body.client_apps
   #appsController
     table
-      button, a
-        background-color: transparent
-        text-transform: uppercase
-        font-weight: bold
-        margin: 0
-        &:not(:last-child)
-          margin-right: 20px
-        padding: 0
-        color: $brand-primary
-        *
-          vertical-align: middle
+      th,td
+        button, a
+          background-color: transparent
+          text-transform: uppercase
+          font-weight: bold
+          margin: 0
+          &:not(:last-child)
+            margin-right: 20px
+          padding: 0
+          color: $brand-primary
+          &:hover
+            color: tint($brand-primary, 30%)
+          *
+            vertical-align: middle
       tr
         th,td
           &:last-of-type
             text-align: right
+  .btn-regenerate
+    +btn_border($gray)
+    +btn_border_small

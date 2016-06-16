@@ -39,7 +39,7 @@
 			<tr v-for="app in apps">
 				<td><strong>@{{ app.name }}</strong></td>
 				<td>@{{ app.user_count }}</td>
-				<td>@{{ app.created_at.strftime('%d-%b-%Y') }}</td>
+				<td>@{{ formatDate(app.created_at) }}</td>
 				<td>
 					<button class="reveal-modal" data-modal="viewAppModal" v-on:click="setCurrentApp(app)" ><i class="material-icons">open_in_browser</i> Keys</button>
 				
@@ -125,7 +125,10 @@
 					<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4">@{{ currentApp.endpoints }}</textarea>
 
 					<button type="submit">Save</button>
+					<button class="btn-regenerate">Regenerate Keys</button>
 		  </form>
+
+
 		</div>
 
 	</div> <!-- END EDIT APP MODAL -->
@@ -147,6 +150,12 @@ var vm = new Vue({
   methods: {
     setCurrentApp: function(app){
       this.currentApp = app;
+    },
+    formatDate: function(dateString){
+    	var options = {
+			    year: "numeric", month: "short", day: "numeric"
+			};
+    	return new Date(dateString).toLocaleDateString('en-us', options);
     }
   }
 });

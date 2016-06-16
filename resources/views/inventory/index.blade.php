@@ -144,7 +144,9 @@ var vm = new Vue({
   },
   methods: {
   	formatQuantity: function(q){
-  		return (q / 100000000).toFixed(8)
+  		return (q / 100000000)
+        .toString()
+        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
   	},
     totalProvisional: function(balanceAddress){
       var total = 0;

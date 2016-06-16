@@ -14,7 +14,7 @@
         <div class="tooltip-wrapper" data-tooltip="Login quickly and securely by signing todays Word of the Day with a previously verified address.">
           <i class="help-icon material-icons">help_outline</i>
         </div>
-        <input name="btc-wotd" type="text" placeholder="btc-wotd" value="{{ $sigval }}" disabled>
+        <input name="btc-wotd" type="text" placeholder="btc-wotd" value="{{ $sigval }}" onclick="this.select();" readonly>
 
         <div class="tooltip-wrapper" data-tooltip="Paste your signed Word of the Day into this window, then click login.">
           <i class="help-icon material-icons">help_outline</i>
