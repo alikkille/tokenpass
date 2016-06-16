@@ -29,7 +29,7 @@
     <div class="or-divider-module">
       <div class="divider">.</div><span class="or">or</span>
       <div class="divider">.</div>
-    </div><a class="signin-with-btc-btn" href="/auth/bitcoin">Sign In With Email</a>
+    </div><a class="signin-with-btc-btn" href="/auth/login">Sign In With Username</a>
 </div>
 
 @endsection
