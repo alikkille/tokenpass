@@ -283,7 +283,7 @@ class AuthController extends Controller
         $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
         if($verify) {
             UserMeta::setMeta(Auth::user()->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
-            return redirect()->back();
+            return redirect()->intended();
         } else {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
         }

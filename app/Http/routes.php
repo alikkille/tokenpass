@@ -28,8 +28,8 @@ Route::get('auth/logout', 'Auth\AuthController@getLogout');
 // Bitcoin Authentication routes...
 Route::get('auth/bitcoin', 'Auth\AuthController@getBitcoinLogin');
 Route::post('auth/bitcoin', 'Auth\AuthController@postBitcoinLogin');
-Route::get('auth/sign', 'Auth\AuthController@getSignRequirement');
-Route::post('auth/signed', 'Auth\AuthController@setSigned');
+Route::get('auth/sign', array('as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement'));
+Route::post('auth/signed', array('as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned'));
 
 // Registration routes...
 Route::get('auth/register', 'Auth\AuthController@getRegister');

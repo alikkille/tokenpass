@@ -7,9 +7,22 @@ use TKAccounts\Repositories\AddressRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Input;
 use TKAccounts\Models\User;
+use TKAccounts\Repositories\UserRepository;
 
 class AddressController extends ResourceController
 {
+    /**
+     * Create a new authentication controller instance.
+     *
+     * @return void
+     */
+    public function __construct(UserRepository $user_repository)
+    {
+        $this->user_repository = $user_repository;
+
+        $this->middleware('sign');
+
+    }
 
     protected $view_prefix      = 'address';
     protected $repository_class = AddressRepository::class;

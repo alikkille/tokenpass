@@ -10,7 +10,7 @@ class UserMeta extends Model
 	
 	public static function allUser($id)
 	{
-		$getAll = UserMeta::where('user_id', '=', $id)->all();
+		$getAll = UserMeta::where('user_id', '=', $id)->get();
 		$output = array();
 		foreach($getAll as $row){
 			$output[$row->meta_key] = $row->meta_value;
@@ -39,6 +39,11 @@ class UserMeta extends Model
         $get = UserMeta::where('meta_value', '=', $value)->first();
         return $get->extra;
     }
+
+	public static function getAllDataById($id) {
+		$get = UserMeta::where('user_id', '=', $id)->get();
+		return $get;
+	}
 	
 	public static function setMeta($id, $key, $value, $access_level = 0, $owner_client = 0, $extra = '')
 	{
