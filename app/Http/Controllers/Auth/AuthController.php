@@ -77,6 +77,9 @@ class AuthController extends Controller
     {
         $register_vars = $request->all();
         $register_vars['slug'] = Util::slugify(isset($register_vars['username']) ? $register_vars['username'] : '');
+        if(!isset($register_vars['name']) OR trim($register_vars['name']) == ''){
+            $register_vars['name'] = $register_vars['username'];
+        }
 
         $validator = $this->validator($register_vars);
 
