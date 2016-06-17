@@ -17,12 +17,11 @@
 	<p>
 		Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
 		in your own website or service. 
-		Once you have your API keys, the <a href="https://github.com/tokenly/accounts-client" target="_blank">Accounts-Client</a>
+		Once you have your API keys, the <a href="https://github.com/tokenly/tokenpass-client" target="_blank">TokenpassClient</a>
 		PHP class can be used to integrate into your application. 
 	</p>
-	<p>Also see more API details <a href="https://github.com/tokenly/accounts" target="_blank">here</a></p>
 	<p>
-		<strong><em>(more developer tools & documentation coming soon)</em></strong>
+		<strong><a href="http://apidocs.tokenly.com/tokenpass/" target="_blank">View API Documentation</a></strong>
 	</p>
 	<hr>
 
