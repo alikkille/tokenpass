@@ -83,7 +83,11 @@
 </div>
 <div class="footer">
   <div class="footer-content">
-    <span>&copy; Tokenly 2016</span>
+    <div class="content-wrapper">
+        <p class="text-center">
+            <span>&copy; <a href="https://tokenly.com" target="_blank">Tokenly</a> {{ date('Y') }}</span>
+        </p>
+    </div>
   </div>
 </div>
 
