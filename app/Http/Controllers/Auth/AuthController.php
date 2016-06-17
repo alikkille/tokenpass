@@ -77,9 +77,6 @@ class AuthController extends Controller
     {
         $register_vars = $request->all();
         $register_vars['slug'] = Util::slugify(isset($register_vars['username']) ? $register_vars['username'] : '');
-        if(!isset($register_vars['name']) OR trim($register_vars['name']) == ''){
-            $register_vars['name'] = $register_vars['username'];
-        }
 
         $validator = $this->validator($register_vars);
 
@@ -257,9 +254,10 @@ class AuthController extends Controller
                 Log::debug("\$update_vars['email']=".json_encode($update_vars['email'], 192));
                 $this->dispatch(new SendUserConfirmationEmail($current_user));
             }
-
-
-            return redirect($this->redirectPath());
+            
+            Session::flash('message', 'Settings updated!');
+            Session::flash('message-class', 'alert-success');
+            return redirect('/auth/update');
 
         } catch (InvalidArgumentException $e) {
             throw new HttpResponseException($this->buildFailedValidationResponse($request, [0 => $e->getMessage()]));
@@ -386,7 +384,7 @@ class AuthController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name'     => 'required|max:255',
+            'name'     => 'max:255',
             'username' => 'required|max:255|unique:users',
             'slug'     => 'sometimes|max:255|unique:users',
             'email'    => 'required|email|max:255|unique:users',
@@ -403,7 +401,7 @@ class AuthController extends Controller
     protected function updateValidator(array $data)
     {
         return Validator::make($data, [
-            'name'         => 'required|max:255',
+            'name'         => 'max:255',
             // 'username'     => 'sometimes|max:255|unique:users',
             'email'        => 'sometimes|email|max:255|unique:users',
             'new_password' => 'sometimes|confirmed|min:6',

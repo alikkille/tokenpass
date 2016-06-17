@@ -17,12 +17,16 @@
             <div class="panel-content">
                 @include('partials.errors', ['errors' => $errors])
 
+                @if(Session::has('message'))
+                    <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
+                @endif	
+
                 <form method="POST" action="/auth/update">
 
                     {!! csrf_field() !!}
 
                     <label for="Name">Name</label>
-                    <input required="required" name="name" type="text" id="Name" placeholder="Satoshi Nakamoto" value="{{ old('name') }}">
+                    <input name="name" type="text" id="Name" placeholder="Satoshi Nakamoto" value="{{ old('name') }}">
 
                     <label for="Name">Username</label>
                     <input disabled value="{{ $model['username'] }}">
