@@ -160,7 +160,6 @@ var vm = new Vue({
     toggleSecondaryInfo: function(event){
       var $token = $(event.target).closest('.token');
       var $secondaryInfo = $token.find('.secondary-info');
-      console.log($secondaryInfo.html());
       $secondaryInfo.slideToggle();
     },
     hideAllSecondaryInfo: function(){

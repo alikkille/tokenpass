@@ -4,43 +4,20 @@ ul.connection_entries
   width: 100%
   $entry-height: 80px
   li.connection_entry
-    position: relative
-    overflow: hidden
     list-style-type: none
     background-color: #fff
-    padding: 20px
     box-shadow: 0 2px 2px #eee
+    padding: 20px
     margin-bottom: 20px
     border-radius: 4px
-    display: flex
-    flex-direction: column
-    +tablet
-      flex-direction: row
-    .access-level
-      background-color: $brand-primary
-      content: ' '
-      height: 4px
-      width: 100%
-      position: absolute
-      top: 0
-      left: 0
-      right: 0
-      z-index: 200
-      transition: all 0.3s ease
-      padding: 0 20px
-      color: $white
-      text-indent: -999px
-      line-height: 20px
-      font-size: 13px
-      font-weight: bold
-      text-transform: uppercase
-      $box-shadow-color: rgba(tint($brand-primary, 30%), 0.7)
-      box-shadow: 0 0 0 $box-shadow-color
-      &:hover
-
-        height: 20px
-        text-indent: 0
-        box-shadow: 0 5px 10px $box-shadow-color
+    .primary-details
+      position: relative
+      display: flex
+      flex-direction: column
+      +tablet
+        flex-direction: row
+    .scopes-details
+      margin-top: 20px
     .entry-module
       width: 100%
       &:not(:last-of-type)
@@ -56,15 +33,21 @@ ul.connection_entries
       .details
         font-size: 16px
         color: $gray
-    .client-revoke
+        a, button
+          text-transform: uppercase
+          background-color: transparent
+          padding: 0
+          color: $brand-primary
+          font-weight: bold
+          font-size: 16px
+          i
+            font-size: 16px
+            vertical-align: middle
+    .client-options
       +tablet
         width: 20%
       float: right
-      font-weight: bold
-      text-transform: uppercase
-      i
-        font-size: 16px
-        vertical-align: middle
+
     .client-name
       +tablet
         width: 60%
@@ -73,3 +56,6 @@ ul.connection_entries
       +tablet
         width: 20%
       float: left
+.revoke-btn
+  +btn-border($gray)
+  +btn-border-small

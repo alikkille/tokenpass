@@ -10,36 +10,45 @@
     <span class="heading">Integrations</span>
 </section>
 
-<section>
-    @if ($connection_entries)
-        <ul class="connection_entries">
-            @foreach ($connection_entries as $entry)
-                <li class="connection_entry">
-                    <!-- TODO: Access level text -->
-                    <div class="access-level">Access level</div>
-                    <div class="entry-module client-name">
-                        <div class="title">Client Name</div>
-                        <div class="details">{{$entry['client']['name']}}</div>
+<section id="connectionEntriesController">
+    <ul v-if="entries.length > 0" class="connection_entries">
+        <li v-for="entry in entries" class="connection_entry">
+            <div class="primary-details">
+                <div class="entry-module client-name">
+                    <div class="title">Client Name</div>
+                    <div class="details"><strong>@{{ entry.client.name }}</strong></div>
+                </div>
+                <div class="entry-module connection-details">
+                    <div class="title">Connected On</div>
+                    <div class="details">@{{ formatDate(entry.connection.created_at) }}</div>
+                </div>
+                <div class="entry-module client-options">
+                    <div class="title">Options</div>
+                    <div class="details">
+                        <a href="/auth/revokeapp/@{{ entry.client.uuid }}">
+                            <i class="material-icons">cancel</i>
+                            Revoke
+                        </a>
+                        <button v-on:click="toggleScopes">
+                            <i class="material-icons">keyboard_arrow_down</i>
+                            Scopes
+                        <button>
                     </div>
-                    <div class="entry-module connection-details">
-                        <div class="title">Connected On</div>
-                        <div class="details">{{$entry['connection']['created_at']->format('M j, Y')}}</div>
-                    </div>
-                    <div class="entry-module client-revoke">
-                        <div class="title">Options</div>
-                        <div class="details">
-                            <a href="/auth/revokeapp/{{$entry['client']['uuid']}}">
-                                <i class="material-icons">cancel</i>
-                                Revoke
-                            </a>
-                        </div>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-    @else
-        <p>You don't have any applications connected yet.  Please login at the application and grant authorization when prompted.</p>
-    @endif
+                </div>
+            </div>
+            <div class="scopes-details">
+                <ul v-if="entry.scopes.length > 0" class="scopes">
+                    <li v-for="scope in entry.scopes" class="scope">
+                        <p><strong>@{{ scope.label }}</strong></p>
+                        <p>@{{ scope.notice_level }} @{{ formatDate(scope.created_at) }}</p>
+                        <p>@{{ scope.description }}</p>
+                    </li>
+                </ul>
+                 <p v-else>This connectected application does not have any permissions attached to it.</p>
+            </div>
+        </li>
+    </ul>
+    <p v-else>You don't have any applications connected yet.  Please login at the application and grant authorization when prompted.</p>
 </section>
 
 @endsection
@@ -49,6 +58,34 @@
 
 // Convert php object of key-value pairs into array of balance objects.
 var connection_entries = {!! json_encode($connection_entries) !!};
+
+Vue.config.async = false;
+
+var vm = new Vue({
+  el: '#connectionEntriesController',
+  data: {
+    search: '',
+    entries: connection_entries
+  },
+  methods: {
+    formatDate: function(dateString){
+        var options = {
+            year: "numeric", month: "short", day: "numeric"
+        };
+        return new Date(dateString).toLocaleDateString('en-us', options);
+    },
+    hideAllScopes: function(){
+        $('.connection_entry .scopes-details').hide();
+    },
+    toggleScopes: function(e){
+        var $entry = $(e.target).closest('.connection_entry');
+        var $scopes = $entry.find('.scopes-details');
+        $scopes.slideToggle();
+    }
+  }
+});
+
+vm.hideAllScopes();
 
 </script>
 @endsection
