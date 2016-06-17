@@ -1,7 +1,7 @@
 <?php
 namespace TKAccounts\Models;
 
-use DB;
+use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Models\Address;
@@ -155,7 +155,7 @@ class Address extends Model
                 UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
         break;
             case 'readable':
-                UserMeta::setMeta($user->id,'sign_auth','TOKENPASS ' . Address::getSecureCodeGeneration() .' '. time(),0,0,'unsigned');
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration() .' '. time(),0,0,'unsigned');
         break;
             case 'complex readable':
                 UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(8),0,0,'unsigned');
@@ -194,8 +194,11 @@ class Address extends Model
 
             return (string) trim($response);
         }
-
-        return (string) $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
+        $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
+        if($verify_prefix){
+            $verify_prefix .= ' ';
+        }
+        return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
     
     public static function updateUserBalances($user_id)
