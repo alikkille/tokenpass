@@ -4,7 +4,7 @@
 
 @section('body_content')
 <div class="everything">
-    <div class="logo">token<strong>pass</strong></div>
+    <div class="logo"><a href="/">token<strong>pass</strong></a></div>
         <div class="form-wrapper">
             @include('partials.errors', ['errors' => $errors])
             <form method="POST" action="/auth/register">

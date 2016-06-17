@@ -10,6 +10,9 @@
     <div class="modal-bg"></div>
     <div class="modal-content">
       <h3 class="light">Verify Pocket</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">cancel</i>
+      </div>
       <p>
         In order for Tokenpass to track your address balances
         and provide access to "Token Controlled Access" features, you must 
@@ -28,13 +31,13 @@
         
           <label for="verify-code">Verification Code</label>
           
-          <input type="text" id="verify-code" value="code-@{{ currentPocket.address }}" disabled>
+          <input type="text" id="verify-code" value="@{{ currentPocket.secure_code }}" onclick="this.select();" readonly>
 
           <label for="verify-address">BTC Address:</label>
           <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
 
           <label for="verify-sig">Enter Message Signature:</label>
-          <textarea name="sig" id="verify-sig" rows="8" required></textarea>
+          <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
 
         <button type="submit">Verify</button>
       </form>
@@ -117,15 +120,15 @@
         <div class="clear"></div>
       </div><!-- End Pocket Information -->
       <div class="pocket-settings">
-        <form action="">
+        <form action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
           <label for="">Label</label>
-          <input type="text" value="@{{ pocket.label }}" placeholder="Tokenly Wallet">
+          <input type="text" name="label" value="@{{ pocket.label }}" placeholder="Tokenly Wallet">
 
           <label for="">Address</label>
-          <input type="text" value="@{{ pocket.address }}" disabled>
+          <input type="text" value="@{{ pocket.address }}" readonly>
           
           <label for="">Notes</label>
-          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way."></textarea>
+          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes"></textarea>
           <div class="toggles-container">
             <div class="input-group toggle-field">
               <label>Active?</label>
@@ -146,7 +149,10 @@
             </div>
           </div>
           <button type="submit" class="btn-save">Save</button>
-          <button type="submit" class="btn-delete">Delete</button>
+          <a 
+            href="/inventory/address/@{{ pocket.address }}/delete" 
+            onclick="return confirm('Are you sure you want to delete this pocket?')" 
+            class="btn-delete">Delete</a>
         </form>
       </div> <!-- End Pocket Settings -->
     </div> <!-- End Pocket List -->
@@ -159,7 +165,7 @@
 @section('page-js')
 <script>
 
-var pockets = JSON.parse('{!! json_encode($addresses) !!}');
+var pockets = {!! json_encode($addresses) !!};
 
 var vm = new Vue({
   el: '#pocketsController',
@@ -169,9 +175,6 @@ var vm = new Vue({
     currentPocket: {}
   },
   methods: {
-    to_bool: function(n) {
-      return n == 1;
-    },
     toggleEdit: function(event){
       var $pocket = $(event.target).closest('.pocket');
       var $settingsButton = $pocket.find('.settings-btn i');
@@ -185,13 +188,6 @@ var vm = new Vue({
     },
     setCurrentPocket: function(pocket){
       this.currentPocket = pocket;
-    },
-    getVerificationCode: function(pocket){
-      // $.ajax('/getPocketVerificationCode' , {
-      //   success: function(data) {
-      //     pocket.verificationCode = data.verificationCode;
-      //   }
-      // })
     }
   }
 });

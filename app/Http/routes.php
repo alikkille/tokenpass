@@ -70,7 +70,7 @@ Route::get('inventory/check-refresh', 'Inventory\InventoryController@checkPageRe
 Route::post('inventory/asset/{asset}/toggle', 'Inventory\InventoryController@toggleAsset');
 
 // new route/controller for pockets
-Route::get('pockets', 'Inventory\InventoryController@getPockets');
+Route::get('pockets', array('as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets'));
 
 //client applications / API keys
 Route::get('auth/apps', 'Auth\AppsController@index');

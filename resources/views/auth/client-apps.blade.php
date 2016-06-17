@@ -1,28 +1,32 @@
 @extends('accounts.base')
 
+@section('body_class') dashboard client_apps @endsection
+
 @section('accounts_content')
 
-<h1>My Applications</h1>
-@if(Session::has('message'))
-	<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-@endif	
-<p>
-	Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
-	in your own website or service. 
-	Once you have your API keys, the <a href="https://github.com/tokenly/accounts-client" target="_blank">Accounts-Client</a>
-	PHP class can be used to integrate into your application. 
-	<br>Also see more API details <a href="https://github.com/tokenly/accounts" target="_blank">here</a>.
-</p>
-<p>
-	<strong><em>(more developer tools & documentation coming soon)</em></strong>
-</p>
-<hr>
-@if(!$client_apps OR count($client_apps) == 0)
+<section class="title">
+  <span class="heading">My Applications</span>
+  <button data-modal="addAppModal" class="btn-dash-title add-app-btn reveal-modal">+ Add Application</button>
+</section>
+
+<section id="appsController">
+	@if(Session::has('message'))
+		<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
+	@endif	
+	
 	<p>
-		No registered applications found.
+		Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
+		in your own website or service. 
+		Once you have your API keys, the <a href="https://github.com/tokenly/accounts-client" target="_blank">Accounts-Client</a>
+		PHP class can be used to integrate into your application. 
 	</p>
-@else
-	<table class="table table-bordered data-table client-app-table">
+	<p>Also see more API details <a href="https://github.com/tokenly/accounts" target="_blank">here</a></p>
+	<p>
+		<strong><em>(more developer tools & documentation coming soon)</em></strong>
+	</p>
+	<hr>
+
+	<table class="table">
 		<thead>
 			<tr>
 				<th>Name</th>
@@ -32,108 +36,145 @@
 			</tr>
 		</thead>
 		<tbody>
-			@foreach($client_apps as $app)
-				<tr>
-					<td><strong>{{ $app->name }}</strong></td>
-					<td>{{ number_format($app->user_count) }}</td>
-					<td>{{ date('Y/m/d', strtotime($app->created_at)) }}</td>
-					<td class="table-action">
-						<a href="#" class="btn  btn-success" class="View API keys" data-toggle="modal" data-target="#view-app-modal-{{ $app->id }}"><i class="fa fa-key"></i> Keys</a>
-						<div class="modal fade" id="view-app-modal-{{ $app->id }}" tabindex="-1" role="dialog">
-						  <div class="modal-dialog" role="document">
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								<h3 class="modal-title" id="myModalLabel">Client App API Keys</h3>
-							  </div>
-							  <form action="/auth/apps/{{ $app->id }}/edit" method="post">
-							  <div class="modal-body">
-								 <p>
-									 <strong>App:</strong> <span class="text-success">{{ $app->name }}</span>
-								</p>
-								<div class="well">
-									<h4 class="text-center">
-										<strong>Client ID:</strong><br><br>
-										{{ $app->id }}
-									</h4>
-								</div>
-								<div class="well">
-									<h4 class="text-center">
-										<strong>API Secret:</strong><br><br>
-										{{ $app->secret }}
-									</h4>
-								</div>								
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							  </div>
-							  </form>
-							</div>
-						  </div>
-						</div>						
-						<a href="#" class="btn btn-info" class="Edit" data-toggle="modal" data-target="#edit-app-modal-{{ $app->id }}"><i class="fa fa-pencil"></i> Edit</a>
-						<div class="modal fade" id="edit-app-modal-{{ $app->id }}" tabindex="-1" role="dialog">
-						  <div class="modal-dialog" role="document">
-							<div class="modal-content">
-							  <div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-								<h3 class="modal-title" id="myModalLabel">Update Client Application</h3>
-							  </div>
-							  <form action="/auth/apps/{{ $app->id }}/edit" method="post">
-							  <div class="modal-body">
-								<div class="form-group">
-									<label for="client-name">Client Name:</label>
-									<input type="text" name="name" id="client-name" class="form-control" value="{{ $app->name }}" required />
-								</div>
-								<div class="form-group">
-									<label for="endpoints">Client Callback Endpoints:</label>
-									<textarea name="endpoints" id="endpoints" placeholder="(one per line)" style="height: 150px;" class="form-control">{{ $app->endpoints }}</textarea>
-								</div>
-							  </div>
-							  <div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-success">Save</button>
-							  </div>
-							  </form>
-							</div>
-						  </div>
-						</div>
-						<a href="/auth/apps/{{ $app->id }}/delete" class="btn  btn-danger delete" class="Delete"><i class="fa fa-close"></i> Delete</a>
-					</td>
-				</tr>
-			@endforeach
+			<tr v-for="app in apps">
+				<td><strong>@{{ app.name }}</strong></td>
+				<td>@{{ app.user_count }}</td>
+				<td>@{{ formatDate(app.created_at) }}</td>
+				<td>
+					<button class="reveal-modal" data-modal="viewAppModal" v-on:click="setCurrentApp(app)" ><i class="material-icons">open_in_browser</i> Keys</button>
+				
+					<button class="reveal-modal" data-modal="editAppModal" v-on:click="setCurrentApp(app)" ><i class="material-icons">edit</i> Edit</button>
+
+					<a href="/auth/apps/@{{ app.id }}/delete" onclick="return confirm('Are you sure you want to delete this API key?')"><i class="material-icons">delete</i> Delete</a>
+				</td>
+			</tr>
 		</tbody>
 	</table>
 
-@endif
+	<!-- NEW APP MODAL -->
+	<div class="modal-container" id="addAppModal">
+		<div class="modal-bg"></div>
+		<div class="modal-content">
+			<h3>Register Client Application</h3>
+			<div class="modal-x close-modal">
+				<i class="material-icons">cancel</i>
+			</div>
 
-<p>
-	<a href="#" class="btn btn-lg btn-success" data-toggle="modal" data-target="#new-app-modal"><i class="fa fa-plus"></i> New Application</a>
-</p>
-<div class="modal fade" id="new-app-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-	<div class="modal-content">
-	  <div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		<h3 class="modal-title" id="myModalLabel">Register Client Application</h3>
-	  </div>
-	  <form action="/auth/apps/new" method="post">
-	  <div class="modal-body">
-		<div class="form-group">
-			<label for="client-name">Client Name:</label>
-			<input type="text" name="name" id="client-name" class="form-control" required />
+		  <form action="/auth/apps/new" method="POST">
+
+				<label for="client-name">Client Name:</label>
+				<input type="text" name="name" id="client-name" required/>
+
+				<label for="endpoints">Client Callback Endpoints:</label>
+				<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4"></textarea>
+
+				<button type="submit" class="">Submit</button>
+
+		  </form>
 		</div>
-		<div class="form-group">
-			<label for="endpoints">Client Callback Endpoints:</label>
-			<textarea name="endpoints" id="endpoints" placeholder="(one per line)" style="height: 150px;" class="form-control"></textarea>
+	</div> <!-- END NEW APP MODAL -->
+
+	<!-- VIEW APP MODAL -->
+	<div class="modal-container" id="viewAppModal">
+		<div class="modal-bg"></div>
+		<div class="modal-content">
+			<h3>Client App API Keys</h3>
+			<div class="modal-x close-modal">
+				<i class="material-icons">cancel</i>
+			</div>
+
+			<div class="input-group">
+				<label>App:</label>
+				<div class="name">
+					@{{ currentApp.name }}
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label>Client ID:</label>
+				<div class="client-id">
+					@{{ currentApp.id }}
+				</div>
+			</div>
+
+			<div class="input-group">
+				<label>API Secret:</label>
+				<div class="api-secret">
+					@{{ currentApp.secret }}
+				</div>
+			</div>
+
 		</div>
-	  </div>
-	  <div class="modal-footer">
-		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		<button type="submit" class="btn btn-success">Submit</button>
-	  </div>
-	  </form>
-	</div>
-  </div>
-</div>
+	</div> <!-- END VIEW APP MODAL -->
+
+	<!-- EDIT APP MODAL -->
+	<div class="modal-container" id="editAppModal">
+		<div class="modal-bg"></div>
+		<div class="modal-content">
+			<h3>Update Client Application</h3>
+			<div class="modal-x close-modal">
+				<i class="material-icons">cancel</i>
+			</div>
+
+		  <form action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
+
+					<label for="client-name">Client Name:</label>
+					<input type="text" name="name" id="client-name" value="@{{ currentApp.name }}" required />
+
+					<label for="endpoints">Client Callback Endpoints:</label>
+					<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4">@{{ currentApp.endpoints }}</textarea>
+
+					<button type="submit">Save</button>
+					<button class="btn-regenerate">Regenerate Keys</button>
+		  </form>
+
+
+		</div>
+
+	</div> <!-- END EDIT APP MODAL -->
+</section>
+
+@endsection
+
+@section('page-js')
+<script>
+
+var apps = {!! json_encode($client_apps) !!};
+
+var vm = new Vue({
+  el: '#appsController',
+  data: {
+    apps: apps,
+    currentApp: {}
+  },
+  methods: {
+    setCurrentApp: function(app){
+      this.currentApp = app;
+    },
+    formatDate: function(dateString){
+    	var options = {
+			    year: "numeric", month: "short", day: "numeric"
+			};
+    	return new Date(dateString).toLocaleDateString('en-us', options);
+    }
+  }
+});
+
+// Initialize new app modal
+var addAppModal = new Modal();
+addAppModal.init(document.getElementById(
+  'addAppModal'));
+
+// Initialize view app modal
+var viewAppModal = new Modal();
+viewAppModal.init(document.getElementById(
+  'viewAppModal'));
+
+// Initialize edit app modal
+var editAppModal = new Modal();
+editAppModal.init(document.getElementById(
+  'editAppModal'));
+
+
+</script>
 @endsection

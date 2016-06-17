@@ -2,13 +2,16 @@ body.dashboard
   background-color: #f7f7f7
   $navigation-height: 80px
   .navigation
-    background-color: $gray
+    background-color: $gray-dark
     color: $white
     height: $navigation-height
     line-height: $navigation-height
     overflow: hidden
     .navigation-content
       padding: 0 15px
+      max-width: 1080px
+      margin-left: auto
+      margin-right: auto
       +tablet
         padding: 0 $gutter-px
       .logo
@@ -35,6 +38,23 @@ body.dashboard
             font-weight: bold
             padding: 0 20px
             display: block
+            position: relative
+            span.linktext
+              position: relative
+              &:after
+                transition: all 0.1s ease
+                opacity: 0
+                position: absolute
+                content: ''
+                width: 100%
+                height: 2px
+                left: 0
+                bottom: -4px
+                right: 0
+                background-color: #fff
+            &:hover
+              span.linktext:after
+                opacity: 1
       .user
         float: right
         line-height: 80px
@@ -68,6 +88,9 @@ body.dashboard
           vertical-align: middle
   section
     display: block
+    max-width: 1080px
+    margin-left: auto
+    margin-right: auto
     margin-bottom: $gutter-px 
     &:first-of-type
       margin-top: $gutter-px
@@ -110,6 +133,7 @@ body.dashboard
         font-size: 22px
         line-height: 40px
   section.title
+    overflow: hidden
     & > *
       display: inline-block
       vertical-align: middle
@@ -171,30 +195,28 @@ $mobile-nav-width: 200px
         color: $white
         padding: 20px 28px
         display: block
+        transition: all 0.1s ease
+        &:hover, &:focus
+          padding-left: 32px
   hr
     margin: 5px 26px
     opacity: 0.5
 
-.btn-dash-title
-  +btn_fill($gray)
-  +btn_small
-  display: block
-  width: 100%
-  margin-top: 10px
-  +tablet
-    margin-top: 0
-    width: inherit
-    display: inline-block
-    float: right
-  i
-    margin-right: 10px
-    vertical-align: middle
-    position: relative
-    top: -1px
-    font-size: 13px
-
-.footer
-  margin: 100px $gutter-px 0 $gutter-px !important
-  padding: $gutter-px 0 !important
-  color: $gray-light
-  text-align: right
+body.dashboard
+  .btn-dash-title
+    +btn_fill($gray-light)
+    +btn_small
+    display: block
+    width: 100%
+    margin-top: 20px
+    +desktop
+      margin-top: 0
+      width: inherit
+      display: inline-block
+      float: right
+    i
+      margin-right: 10px
+      vertical-align: middle
+      position: relative
+      top: -1px
+      font-size: 13px

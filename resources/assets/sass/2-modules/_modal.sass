@@ -8,6 +8,7 @@
   height: 100%
   z-index: 1000
   display: none
+  opacity: 0
   .modal-bg
     position: fixed
     top: 0
@@ -18,11 +19,19 @@
     height: 100%
     background-color: rgba($black, 0.7)
   .modal-content
+    h1, h2, h3, h4, h5, h6
+      font-weight: 200
     background-color: $white
     position: relative
-    max-width: 800px
-    margin: 8% auto
-    padding: 40px
+    max-width: ($tablet - 10)
+    margin: 8% 10px
+    padding: 20px
+    +mobile
+      padding: 40px
+    +tablet
+      margin: 8% auto
+      padding: 40px
+    
   .modal-x
     position: absolute
     top: 15px

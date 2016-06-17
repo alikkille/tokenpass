@@ -4,6 +4,7 @@
     <li><a href="/inventory">Inventory</a></li>
     <li><a href="/pockets">Pockets</a></li>
     <li><a href="/auth/connectedapps">Integrations</a></li>
+    <li><a href="/auth/apps">Api Keys</a></li>
   </ul>
   <hr>
   <ul>
@@ -37,9 +38,26 @@
       </i>
     </div>
     <ul class="menu">
-      <li><a href="/inventory">Inventory</a></li>
-      <li><a href="/pockets">Pockets</a></li>
-      <li><a href="/auth/connectedapps">Integrations</a></li>
+      <li>
+        <a href="/inventory">
+          <span class="linktext">Inventory</span>
+        </a>
+      </li>
+      <li>
+        <a href="/pockets">
+          <span class="linktext">Pockets</span>
+        </a>
+      </li>
+      <li>
+        <a href="/auth/connectedapps">
+          <span class="linktext">Integrations</span>
+        </a>
+      </li>
+      <li>
+        <a href="/auth/apps">
+          <span class="linktext">Api Keys</span>
+        </a>
+      </li>
         
       <!-- TODO -->
       <!-- <li><a href="/dashboard"><i class="fa fa-home"></i> Accounts Home</a></li> -->
