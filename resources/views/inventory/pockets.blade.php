@@ -109,10 +109,10 @@
           <span class="name">
             @{{ pocket.label || 'n/a' }}
           </span>
-          <span class="address">@{{ pocket.address }}</span>
+          <span class="address"><a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank" title="View on Block Explorer">@{{ pocket.address }}</a></span>
         </div>
         <div v-on:click="toggleEdit" class="settings-btn">  
-          <i class="material-icons">settings</i>
+          <i class="material-icons" title="Edit address settings">settings</i>
         </div>
         <div data-modal="verifyPocketModal" v-on:click="setCurrentPocket(pocket)" v-show="!pocket.verified" class="verify-btn reveal-modal">
           Verify

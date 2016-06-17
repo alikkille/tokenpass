@@ -85,7 +85,7 @@
   <div class="footer-content">
     <div class="content-wrapper">
         <p class="text-center">
-            <span>&copy; <a href="https://tokenly.com" target="_blank">Tokenly</a> {{ date('Y') }}</span>
+            <span>&copy; <a href="https://tokenly.com" target="_blank">Tokenly</a> {{ date('Y') }}</span> - <a href="https://github.com/tokenly/tokenpass" target="_blank">Github</a>
         </p>
     </div>
   </div>
