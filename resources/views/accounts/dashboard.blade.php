@@ -1,5 +1,7 @@
 @extends('accounts.base')
 
+@section('htmltitle', 'Dashboard')
+
 @section('body_class') dashboard @endsection
 
 @section('accounts_content')

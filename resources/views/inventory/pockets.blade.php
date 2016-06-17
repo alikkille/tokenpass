@@ -1,5 +1,7 @@
 @extends('accounts.base')
 
+@section('htmltitle', 'Pockets')
+
 @section('body_class') dashboard pockets @endsection
 
 @section('accounts_content')

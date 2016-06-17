@@ -1,5 +1,7 @@
 @extends('accounts.base')
 
+@section('htmltitle', 'Login With Bitcoin')
+
 @section('body_class') dashboard @endsection
 
 @section('accounts_content')

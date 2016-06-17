@@ -1,5 +1,7 @@
 @extends('accounts.base')
 
+@section('htmltitle', 'Revoke App Complete')
+
 @section('body_class') dashboard revoke_app @endsection
 
 @section('accounts_content')

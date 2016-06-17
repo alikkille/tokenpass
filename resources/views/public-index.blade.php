@@ -1,6 +1,5 @@
 @extends('layouts.guest')
 
-
 @section('body_content')
 
 <div class="landing-nav-menu-mobile" id="mobile-nav">
