@@ -18,6 +18,36 @@ ul.connection_entries
         flex-direction: row
     .scopes-details
       margin-top: 20px
+      padding-top: 20px
+      border-top: 1px solid #eee
+      ul.scopes
+        margin: 0
+        padding: 0
+        li.scope
+          margin: 0
+          padding: 0
+          display: flex
+          flex-direction: column
+          border-left: 3px solid #eee
+          padding-left: 20px
+          &[data-level="0"]
+            border-left-color: $brand-green
+          &[data-level="1"]lorem
+            border-left-color: $brand-yellow
+          &[data-level="2"]
+            border-left-color: $brand-red
+          padding-bottom: 20px
+          margin-bottom: 20px
+          border-bottom: 1px solid #eee
+          & > *:not(:last-of-type)
+              margin-right: 20px
+              width: auto
+          +tablet
+            flex-direction: row
+          .label
+            min-width: 30%
+          .description
+            flex-grow: 2
     .entry-module
       width: 100%
       &:not(:last-of-type)
@@ -45,12 +75,17 @@ ul.connection_entries
             vertical-align: middle
     .client-options
       +tablet
-        width: 20%
+        width: 30%
       float: right
-
+      .option
+        &:hover
+          color: tint($brand-primary, 30%)
+        &:not(:last-child)
+          padding-right: 5px
+          margin-right: 5px
     .client-name
       +tablet
-        width: 60%
+        width: 50%
       float: left
     .connection-details
       +tablet

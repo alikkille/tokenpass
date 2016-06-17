@@ -25,23 +25,29 @@
                 <div class="entry-module client-options">
                     <div class="title">Options</div>
                     <div class="details">
-                        <a href="/auth/revokeapp/@{{ entry.client.uuid }}">
+                        <a class="option" href="/auth/revokeapp/@{{ entry.client.uuid }}">
                             <i class="material-icons">cancel</i>
                             Revoke
                         </a>
-                        <button v-on:click="toggleScopes">
+                        <button class="option" v-on:click="toggleScopes">
                             <i class="material-icons">keyboard_arrow_down</i>
-                            Scopes
-                        <button>
+                            Permissions
+                        </button>
                     </div>
                 </div>
             </div>
             <div class="scopes-details">
                 <ul v-if="entry.scopes.length > 0" class="scopes">
-                    <li v-for="scope in entry.scopes" class="scope">
-                        <p><strong>@{{ scope.label }}</strong></p>
-                        <p>@{{ scope.notice_level }} @{{ formatDate(scope.created_at) }}</p>
-                        <p>@{{ scope.description }}</p>
+                    <li v-for="scope in entry.scopes" class="scope" data-level="@{{ scope.notice_level }}">
+                        <div class="entry-module label">
+                            <div class="title">Label</div>
+                            <div class="details">@{{ scope.label }}</div>
+                        </div>
+                        <div class="entry-module description">
+                            <div class="title">Description</div>
+                            <div class="details">@{{ scope.description }}</div>
+                        </div>
+
                     </li>
                 </ul>
                  <p v-else>This connectected application does not have any permissions attached to it.</p>
