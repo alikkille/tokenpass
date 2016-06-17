@@ -229,7 +229,7 @@ class InventoryController extends Controller
 				Session::flash('message-class', 'alert-danger');
 			}
 			else{
-				$sig = $this->extract_signature($input['sig']);
+				$sig = Address::extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
 				$verify_message = $xchain->verifyMessage($get->address, $sig, Session::get($address));
 				$verified = false;
@@ -396,22 +396,7 @@ class InventoryController extends Controller
 		return redirect('inventory');
 	}
 
-	protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
-	{
-		$inputMessage = trim($text);
-		if(strpos($inputMessage, $start) !== false){
-			//pgp style signed message format, extract the actual signature from it
-			$expMsg = explode("\n", $inputMessage);
-			foreach($expMsg as $k => $line){
-				if($line == $end){
-					if(isset($expMsg[$k-1])){
-						$inputMessage = trim($expMsg[$k-1]);
-					}
-				}
-			}
-		}
-		return $inputMessage;
-	}
+
 
     public function checkPageRefresh()
     {

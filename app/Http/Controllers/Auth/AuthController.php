@@ -272,7 +272,7 @@ class AuthController extends Controller
 
     public function setSigned(Request $request) {
         $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
-        $sig = $request->request->get('signed_message');
+        $sig = Address::extract_signature($request->request->get('signed_message'));
         try {
             $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
         } catch(Exception $e) {
@@ -300,7 +300,7 @@ class AuthController extends Controller
 
     public function postBitcoinLogin(Request $request) {
         $sigval = Session::get('sigval');
-        $sig = $request->request->get('signed_message');
+        $sig = Address::extract_signature($request->request->get('signed_message'));
         
         try {
             $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
@@ -340,7 +340,7 @@ class AuthController extends Controller
     }
 
     protected function verifySigniture($data) {
-        $sig = $this->extract_signature($data['sig']);
+        $sig = Address::extract_signature($data['sig']);
         $xchain = app('Tokenly\XChainClient\Client');
 
         $verify_message = $xchain->verifyMessage($data['address'], $sig, $data['sigval']);
@@ -349,23 +349,6 @@ class AuthController extends Controller
         } else {
             return false;
         }
-    }
-
-    protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
-    {
-        $inputMessage = trim($text);
-        if(strpos($inputMessage, $start) !== false){
-            //pgp style signed message format, extract the actual signature from it
-            $expMsg = explode("\n", $inputMessage);
-            foreach($expMsg as $k => $line){
-                if($line == $end){
-                    if(isset($expMsg[$k-1])){
-                        $inputMessage = trim($expMsg[$k-1]);
-                    }
-                }
-            }
-        }
-        return $inputMessage;
     }
 
     protected function handleUserWasAuthenticated(Request $request, $throttles) {
