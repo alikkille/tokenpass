@@ -146,9 +146,7 @@ var vm = new Vue({
   },
   methods: {
   	formatQuantity: function(q){
-  		return (q / 100000000)
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+  		return this.delimitNumbers((q / 100000000));
   	},
     totalProvisional: function(balanceAddress){
       var total = 0;
@@ -164,6 +162,11 @@ var vm = new Vue({
     },
     hideAllSecondaryInfo: function(){
       $('.token .secondary-info').hide();
+    },
+    delimitNumbers: function(str) {
+      return (str + "").replace(/\b(\d+)((\.\d+)*)\b/g, function(a, b, c) {
+        return (b.charAt(0) > 0 && !(c || ".").lastIndexOf(".") ? b.replace(/(\d)(?=(\d{3})+$)/g, "$1,") : b) + c;
+      });
     }
   }
 });
