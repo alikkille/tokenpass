@@ -2,7 +2,7 @@
 
 @section('htmltitle', 'Account Settings')
 
-@section('body_class') dashboard @endsection
+@section('body_class', 'dashboard')
 
 @section('accounts_content')
 

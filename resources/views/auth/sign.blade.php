@@ -2,7 +2,7 @@
 
 @section('htmltitle', 'Login With Bitcoin')
 
-@section('body_class') dashboard @endsection
+@section('body_class', 'dashboard login')
 
 @section('accounts_content')
 

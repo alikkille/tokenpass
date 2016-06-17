@@ -2,7 +2,7 @@
 
 @section('htmltitle', 'Revoke App Complete')
 
-@section('body_class') dashboard revoke_app @endsection
+@section('body_class', 'dashboard revoke_app')
 
 @section('accounts_content')
 

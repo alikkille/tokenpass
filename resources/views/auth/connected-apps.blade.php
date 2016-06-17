@@ -2,7 +2,7 @@
 
 @section('htmltitle', 'Integrations')
 
-@section('body_class') dashboard integrations @endsection
+@section('body_class', 'dashboard integrations')
 
 @section('accounts_content')
 

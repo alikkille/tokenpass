@@ -2,7 +2,7 @@
 
 @section('htmltitle', 'My Applications')
 
-@section('body_class') dashboard client_apps @endsection
+@section('body_class', 'dashboard client_apps')
 
 @section('accounts_content')
 
