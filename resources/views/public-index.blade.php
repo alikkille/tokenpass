@@ -72,9 +72,12 @@
   <div class="content-wrapper">
     <div class="why-heading">Why Use Tokens?</div>
     <div class="why-content">
-      <p><strong>> Want to give supports from your pre-sale access to exclusive updates to your project?</strong><br><span>Create a token that controls access to a private blog and distribute to anyone who holds you pre-sale token.</span></p>
+      <p><strong>> Want to give supporters from your pre-sale access to exclusive updates to your project?</strong><br><span>Create a token that controls access to a private blog or discussion forum and distribute to anyone who holds you pre-sale token.</span></p>
       <p><strong>> Are you an artist who wants to give early access to your followers?</strong><br><span>Just create a token and give your followers instructions on how to retrieve it. </span></p>
       <p><span>Token Controlled Access allows for limitless possibilities when engaging with your audience. Create acess tokens for games, business, or anything that provides value to someone. </span></p>
+      <p>
+        <strong>Visit <a href="https://tokenly.com" target="_blank">Tokenly.com</a> to learn more about tokens.</strong>
+      </p>
     </div>
   </div>
 </div>
