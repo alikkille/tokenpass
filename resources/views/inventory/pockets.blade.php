@@ -5,7 +5,6 @@
 @section('accounts_content')
 
 <div id="pocketsController">
-
   <div id="verifyPocketModal" class="modal-container">
     <div class="modal-bg"></div>
     <div class="modal-content">
@@ -100,6 +99,9 @@
   </section>
 
   <section id="pocketsList" class="pockets">
+    @if(Session::has('message'))
+        <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
+    @endif	
     <div class="pocket" v-for="pocket in pockets | filterBy search">
       <div class="pocket-main">
         <div class="pocket-indicator">
