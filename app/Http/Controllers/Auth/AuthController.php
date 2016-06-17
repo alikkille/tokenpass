@@ -265,9 +265,9 @@ class AuthController extends Controller
 
     }
 
-    public function getSignRequirement() {
+    public function getSignRequirement(Request $request) {
         $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
-        return view('auth.sign', ['sigval' => $sigval['user_meta']]);
+        return view('auth.sign', ['sigval' => $sigval['user_meta'], 'route' => $request['route']]);
     }
 
     public function setSigned(Request $request) {
@@ -284,7 +284,7 @@ class AuthController extends Controller
         $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
         if($verify) {
             UserMeta::setMeta(Auth::user()->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
-            return redirect()->intended();
+            return redirect(route($request['route']));
         } else {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
         }

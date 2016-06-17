@@ -52,7 +52,7 @@ class SecondFactor
             if ($signed == 'signed') {
                 return $next($request);
             } else {
-                return redirect(route('auth.sign'));
+                return redirect(route('auth.sign', ['route' => $request->route()->getName()]));
             }
         }
     }

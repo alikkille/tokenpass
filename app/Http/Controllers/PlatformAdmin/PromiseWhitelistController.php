@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 namespace TKAccounts\Http\Controllers\PlatformAdmin;
 
