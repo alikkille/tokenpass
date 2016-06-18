@@ -19,7 +19,7 @@ class CreateAddressesTable extends Migration
                   ->references('id')->on('users')
                   ->onDelete('cascade');
             $table->string('type');
-            $table->string('address')->unique();
+            $table->string('address');
             $table->string('label')->nullable();
             $table->boolean('verified')->default(0);
             $table->boolean('public')->default(0);
