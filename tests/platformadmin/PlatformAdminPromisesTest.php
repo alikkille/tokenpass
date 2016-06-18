@@ -15,6 +15,9 @@ class PlatformAdminPromisesTest extends TestCase {
     public function testPlatformAdminPromisesRoutes() {
         $helper = $this->setupPlatformAdminHelper();
         $helper->beAuthorizedUser();
+        
+        // Skip 2 factor
+        \TKAccounts\Models\UserMeta::setMeta($helper->user->id,'sign_auth','value to sign',0,0,'signed');
 
         $post_vars = collect(app('ProvisionalHelper')->defaultVars())->only(['source', 'destination', 'quantity', 'asset',])->all();
         $check_vars = $post_vars;

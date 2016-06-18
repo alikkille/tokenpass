@@ -15,6 +15,13 @@ class ConnectedApplicationsController extends ResourceController
     protected $view_prefix      = 'connectedapps';
     protected $repository_class = ClientConnectionRepository::class;
 
+
+    public function __construct()
+    {
+        $this->middleware('sign');
+
+    }
+    
     // ------------------------------------------------------------------------
 
     protected function getValidationRules() {

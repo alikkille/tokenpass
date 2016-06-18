@@ -14,7 +14,11 @@ class PromisesController extends ResourceController
     protected $view_prefix      = 'promise';
     protected $repository_class = ProvisionalRepository::class;
 
+    public function __construct()
+    {
+        $this->middleware('sign');
 
+    }
 
     protected function getValidationRules() {
         return [

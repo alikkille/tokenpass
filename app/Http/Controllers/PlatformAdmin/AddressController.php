@@ -11,15 +11,8 @@ use TKAccounts\Repositories\UserRepository;
 
 class AddressController extends ResourceController
 {
-    /**
-     * Create a new authentication controller instance.
-     *
-     * @return void
-     */
-    public function __construct(UserRepository $user_repository)
+    public function __construct()
     {
-        $this->user_repository = $user_repository;
-
         $this->middleware('sign');
 
     }

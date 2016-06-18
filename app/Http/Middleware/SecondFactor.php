@@ -42,6 +42,7 @@ class SecondFactor
     {
         $user = $this->auth->user();
         if ($user instanceof APIPermissionedUserContract) {
+            Address::getUserVerificationCode($user);
             $user_meta = UserMeta::getAllDataById($user->id);
             $signed = 'unsigned';
             foreach($user_meta as $row){

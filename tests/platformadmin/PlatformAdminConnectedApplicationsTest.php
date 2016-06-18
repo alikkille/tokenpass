@@ -14,6 +14,8 @@ class PlatformAdminConnectedApplicationsTest extends TestCase {
     public function testPlatformAdminConnectedApplicationsRoutes() {
         $helper = $this->setupPlatformAdminHelper();
         $helper->beAuthorizedUser();
+        // Skip 2 factor
+        \TKAccounts\Models\UserMeta::setMeta($helper->user->id,'sign_auth','value to sign',0,0,'signed');
 
         $helper->testCreate(collect(app('ClientConnectionHelper')->newSampleConnectionVars())->all());
         $helper->testUpdate(['client_id' => 'I123456', 'user_id' => 1001]);

@@ -13,6 +13,12 @@ class ClientController extends ResourceController
 
     protected $view_prefix      = 'client';
     protected $repository_class = OAuthClientRepository::class;
+    
+    public function __construct()
+    {
+        $this->middleware('sign');
+
+    }
 
     protected function getValidationRules() {
         return [

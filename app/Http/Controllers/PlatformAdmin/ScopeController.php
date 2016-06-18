@@ -12,6 +12,12 @@ class ScopeController extends ResourceController
     protected $view_prefix      = 'scope';
     protected $repository_class = OAuthScopeRepository::class;
 
+    public function __construct()
+    {
+        $this->middleware('sign');
+
+    }
+    
     protected function getValidationRules() {
         return [
             'id' => 'required|max:40',

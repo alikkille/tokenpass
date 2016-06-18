@@ -13,6 +13,12 @@ class PromiseWhitelistController extends ResourceController
     protected $view_prefix      = 'whitelist';
     protected $repository_class = ProvisionalWhitelistRepository::class;
 
+    public function __construct()
+    {
+        $this->middleware('sign');
+
+    }
+    
     protected function getValidationRules() {
         return [
             'address' => 'required|max:255',

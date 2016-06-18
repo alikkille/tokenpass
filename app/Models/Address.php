@@ -128,7 +128,7 @@ class Address extends Model
         return $message;
     }
 
-    public static function getUserVerificationCode($user, $type='complex')
+    public static function getUserVerificationCode($user, $type='readable')
     {
         $result = [];
         $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
@@ -140,7 +140,7 @@ class Address extends Model
             $result['seconds'] = UserMeta::getDurationValueHasBeenSet($sign_auth);
             $result['extra'] = UserMeta::getMetaExtraValue($sign_auth);
         }
-        if ($result['seconds'] > 7200) {
+        if ($result['seconds'] > 3600) {
             Address::getVerificationType($type, $user);
         }
 
