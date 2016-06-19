@@ -1,6 +1,8 @@
 @extends('accounts.base')
 
-@section('body_class') dashboard revoke_app @endsection
+@section('htmltitle', 'Revoke App')
+
+@section('body_class', 'dashboard revoke_app')
 
 @section('accounts_content')
 
@@ -9,14 +11,14 @@
 </section>
 
 <section>
-  <p>Are you sure you want to revoke access for {{ $client['name'] }}?</p>
+  <p>Are you sure you want to revoke access for <strong>{{ $client['name'] }}</strong>?</p>
   <form method="POST" action="/auth/revokeapp/{{ $client['uuid'] }}">
     
     {!! csrf_field() !!}
 
     <div>
       <button type="submit" name="delete" value="1">Revoke Access</button>
-      <a href="/auth/connectedapps">Return</a>
+      <a class="revoke-btn" href="/auth/connectedapps">Return</a>
     </div>
 
   </form>

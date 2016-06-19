@@ -1,6 +1,8 @@
 @extends('layouts.guest')
 
-@section('body_class') login @endsection
+@section('htmltitle', 'Login With Bitcoin')
+
+@section('body_class', 'login')
 
 @section('body_content')
 

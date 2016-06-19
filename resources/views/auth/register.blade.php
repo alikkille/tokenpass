@@ -1,6 +1,8 @@
 @extends('layouts.guest')
 
-@section('body_class') login @endsection
+@section('htmltitle', 'Register')
+
+@section('body_class', 'login')
 
 @section('body_content')
 <div class="everything">

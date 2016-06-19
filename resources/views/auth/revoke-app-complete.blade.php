@@ -1,6 +1,8 @@
 @extends('accounts.base')
 
-@section('body_class') dashboard revoke_app @endsection
+@section('htmltitle', 'Revoke App Complete')
+
+@section('body_class', 'dashboard revoke_app')
 
 @section('accounts_content')
 
@@ -9,8 +11,8 @@
 </section>
 
 <section>
-  <p>Access to client {{ $client['name'] }} was revoked.</p>
-  <a href="/auth/connectedapps">Return</a>
+  <p>Access to client <strong>{{ $client['name'] }}</strong> was revoked.</p>
+  <a class="revoke-btn" href="/auth/connectedapps">Return</a>
 </section>
 
 @endsection

@@ -1,6 +1,8 @@
 @extends('accounts.base')
 
-@section('body_class') dashboard @endsection
+@section('htmltitle', 'Account Settings')
+
+@section('body_class', 'dashboard')
 
 @section('accounts_content')
 
