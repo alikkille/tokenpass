@@ -62,8 +62,8 @@ class AuthController extends Controller
     {
         $this->user_repository = $user_repository;
 
-        $this->middleware('guest', ['except' => ['getLogout','getUpdate','postUpdate', 'getSignRequirement', 'setSigned']]);
-        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate', 'getSignRequirement', 'setSigned']]);
+        $this->middleware('guest', ['except' => ['getLogout','getUpdate','postUpdate']]);
+        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate' ]]);
 
     }
 
@@ -116,8 +116,18 @@ class AuthController extends Controller
         }
 
         $credentials = $this->getCredentials($request);
-        list($login_error, $was_logged_in) = $this->performLoginLogic($credentials, $request->has('remember'));
 
+        $user = DB::table('users')->where('users.username', '=', $credentials['username'])->first();
+
+        try {
+            if($user->second_factor) {
+                Session::flash('user', $user);
+                return redirect()->action('Auth\AuthController@getSignRequirement');
+            }
+        } catch(Exception $e) {}
+
+        list($login_error, $was_logged_in) = $this->performLoginLogic($credentials, $request->has('remember'));
+        
         if ($was_logged_in) {
             return $this->handleUserWasAuthenticated($request, true);
         }
@@ -265,13 +275,26 @@ class AuthController extends Controller
 
     }
 
-    public function getSignRequirement(Request $request) {
-        $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
+    public function getSignRequirement(Request $request, $user = null) {
+        if (session()->has('user')) {
+            $user = session()->get('user');
+            $request->session()->reflash();
+        } else {
+            $user = Auth::user();
+        }
+
+        $sigval = Address::getUserVerificationCode($user, 'readable');
         return view('auth.sign', ['sigval' => $sigval['user_meta'], 'route' => $request['route']]);
     }
 
     public function setSigned(Request $request) {
-        $sigval = Address::getUserVerificationCode(Auth::user(), 'readable');
+        if (session()->has('user')) {
+            $user = session()->get('user');
+        } else {
+            $user = Auth::user();
+        }
+
+        $sigval = Address::getUserVerificationCode($user, 'readable');
         $sig = Address::extract_signature($request->request->get('signed_message'));
         try {
             $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
@@ -283,7 +306,11 @@ class AuthController extends Controller
         //verify signed message on xchain
         $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
         if($verify) {
-            UserMeta::setMeta(Auth::user()->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
+            UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
+            if (empty($request['route'])) {
+                Auth::loginUsingId($user->id);
+                return redirect('/');
+            }
             return redirect(route($request['route']));
         } else {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);

@@ -296,6 +296,7 @@ class UserHelper
             'email'           => 'johndoe@tokenly.com',
             'confirmed_email' => 'johndoe@tokenly.com',
             'password'        => 'abc123456',
+            'second_factor'   => '0'
         ];
     }
 
