@@ -274,6 +274,51 @@ class AuthController extends Controller
         }
 
     }
+    public function toggleSecondFactor()
+    {
+        $output = array('result' => false);
+        $response_code = 200;
+        $total_addresses = Address::getAddressList($this->user->id, null,1,1,1);
+
+        $second_factor_addresses = [];
+        foreach ($total_addresses as $address) {
+            if ($address->second_factor_toggle) {
+                array_push($second_factor_addresses, $address);
+            }
+        }
+
+        if (empty($second_factor_addresses)) {
+            $output['error'] = 'Please allow at minimum one address before switching on Second Factor Authentication';
+            $response_code = 400;
+        }
+
+        $input = Input::all();
+        if(!isset($input['toggle'])){
+            $output['error'] = 'Toggle option required';
+            $response_code = 400;
+        }
+        else{
+            $toggle_val = $input['toggle'];
+            if($toggle_val == 'true' OR $toggle_val === true){
+                $toggle_val = 1;
+            }
+            else{
+                $toggle_val = 0;
+            }
+            $get->second_factor_toggle = $toggle_val;
+            $save = $get->save();
+            if(!$save){
+                $output['error'] = 'Error updating address';
+                $response_code = 500;
+            }
+            else{
+                $output['result'] = true;
+            }
+        }
+
+        return Response::json($output, $response_code);
+    }
+
 
     public function getSignRequirement(Request $request, $user = null) {
         if (session()->has('user')) {

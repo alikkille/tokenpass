@@ -47,6 +47,9 @@
                     <div class="sublabel">Please verify your current password to save your changes</div>
                     <input required="required" type="password" id="Password" name="password">
 
+                    <label for="account-second-factor">Enable Second Factor on account?</label>
+                    <input id="account-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat">
+
                     <button type="submit">Save</button>
 
                 </form>

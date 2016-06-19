@@ -151,6 +151,12 @@
               <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat">
               <label for="pocket-@{{ $index }}-login"></label>
             </div>
+
+            <div class="input-group toggle-field">
+              <label>Enable as Second Factor?</label>
+              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor">
+              <label for="pocket-@{{ $index }}-second-factor"></label>
+            </div>
           </div>
           <button type="submit" class="btn-save">Save</button>
           <a 
