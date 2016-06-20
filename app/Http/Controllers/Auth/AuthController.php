@@ -328,7 +328,7 @@ class AuthController extends Controller
             $user = Auth::user();
         }
 
-        $sigval = Address::getUserVerificationCode($user, 'readable');
+        $sigval = Address::getUserVerificationCode($user, 'simple');
         return view('auth.sign', ['sigval' => $sigval['user_meta'], 'route' => $request['route']]);
     }
 
