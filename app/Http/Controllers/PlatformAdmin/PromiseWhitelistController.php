@@ -1,5 +1,4 @@
-    <?php
-
+<?php
 namespace TKAccounts\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
