@@ -104,7 +104,10 @@
 					@{{ currentApp.secret }}
 				</div>
 			</div>
-
+            <hr>
+            <div class="input-group">
+                <button class="btn-regenerate">Regenerate Keys</button>
+            </div>
 		</div>
 	</div> <!-- END VIEW APP MODAL -->
 
@@ -126,7 +129,6 @@
 					<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4">@{{ currentApp.endpoints }}</textarea>
 
 					<button type="submit">Save</button>
-					<button class="btn-regenerate">Regenerate Keys</button>
 		  </form>
 
 
