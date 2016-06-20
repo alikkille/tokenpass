@@ -52,7 +52,7 @@ class SecondFactor
             $user_meta = UserMeta::getAllDataById($user->id);
             $signed = 'unsigned';
             foreach($user_meta as $row){
-                if($row->meta_key == 'sign_auth') {
+                if($row->meta_key == 'sign_auth' AND trim($row->meta_value) != '') {
                     $signed = $row->extra;
                 }
             }
