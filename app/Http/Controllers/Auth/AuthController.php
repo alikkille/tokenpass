@@ -120,7 +120,7 @@ class AuthController extends Controller
         $user = DB::table('users')->where('users.username', '=', $credentials['username'])->first();
 
         try {
-            if($user->second_factor) {
+            if(Address::checkUser2FAEnabled($user)) {
                 Session::flash('user', $user);
                 return redirect()->action('Auth\AuthController@getSignRequirement');
             }

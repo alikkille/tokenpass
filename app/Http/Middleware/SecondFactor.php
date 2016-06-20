@@ -41,7 +41,14 @@ class SecondFactor
     public function handle($request, Closure $next)
     {
         $user = $this->auth->user();
+        if(!$user){
+            return redirect('/auth/login');
+        }
         if ($user instanceof APIPermissionedUserContract) {
+            $enabled = Address::checkUser2FAEnabled($user);
+            if(!$enabled){
+                return $next($request);
+            }
             Address::getUserVerificationCode($user);
             $user_meta = UserMeta::getAllDataById($user->id);
             $signed = 'unsigned';

@@ -361,7 +361,6 @@ class Address extends Model
         return $get;
     }
     
-    
 	public static function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
 	{
 		$inputMessage = trim($text);
@@ -378,6 +377,15 @@ class Address extends Model
 		}
 		return $inputMessage;
 	}
+    
+    public static function checkUser2FAEnabled($user)
+    {
+        $count = Address::where('user_id', $user->id)->where('second_factor_toggle', 1)->where('verified', 1)->count();
+        if(!$count OR $count == 0){
+            return false;
+        }
+        return true;
+    }
 
 }
 
