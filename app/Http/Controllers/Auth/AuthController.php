@@ -331,7 +331,7 @@ class AuthController extends Controller
         }
 
         $sigval = Address::getUserVerificationCode($user, 'simple');
-        return view('auth.sign', ['sigval' => $sigval['user_meta'], 'route' => $request['route']]);
+        return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
     }
 
     public function setSigned(Request $request) {
@@ -341,7 +341,7 @@ class AuthController extends Controller
             $user = Auth::user();
         }
 
-        $sigval = Address::getUserVerificationCode($user, 'readable');
+        $sigval = Address::getUserVerificationCode($user, 'simple');
         $sig = Address::extract_signature($request->request->get('signed_message'));
         try {
             $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
@@ -354,11 +354,11 @@ class AuthController extends Controller
         $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
         if($verify) {
             UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
-            if (empty($request['route'])) {
+            if (empty($request['redirect'])) {
                 Auth::loginUsingId($user->id);
                 return redirect('/');
             }
-            return redirect(route($request['route']));
+            return redirect(urldecode($request['redirect']));
         } else {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
         }
