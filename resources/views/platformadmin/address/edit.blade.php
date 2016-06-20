@@ -69,7 +69,15 @@
                     <option value="0">No</option>
                     <option value="1" @if($model['login_toggle'] == 1) selected @endif >Yes</option>
                 </select>
-            </div>                
+            </div>  
+            <div class="form-group">
+                <label for="second_factor_toggle">2FA Enabled</label>
+                <select name="second_factor_toggle" id="second_factor_toggle" class="form-control">
+                    <option value="0">No</option>
+                    <option value="1" @if($model['second_factor_toggle'] == 1) selected @endif >Yes</option>
+                </select>
+            </div>       
+            <input type="hidden" name="address" value="{{ $model['address'] }}" />
         </div>
         <div class="four columns">
             <h5>Balances:</h5>

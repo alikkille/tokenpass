@@ -71,6 +71,13 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="second_factor_toggle">2FA Enabled</label>
+                <select name="second_factor_toggle" id="second_factor_toggle" class="form-control">
+                    <option value="0">No</option>
+                    <option value="1" >Yes</option>
+                </select>
+            </div>             
+            <div class="form-group">
                 <label for="xchain_address_id">XChain Address ID</label>
                 <input type="text" name="xchain_address_id" id="xchain_address_id"  class="form-control" />
             </div>     

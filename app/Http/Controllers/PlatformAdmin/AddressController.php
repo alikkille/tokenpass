@@ -26,6 +26,7 @@ class AddressController extends ResourceController
             'label' => 'max:255',
             'verified' => 'numeric',
             'active_toggle' => 'numeric',
+            'second_factor_toggle' => 'numeric',
             'public' => 'numeric',
             'login_toggle' => 'numeric',
             'address' => 'max:255',
