@@ -63,7 +63,7 @@ class AuthController extends Controller
         $this->user_repository = $user_repository;
 
         $this->middleware('guest', ['except' => ['getLogout','getUpdate','postUpdate', 'getSignRequirement', 'setSigned']]);
-        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate', 'getSignRequirement', 'setSigned']]);
+        $this->middleware('auth', ['only' => ['getUpdate', 'postUpdate']]);
 
     }
 
@@ -187,6 +187,8 @@ class AuthController extends Controller
 
     // ------------------------------------------------------------------------
     
+    
+
 
     public function getUpdate(Request $request)
     {

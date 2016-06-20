@@ -49,7 +49,6 @@ class SecondFactor
             if(!$enabled){
                 return $next($request);
             }
-            Address::getUserVerificationCode($user);
             $user_meta = UserMeta::getAllDataById($user->id);
             $signed = 'unsigned';
             foreach($user_meta as $row){

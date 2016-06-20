@@ -140,7 +140,7 @@ class Address extends Model
             $result['seconds'] = UserMeta::getDurationValueHasBeenSet($sign_auth);
             $result['extra'] = UserMeta::getMetaExtraValue($sign_auth);
         }
-        if ($result['seconds'] > 3600) {
+        if ($result['seconds'] > 3600 OR $result['extra'] == 'signed') {
             Address::getVerificationType($type, $user);
         }
 
