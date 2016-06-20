@@ -12,13 +12,15 @@
             @include('partials.errors', ['errors' => $errors])
             <form method="POST" action="/auth/signed">
                 {!! csrf_field() !!}
-
-                <div class="tooltip-wrapper" data-tooltip="Sign this message, this is for your security">
+                <p>
+                    <strong>Bitcoin Two Factor Authentication</strong>
+                </p>
+                <div class="tooltip-wrapper" data-tooltip="Sign this message with a verified bitcoin address which has 2FA enabled, this is for your security">
                     <i class="help-icon material-icons">help_outline</i>
                 </div>
                 <input name="btc-wotd" type="text" placeholder="btc-wotd" value="{{ $sigval }}" onclick="this.select();" readonly>
                 <input type="hidden" name="route" value="{{ $route }}">
-                <div class="tooltip-wrapper" data-tooltip="Paste your signed Word of the Day into this window, then click authenticate.">
+                <div class="tooltip-wrapper" data-tooltip="Paste your signed message into this window, then click authenticate.">
                     <i class="help-icon material-icons">help_outline</i>
                 </div>
                 <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
