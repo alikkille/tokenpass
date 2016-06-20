@@ -27,7 +27,7 @@
 	</p>
 	<hr>
 
-	<table class="table">
+	<table class="table" v-cloak>
 		<thead>
 			<tr>
 				<th>Name</th>
@@ -160,24 +160,23 @@ var vm = new Vue({
 			};
     	return new Date(dateString).toLocaleDateString('en-us', options);
     }
+  },
+ ready:function(){
+    $(this.el).find(['v-cloak']).slideDown();
   }
 });
 
 // Initialize new app modal
 var addAppModal = new Modal();
-addAppModal.init(document.getElementById(
-  'addAppModal'));
+addAppModal.init(document.getElementById('addAppModal'));
 
 // Initialize view app modal
 var viewAppModal = new Modal();
-viewAppModal.init(document.getElementById(
-  'viewAppModal'));
+viewAppModal.init(document.getElementById('viewAppModal'));
 
 // Initialize edit app modal
 var editAppModal = new Modal();
-editAppModal.init(document.getElementById(
-  'editAppModal'));
-
+editAppModal.init(document.getElementById('editAppModal'));
 
 </script>
 @endsection

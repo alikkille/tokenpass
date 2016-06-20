@@ -18,7 +18,7 @@
 	  	<i class="material-icons">refresh</i>Refresh Token Balances
 		</a>
 	</section>
-	<section class="tokens" v-if="tokens.length">
+	<section class="tokens" v-if="tokens.length" v-cloak>
     <p class="muted">* contains promised tokens</p>
 	  <div class="token" v-for="token in tokens | filterBy search">
 	    <!-- TODO: Token's have avatars
@@ -51,7 +51,7 @@
         <div class="clear"></div>
       </div>
 
-      <div class="secondary-info">
+      <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
         <table class="table">
           <thead>
             <tr>
@@ -136,8 +136,6 @@ var data = (function(BALANCES, BALANCE_ADDRESSES){
 
 })(BALANCES, BALANCE_ADDRESSES)
 
-Vue.config.async = false;
-
 var vm = new Vue({
   el: '#tokensController',
   data: {
@@ -168,11 +166,11 @@ var vm = new Vue({
         return (b.charAt(0) > 0 && !(c || ".").lastIndexOf(".") ? b.replace(/(\d)(?=(\d{3})+$)/g, "$1,") : b) + c;
       });
     }
+  },
+ ready:function(){
+    $(this.el).find(['v-cloak']).slideDown();
   }
 });
-
-vm.hideAllSecondaryInfo();
-
 
 </script>
 @endsection

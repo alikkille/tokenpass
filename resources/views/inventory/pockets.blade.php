@@ -100,10 +100,10 @@
     <button data-modal="addPocketModal" class="btn-dash-title add-pocket-btn reveal-modal">+ Add Pocket</button>
   </section>
 
-  <section id="pocketsList" class="pockets">
+  <section id="pocketsList" class="pockets" v-cloak>
     @if(Session::has('message'))
         <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-    @endif	
+    @endif
     <div class="pocket" v-for="pocket in pockets | filterBy search">
       <div class="pocket-main">
         <div class="pocket-indicator">
@@ -199,6 +199,9 @@ var vm = new Vue({
     setCurrentPocket: function(pocket){
       this.currentPocket = pocket;
     }
+  },
+ ready:function(){
+    $(this.el).find(['v-cloak']).slideDown();
   }
 });
 
@@ -211,6 +214,7 @@ addAddressModal.init(document.getElementById(
 var verifyAddressModal = new Modal();
 verifyAddressModal.init(document.getElementById(
   'verifyPocketModal'));
+
 </script>
 
 @endsection
