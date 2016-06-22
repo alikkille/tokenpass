@@ -76,7 +76,7 @@ class InventoryController extends Controller
 
 		//check required fields
 		if(!isset($input['address']) OR trim($input['address']) == ''){
-            return $this->handleError('Bitcoin address required', route('inventory.pockets'));
+            return $this->ajaxEnabledErrorResponse('Bitcoin address required', route('inventory.pockets'));
 		}
 
 		//setup data
@@ -95,11 +95,11 @@ class InventoryController extends Controller
             $xchain = app('Tokenly\XChainClient\Client');
             $validate = $xchain->validateAddress($address);
         } catch (Exception $e) {
-            return $this->handleError($e->getMessage(), route('inventory.pockets'));
+            return $this->ajaxEnabledErrorResponse($e->getMessage(), route('inventory.pockets'));
         }
 
 		if(!$validate OR !$validate['result']){
-            return $this->handleError('Please enter a valid bitcoin address', route('inventory.pockets'));
+            return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory.pockets'));
 		}
 
 		//check if they have this address registered already
@@ -113,7 +113,7 @@ class InventoryController extends Controller
 				}
 			}
 			if($found){
-                return $this->handleError('Address has already been registered for this account', route('inventory.pockets'));
+                return $this->ajaxEnabledErrorResponse('Address has already been registered for this account', route('inventory.pockets'));
 			}
 		}
 
@@ -129,13 +129,13 @@ class InventoryController extends Controller
 		$save = (!!$new_address);
 
 		if(!$save){
-            return $this->handleError('Error saving address', route('inventory.pockets'), 500);
+            return $this->ajaxEnabledErrorResponse('Error saving address', route('inventory.pockets'), 500);
 		}
 
 		// sync with XChain
         $new_address->syncWithXChain();
 
-        return $this->handleSuccess('Bitcoin address registered!', route('inventory.pockets'));
+        return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
 	}
 
 	public function deleteAddress($address)
@@ -217,19 +217,19 @@ class InventoryController extends Controller
         $existing_addresses = Address::where('address', $address)->get();
         foreach($existing_addresses as $item) {
             if ($item->user_id != Auth::user()->id) {
-                return $this->handleError('The address '.$address.' is already in use by another account', route('inventory.pockets'), 400);
+                return $this->ajaxEnabledErrorResponse('The address '.$address.' is already in use by another account', route('inventory.pockets'), 400);
             }
         }
 
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 
 		if(!$get){
-            return $this->handleError('Address not found', route('inventory.pockets'), 404);
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
 		else{
 			$input = Input::all();
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
-                return $this->handleError('Signature required', route('inventory.pockets'), 400);
+                return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
 			}
 			else{
 				$sig = Address::extract_signature($input['sig']);
@@ -241,18 +241,18 @@ class InventoryController extends Controller
 				}
 
 				if(!$verified){
-                    return $this->handleError('Signature for address '.$address.' is not valid', route('inventory.pockets'), 400);
+                    return $this->ajaxEnabledErrorResponse('Signature for address '.$address.' is not valid', route('inventory.pockets'), 400);
 				}
 				else{
 					$get->verified = 1;
 					$save = $get->save();
 
 					if(!$save){
-                        return $this->handleError('Error updating address '.$address, route('inventory.pockets'), 400);
+                        return $this->ajaxEnabledErrorResponse('Error updating address '.$address, route('inventory.pockets'), 400);
 					}
 					else{
 						//Address::updateUserBalances($this->user->id); //do a fresh inventory update (disabled for now, too slow)
-                        return $this->handleSuccess('Address '.$address.' ownership proved successfully!', route('inventory.pockets'));
+                        return $this->ajaxEnabledSuccessResponse('Address '.$address.' ownership proved successfully!', route('inventory.pockets'));
 					}
 				}
 			}
@@ -486,7 +486,7 @@ class InventoryController extends Controller
     }
 
     // ------------------------------------------------------------------------
-    protected function handleError($error_message, $redirect_url, $error_code = 400) {
+    protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
         if (Request::ajax()) {
             return Response::json(['success' => false, 'error' => $error_message], $error_code);
         }
@@ -496,7 +496,7 @@ class InventoryController extends Controller
         return redirect($redirect_url);
     }
 
-    protected function handleSuccess($success_message, $redirect_url, $http_code = 200) {
+    protected function ajaxEnabledSuccessResponse($success_message, $redirect_url, $http_code = 200) {
         if (Request::ajax()) {
             return Response::json([
                 'success'     => true,
