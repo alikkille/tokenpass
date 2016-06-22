@@ -155,7 +155,7 @@ class Address extends Model
                 UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
         break;
             case 'readable':
-                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration() .' '. time(),0,0,'unsigned');
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration() .' '. date('Y/m/d'),0,0,'unsigned');
         break;
             case 'complex readable':
                 UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(8),0,0,'unsigned');
