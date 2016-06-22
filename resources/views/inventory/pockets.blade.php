@@ -29,7 +29,8 @@
       </p>
 
       <form action="/inventory/address/@{{ currentPocket.address }}/verify" method="post">
-        
+          <div class="error-placeholder panel-danger"></div>
+
           <label for="verify-code">Verification Code</label>
           
           <input type="text" id="verify-code" value="@{{ currentPocket.secure_code }}" onclick="this.select();" readonly>
@@ -53,6 +54,9 @@
         <i class="material-icons">cancel</i>
       </div>
       <form action="/inventory/address/new" method="post">
+
+        <div class="error-placeholder panel-danger"></div>
+
         <label for="address">BTC Address *</label>
         <input type="text" name="address" placeholder="1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX" required>
 
@@ -210,10 +214,58 @@ var addAddressModal = new Modal();
 addAddressModal.init(document.getElementById(
   'addPocketModal'));
 
+
+function configureAjaxForm(parentSelector) {
+  $('form', parentSelector).on('submit', function(e) {
+    e.preventDefault();
+
+    var $form = $(this);
+    var formUrl = $form.attr('action');
+    var formString = $form.serialize();
+    var errorTimeout = null;
+
+    // clear the error
+    $('.error-placeholder', $form).empty();
+    if (errorTimeout) { clearTimeout(errorTimeout); }
+
+    $.ajax({
+      type: "POST",
+      url: formUrl,
+      data: formString,
+      dataType: 'json'
+    }).done(function(data) {
+      // success - redirect
+        if (data.redirectUrl != null) {
+          window.location = data.redirectUrl;
+        }
+    }).fail(function(data, status, error) {
+        // failure - show an error.
+        var errorMsg = '';
+        if (data.responseJSON != null && data.responseJSON.error != null) {
+          errorMsg = data.responseJSON.error;
+        } else {
+          errorMsg = 'There was an unknown error';
+        }
+
+        // show the error
+        $('.error-placeholder', $form).html(errorMsg);
+        errorTimeout = setTimeout(function() {
+          $('.error-placeholder', $form).empty();
+          errorTimeout = null;
+        }, 10000);
+    });
+  });
+}
+
 // Initialize verify address modal
 var verifyAddressModal = new Modal();
 verifyAddressModal.init(document.getElementById(
   'verifyPocketModal'));
+
+// handle new address submit
+configureAjaxForm('#addPocketModal');
+configureAjaxForm('#verifyPocketModal');
+
 
 </script>
 
