@@ -142,32 +142,26 @@ class InventoryController extends Controller
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
-			Session::flash('message', 'Address not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
 		else{
 			$delete = $get->delete();
 			if(!$delete){
-				Session::flash('message', 'Error deleting address '.$address);
-				Session::flash('message-class', 'alert-danger');
+                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
 			}
 			else{
-				Session::flash('message', 'Address '.$address.' deleted!');
-				Session::flash('message-class', 'alert-success');
+                return $this->ajaxEnabledSuccessResponse('Address deleted!', route('inventory.pockets'));
 			}
 		}
-		return redirect(route('inventory.pockets'));
 	}
 
 	public function editAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
-			Session::flash('message', 'Address not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
 		else{
-
 			$input = Input::all();
             
 			if(isset($input['label'])){
@@ -201,15 +195,12 @@ class InventoryController extends Controller
 			$save = $get->save();
 
 			if(!$save){
-				Session::flash('message', 'Error updating address '.$address);
-				Session::flash('message-class', 'alert-danger');
+                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
 			}
 			else{
-				Session::flash('message', 'Address '.$address.' updated!');
-				Session::flash('message-class', 'alert-success');
+                return $this->ajaxEnabledSuccessResponse('Address updated!', route('inventory.pockets'));
 			}
 		}
-		return redirect(route('inventory.pockets'));
 	}
 
 	public function verifyAddressOwnership($address)
