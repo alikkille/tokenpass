@@ -467,6 +467,28 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 		$user = $user['user'];
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }
 		
 		$type = 'btc';
 		if(isset($input['type'])){
@@ -586,6 +608,27 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
@@ -648,6 +691,28 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }        
 
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
@@ -701,6 +766,28 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }        
 
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
