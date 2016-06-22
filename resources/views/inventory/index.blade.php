@@ -99,6 +99,9 @@ var data = (function(BALANCES, BALANCE_ADDRESSES){
   var tokens_arr = [];
   for(var key in BALANCES){
     var balanceAddress = getBalanceAddresses(key);
+    if(balanceAddress.length == 0){
+        continue;
+    }
     tokens_arr.push({
       name: key,
       balance: BALANCES[key],
