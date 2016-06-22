@@ -190,7 +190,11 @@ class InventoryController extends Controller
             if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1){
                 $second_factor = 1;
             }
-            $get->second_factor_toggle = $second_factor;            
+            $get->second_factor_toggle = $second_factor;      
+            
+            if(isset($input['notes'])){
+                $get->notes = trim(htmlentities($input['notes']));
+            }      
 
 			$save = $get->save();
 

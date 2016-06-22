@@ -136,7 +136,7 @@
           <input type="text" value="@{{ pocket.address }}" readonly>
           
           <label for="">Notes</label>
-          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes"></textarea>
+          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes" v-model="pocket.notes"></textarea>
           <div class="toggles-container">
             <div class="input-group toggle-field">
               <label>Active?</label>
