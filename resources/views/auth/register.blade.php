@@ -19,8 +19,8 @@
                 <button type="submit" class="login-btn">Register</button>
             </form>
         </div>
-        <div class="register-subtext">
-            <span>Already have an account? <a href="/auth/login">Login</a></span>
+        <div class="login-subtext">
+            <span>Already have an account? <a href="/auth/login"><strong>Login</strong></a></span>
         </div>
 </div>
 @endsection

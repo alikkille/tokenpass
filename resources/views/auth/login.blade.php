@@ -17,8 +17,16 @@
 				<button type="submit" class="login-btn">Login</button>
 			</form>
 		</div>
-		<div class="register-subtext">
-			<span>Don't have an account? <a href="/auth/register">Register</a></span>
+		<div class="login-subtext">
+			<span>
+				Don't have an account?
+				<a href="/auth/register"><strong>Register</strong></a>
+			</span>
+			<br/>
+			<span>
+				Forgot your password?
+				<a href="/password/email"><strong>Reset password</strong></a>
+			</span>
 		</div>
 		<div class="or-divider-module">
 			<div class="divider">.</div><span class="or">or</span>
