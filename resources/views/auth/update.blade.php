@@ -48,7 +48,7 @@
 
                 <div class="input-group">
                     <label>Enable Second Factor on account?</label>
-                    <input id="account-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat">
+                    <input id="account-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" @if($model->second_factor == 1) checked="checked" @endif value="1" >
                     <label for="account-second-factor"></label>
                 </div>
                 

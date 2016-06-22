@@ -89,6 +89,12 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         if (isset($attributes['password']) AND strlen($attributes['password'])) {
             $attributes['password'] = Hash::make($attributes['password']);
         }
+        
+        $secondfactor = 0;
+        if(isset($attributes['second_factor']) AND intval($attributes['second_factor']) == 1){
+            $secondfactor = 1;
+        }
+        $attributes['second_factor'] = $secondfactor;
 
         return $attributes;
     }

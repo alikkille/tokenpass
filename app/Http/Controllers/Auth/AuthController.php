@@ -463,6 +463,7 @@ class AuthController extends Controller
             'email'        => 'sometimes|email|max:255|unique:users',
             'new_password' => 'sometimes|confirmed|min:6',
             'password'     => 'required',
+            'second_factor'     => 'integer',
         ]);
     }
 

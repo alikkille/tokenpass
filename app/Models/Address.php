@@ -380,6 +380,9 @@ class Address extends Model
     
     public static function checkUser2FAEnabled($user)
     {
+        if($user->second_factor == 0){
+            return false;
+        }
         $count = Address::where('user_id', $user->id)->where('second_factor_toggle', 1)->where('verified', 1)->count();
         if(!$count OR $count == 0){
             return false;
