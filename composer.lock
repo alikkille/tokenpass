@@ -3803,16 +3803,16 @@
         },
         {
             "name": "tokenly/xchain-client",
-            "version": "v0.3.0",
+            "version": "v0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/xchain-client.git",
-                "reference": "61027bdb917d9f7989e15ed563335a234de9d017"
+                "reference": "573fc26226528ee3936cc8f08c5ab624e902ca3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/61027bdb917d9f7989e15ed563335a234de9d017",
-                "reference": "61027bdb917d9f7989e15ed563335a234de9d017",
+                "url": "https://api.github.com/repos/tokenly/xchain-client/zipball/573fc26226528ee3936cc8f08c5ab624e902ca3f",
+                "reference": "573fc26226528ee3936cc8f08c5ab624e902ca3f",
                 "shasum": ""
             },
             "require": {
@@ -3842,7 +3842,7 @@
                 }
             ],
             "description": "A library",
-            "time": "2016-06-06 11:21:51"
+            "time": "2016-06-22 02:02:21"
         },
         {
             "name": "vlucas/phpdotenv",
