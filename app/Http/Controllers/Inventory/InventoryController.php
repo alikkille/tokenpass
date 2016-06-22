@@ -169,16 +169,34 @@ class InventoryController extends Controller
 		else{
 
 			$input = Input::all();
-
+            
 			if(isset($input['label'])){
 				$get->label = trim(htmlentities($input['label']));
 			}
+            
+			$active = 0;
+			if(isset($input['active']) AND intval($input['active']) == 1){
+				$active = 1;
+			}
+			$get->active_toggle = $active;            
 
 			$public = 0;
 			if(isset($input['public']) AND intval($input['public']) == 1){
 				$public = 1;
 			}
 			$get->public = $public;
+            
+            $login_toggle = 0;
+            if(isset($input['login']) AND intval($input['login']) == 1){
+                $login_toggle = 1;
+            }
+            $get->login_toggle = $login_toggle;
+            
+            $second_factor = 0;
+            if(isset($input['second_factor']) AND intval($input['second_factor']) == 1){
+                $second_factor = 1;
+            }
+            $get->second_factor_toggle = $second_factor;            
 
 			$save = $get->save();
 

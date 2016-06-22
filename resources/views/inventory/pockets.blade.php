@@ -140,25 +140,25 @@
           <div class="toggles-container">
             <div class="input-group toggle-field">
               <label>Active?</label>
-              <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle">
+              <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle" value="1">
               <label for="pocket-@{{ $index }}-active"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Public?</label>
-              <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public">
+              <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value="1">
               <label for="pocket-@{{ $index }}-public"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Enable for login?</label>
-              <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat">
+              <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" value="1" v-model="pocket.login_toggle">
               <label for="pocket-@{{ $index }}-login"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Enable as Second Factor?</label>
-              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor">
+              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value="1">
               <label for="pocket-@{{ $index }}-second-factor"></label>
             </div>
           </div>
