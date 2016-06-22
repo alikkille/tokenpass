@@ -1,41 +1,41 @@
 @extends('layouts.guest')
 
+@section('htmltitle', 'Password Reset')
+
+@section('body_class', 'login')
+
 @section('body_content')
 
-<h1>Reset Your Tokenpass Password</h1>
+<div class="everything">
+  <div class="logo"><a href="/">token<strong>pass</strong></a></div>
+    <h1 class="login-heading">Reset your password</h1>
+    <div class="form-wrapper">
+      @include('partials.errors', ['errors' => $errors])
 
-@include('partials.errors', ['errors' => $errors])
+      @if (session('status'))
+        <div class="alert alert-success">
+            {{ session('status') }}
+        </div>
 
-@if (session('status'))
-    <div class="alert alert-success">
-        {{ session('status') }}
+        <p>Please check your email and click the link sent to you.</p>
+      @else
+      <form method="POST" action="/password/email">
+        {!! csrf_field() !!}
+
+        <input required="required" name="email" type="text" id="Email" placeholder="me@myisp.com" value="{{ old('email') }}">
+
+        <button type="submit" class="login-btn">Send Password Reset Link</button>
+      </form>
     </div>
-
-    <p>Please check your email and click the link sent to you.</p>
-@else
-
-<form method="POST" action="/password/email">
-
-    {!! csrf_field() !!}
-
-    <div class="form-group">
-        <label for="Email">Email</label>
-        <input required="required" name="email" type="text" class="form-control" id="Email" placeholder="me@myisp.com" value="{{ old('email') }}">
+    <div class="register-subtext">
+      <span>Don't have an account? <a href="/auth/register">Register</a></span>
     </div>
-
-    <div>
-        <button type="submit" class="btn btn-success">Send Password Reset Link</button>
-    </div>
-
-</form>
-
-
-<div class="spacer4"></div>
-
-<p><a class="btn btn-default" href="/auth.login">Cancel</a></p>
+    <div class="or-divider-module">
+      <div class="divider">.</div><span class="or">or</span>
+      <div class="divider">.</div>
+    </div><a class="signin-with-btc-btn" href="/auth/login">Cancel</a>
+</div>
 
 @endif
-
-
 
 @endsection
