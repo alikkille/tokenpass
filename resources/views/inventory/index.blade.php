@@ -27,7 +27,7 @@
 
 	    <div class="primary-info">
         <div class="token-indicator">
-          <input class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox" checked="">
+          <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
           <label for="token-@{{ token.name }}"></label>
         </div>
         <div class="token-info">
@@ -90,10 +90,10 @@
 // Convert php object of key-value pairs into array of balance objects.
 var BALANCES = {!! json_encode($balances) !!};
 var BALANCE_ADDRESSES = {!! json_encode($balance_addresses) !!};
-var disabled_tokens = {!! json_encode($disabled_tokens) !!};
+var DISABLED_TOKENS = {!! json_encode($disabled_tokens) !!};
 
 // Process tokens for vue consumption
-var data = (function(BALANCES, BALANCE_ADDRESSES){
+var data = (function(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS){
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
@@ -106,7 +106,8 @@ var data = (function(BALANCES, BALANCE_ADDRESSES){
       name: key,
       balance: BALANCES[key],
       balanceAddresses: balanceAddress,
-      hasPromisedTokens: hasPromisedTokens(balanceAddress)
+      hasPromisedTokens: hasPromisedTokens(balanceAddress),
+      toggle: !DISABLED_TOKENS.includes(key)
     });
   }
 
@@ -137,7 +138,7 @@ var data = (function(BALANCES, BALANCE_ADDRESSES){
     tokens: tokens_arr
   };
 
-})(BALANCES, BALANCE_ADDRESSES)
+})(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS)
 
 var vm = new Vue({
   el: '#tokensController',
@@ -167,6 +168,18 @@ var vm = new Vue({
     delimitNumbers: function(str) {
       return (str + "").replace(/\b(\d+)((\.\d+)*)\b/g, function(a, b, c) {
         return (b.charAt(0) > 0 && !(c || ".").lastIndexOf(".") ? b.replace(/(\d)(?=(\d{3})+$)/g, "$1,") : b) + c;
+      });
+    },
+    toggleActive: function(token){
+      var url = 'inventory/asset/' + token.name + '/toggle';
+      $.ajax(url,{
+        type: 'POST',
+        data: {
+          toggle: token.toggle
+        },
+        success: function(res){
+          console.log('' + token.name + ' toggle updated successfully.');
+        } 
       });
     }
   },
