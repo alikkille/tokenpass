@@ -16,7 +16,7 @@
       <div class="primary-details">
         <div class="entry-module client-name">
           <div class="title">Client Name</div>
-          <div class="details"><strong>@{{ entry.client.name }}</strong></div>
+          <div class="details"><strong><a href="@{{ entry.client.app_link }}" target="@{{ entry.client.link_target }}">@{{ entry.client.name }}</a></strong></div>
         </div>
         <div class="entry-module connection-details">
           <div class="title">Connected On</div>
@@ -64,6 +64,14 @@
 
 // Convert php object of key-value pairs into array of balance objects.
 var connection_entries = {!! json_encode($connection_entries) !!};
+
+$.each(connection_entries, function(idx, val){
+    connection_entries[idx].client.link_target = '_blank';
+    if(val.client.app_link == null){
+        connection_entries[idx].client.link_target = '';
+        connection_entries[idx].client.app_link = '#';
+    }
+});
 
 var vm = new Vue({
   el: '#connectionEntriesController',
