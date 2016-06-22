@@ -32,7 +32,10 @@
             {!! Form::text('name', $model['name'], ['class' => 'u-full-width']) !!}
             <br><br>
             {!! Form::label('endpoints', 'OAuth Endpoints') !!}
-            {!! Form::textarea('endpoints', $model->endpointsText(), ['class' => 'u-full-width']) !!}            
+            {!! Form::textarea('endpoints', $model->endpointsText(), ['class' => 'u-full-width']) !!}        
+            <br><br>
+            {!! Form::label('app_link', 'App URL') !!}
+            {!! Form::text('app_link', $model['app_link'], ['class' => 'u-full-width']) !!}    
         </div>
 
         <div class="six columns">

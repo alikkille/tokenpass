@@ -50,6 +50,16 @@ class AppsController extends Controller
 		if(isset($input['endpoints'])){
 			$endpoints = trim($input['endpoints']);
 		}
+        
+        $app_link = '';
+        if(isset($input['app_link']) AND trim($input['app_link']) != ''){
+            if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
+                Session::flash('message', 'Please enter a valid app URL');
+                Session::flash('message-class', 'alert-danger');
+                return redirect('auth/apps');
+            }
+            $app_link = $input['app_link'];
+        }
 		
 		$token_generator = app('Tokenly\TokenGenerator\TokenGenerator');
 		$client = new OAuthClient;
@@ -58,6 +68,7 @@ class AppsController extends Controller
 		$client->name = $name;
 		$client->uuid = Uuid::uuid4()->toString();
 		$client->user_id = $this->user->id;
+        $client->app_link = $app_link;
 		$save = $client->save();
 		
 		if(!$save){
@@ -96,8 +107,19 @@ class AppsController extends Controller
 			if(isset($input['endpoints'])){
 				$endpoints = trim($input['endpoints']);
 			}			
+            
+            $app_link = '';
+            if(isset($input['app_link']) AND trim($input['app_link']) != ''){
+                if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
+                    Session::flash('message', 'Please enter a valid app URL');
+                    Session::flash('message-class', 'alert-danger');
+                    return redirect('auth/apps');
+                }
+                $app_link = $input['app_link'];
+            }            
 			
 			$client->name = $name;
+            $client->app_link = $app_link;
 			$save = $client->save();
 			
 			if(!$save){

@@ -23,6 +23,7 @@ class ClientController extends ResourceController
     protected function getValidationRules() {
         return [
             'name' => 'required|max:255',
+            'app_link' => 'url',
         ];
     }    
 

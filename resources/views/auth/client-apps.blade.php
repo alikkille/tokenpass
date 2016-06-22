@@ -66,6 +66,9 @@
 
 				<label for="client-name">Client Name:</label>
 				<input type="text" name="name" id="client-name" required/>
+                
+                <label for="app_link">App Homepage URL:</label>
+                <input type="text" name="app_link" id="app_link" value="@{{ currentApp.app_link }}" />                  
 
 				<label for="endpoints">Client Callback Endpoints:</label>
 				<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4"></textarea>
@@ -125,6 +128,9 @@
 
 					<label for="client-name">Client Name:</label>
 					<input type="text" name="name" id="client-name" value="@{{ currentApp.name }}" required />
+                    
+					<label for="app_link">App Homepage URL:</label>
+					<input type="text" name="app_link" id="app_link" value="@{{ currentApp.app_link }}" />                    
 
 					<label for="endpoints">Client Callback Endpoints:</label>
 					<textarea name="endpoints" id="endpoints" placeholder="(one per line)" rows="4">@{{ currentApp.endpoints }}</textarea>
