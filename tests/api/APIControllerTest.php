@@ -873,6 +873,10 @@ class APIControllerTest extends TestCase {
             'id'          => 'private-address',
             'description' => 'Private-Address',
         ]);
+        $oauth_scope_ma = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'manage-address',
+            'description' => 'Manage Addresses',
+        ]);        
 
         $oauth_client_id = $oauth_client['id'];
         DB::table('client_connections')->insert([
@@ -891,6 +895,10 @@ class APIControllerTest extends TestCase {
             'connection_id' => $oauth_connection['id'],
             'scope_id'      => $oauth_scope_pa['uuid'],
         ]);
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_ma['uuid'],
+        ]);        
 
         $this->vars = [
             'client_id' => $oauth_client_id
