@@ -20,6 +20,10 @@ class Address extends Model
     protected $casts = [
         'verified' => 'boolean',
         'public' => 'boolean',
+        'from_api' => 'boolean',
+        'active_toggle' => 'boolean',
+        'login_toggle' => 'boolean',
+        'second_factor_toggle' => 'boolean',
     ];
 
     

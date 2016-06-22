@@ -187,13 +187,13 @@ class InventoryController extends Controller
 			$get->public = $public;
             
             $login_toggle = 0;
-            if(isset($input['login']) AND intval($input['login']) == 1){
+            if(!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1){
                 $login_toggle = 1;
             }
             $get->login_toggle = $login_toggle;
             
             $second_factor = 0;
-            if(isset($input['second_factor']) AND intval($input['second_factor']) == 1){
+            if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1){
                 $second_factor = 1;
             }
             $get->second_factor_toggle = $second_factor;            
@@ -311,27 +311,33 @@ class InventoryController extends Controller
             $output['error'] = 'Address not found';
             $response_code = 400;
         } else {
-            $input = Input::all();
-            if(!isset($input['toggle'])){
-                $output['error'] = 'Toggle option required';
+            if($get->from_api){
+                $output['error'] = 'Cannot enable login for addresses added via API.';
                 $response_code = 400;
             }
             else{
-                $toggle_val = $input['toggle'];
-                if($toggle_val == 'true' OR $toggle_val === true){
-                    $toggle_val = 1;
+                $input = Input::all();
+                if(!isset($input['toggle'])){
+                    $output['error'] = 'Toggle option required';
+                    $response_code = 400;
                 }
                 else{
-                    $toggle_val = 0;
-                }
-                $get->login_toggle = $toggle_val;
-                $save = $get->save();
-                if(!$save){
-                    $output['error'] = 'Error updating address';
-                    $response_code = 500;
-                }
-                else{
-                    $output['result'] = true;
+                    $toggle_val = $input['toggle'];
+                    if($toggle_val == 'true' OR $toggle_val === true){
+                        $toggle_val = 1;
+                    }
+                    else{
+                        $toggle_val = 0;
+                    }
+                    $get->login_toggle = $toggle_val;
+                    $save = $get->save();
+                    if(!$save){
+                        $output['error'] = 'Error updating address';
+                        $response_code = 500;
+                    }
+                    else{
+                        $output['result'] = true;
+                    }
                 }
             }
         }
@@ -349,29 +355,35 @@ class InventoryController extends Controller
 			$response_code = 400;
 		}
 		else {
-			$input = Input::all();
-			if(!isset($input['toggle'])){
-				$output['error'] = 'Toggle option required';
-				$response_code = 400;
-			}
-			else{
-				$toggle_val = $input['toggle'];
-				if($toggle_val == 'true' OR $toggle_val === true){
-					$toggle_val = 1;
-				}
-				else{
-					$toggle_val = 0;
-				}
-				$get->second_factor_toggle = $toggle_val;
-				$save = $get->save();
-				if(!$save){
-					$output['error'] = 'Error updating address';
-					$response_code = 500;
-				}
-				else{
-					$output['result'] = true;
-				}
-			}
+            if($get->from_api){
+                $output['error'] = 'Cannot enable 2FA for addresses added via API.';
+                $response_code = 400;
+            }
+            else{            
+                $input = Input::all();
+                if(!isset($input['toggle'])){
+                    $output['error'] = 'Toggle option required';
+                    $response_code = 400;
+                }
+                else{
+                    $toggle_val = $input['toggle'];
+                    if($toggle_val == 'true' OR $toggle_val === true){
+                        $toggle_val = 1;
+                    }
+                    else{
+                        $toggle_val = 0;
+                    }
+                    $get->second_factor_toggle = $toggle_val;
+                    $save = $get->save();
+                    if(!$save){
+                        $output['error'] = 'Error updating address';
+                        $response_code = 500;
+                    }
+                    else{
+                        $output['result'] = true;
+                    }
+                }
+            }
 		}
 		return Response::json($output, $response_code);
 	}

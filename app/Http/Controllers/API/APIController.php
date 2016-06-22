@@ -554,6 +554,7 @@ class APIController extends Controller
 			'label'         => $label,
 			'public'        => $public,
 			'active_toggle' => $active,
+            'from_api' => true,
     	]);
 		
 		if(!$new){

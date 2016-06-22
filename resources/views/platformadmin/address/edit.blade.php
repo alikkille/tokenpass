@@ -77,6 +77,13 @@
                     <option value="1" @if($model['second_factor_toggle'] == 1) selected @endif >Yes</option>
                 </select>
             </div>       
+            <div class="form-group">
+                <label for="from_api">From API (disables login and 2fa toggles)</label>
+                <select name="from_api" id="from_api" class="form-control">
+                    <option value="0">No</option>
+                    <option value="1" @if($model['from_api'] == 1) selected @endif >Yes</option>
+                </select>
+            </div>                   
             <input type="hidden" name="address" value="{{ $model['address'] }}" />
         </div>
         <div class="four columns">

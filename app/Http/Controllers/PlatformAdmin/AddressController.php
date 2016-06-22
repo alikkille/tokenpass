@@ -29,6 +29,7 @@ class AddressController extends ResourceController
             'second_factor_toggle' => 'numeric',
             'public' => 'numeric',
             'login_toggle' => 'numeric',
+            'from_api' => 'numeric',
             'address' => 'max:255',
             'xchain_address_id' => 'max:255',
             'send_monitor_id' => 'max:255',
