@@ -26,3 +26,28 @@
 
 [v-cloak], .v-cloak, 
   display: none !important
+
+
+// LOADING SPINNERS
+$base-line-height: 24px
+$spin-duration: 1s
+
+@keyframes spin
+  0%
+    transform: rotate(0deg)
+
+  100%
+    transform: rotate(360deg)
+
+
+.loading
+  border-radius: 50%
+  width: $base-line-height
+  height: $base-line-height
+  border: .25rem solid $brand-primary
+  border-top-color: lighten($brand-primary, 20%)
+  animation: spin $spin-duration infinite linear
+  &--double
+    border-style: double
+    border-width: .5rem
+

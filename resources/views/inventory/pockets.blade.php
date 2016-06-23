@@ -28,18 +28,19 @@
         signature. 
       </p>
 
-      <form action="/inventory/address/@{{ currentPocket.address }}/verify" method="post">
-          <div class="error-placeholder panel-danger"></div>
+      <form class="js-auto-ajax" action="/inventory/address/@{{ currentPocket.address }}/verify" method="POST">
 
-          <label for="verify-code">Verification Code</label>
-          
-          <input type="text" id="verify-code" value="@{{ currentPocket.secure_code }}" onclick="this.select();" readonly>
+        <div class="error-placeholder panel-danger"></div>
 
-          <label for="verify-address">BTC Address:</label>
-          <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
+        <label for="verify-code">Verification Code</label>
+        
+        <input type="text" id="verify-code" value="@{{ currentPocket.secure_code }}" onclick="this.select();" readonly>
 
-          <label for="verify-sig">Enter Message Signature:</label>
-          <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
+        <label for="verify-address">BTC Address:</label>
+        <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
+
+        <label for="verify-sig">Enter Message Signature:</label>
+        <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
 
         <button type="submit">Verify</button>
       </form>
@@ -53,7 +54,7 @@
       <div class="modal-x close-modal">
         <i class="material-icons">cancel</i>
       </div>
-      <form action="/inventory/address/new" method="post">
+      <form class="js-auto-ajax" action="/inventory/address/new" method="POST">
 
         <div class="error-placeholder panel-danger"></div>
 
@@ -68,6 +69,7 @@
           <input id="pocket-new-public" class="toggle toggle-round-flat" type="checkbox" name="public" checked>
           <label for="pocket-new-public"></label>
         </div>
+
         <button type="submit">Submit</button>
       </form>
 
@@ -108,10 +110,18 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
     @endif
-    <div class="pocket" v-for="pocket in pockets | filterBy search">
+    <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
       <div class="pocket-main">
         <div class="pocket-indicator">
-          <i class="material-icons">check</i>
+          <div class="loading"></div>
+          <div class="active-indicator">
+            <div v-if="pocket.active_toggle">
+              <i class="material-icons text-success">check</i>
+            </div>
+            <div v-else>
+              <i class="material-icons text-danger">close</i>
+            </div>
+          </div>
         </div>
         <div class="primary-info">
           <span class="name">
@@ -128,45 +138,51 @@
         <div class="clear"></div>
       </div><!-- End Pocket Information -->
       <div class="pocket-settings">
-        <form action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
+        <form v-on:submit="editPocket" action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
+
+          <div class="error-placeholder panel-danger"></div>
+
           <label for="">Label</label>
-          <input type="text" name="label" value="@{{ pocket.label }}" placeholder="Tokenly Wallet">
+          <input type="text" name="label" v-model="pocket.label" placeholder="Tokenly Wallet">
 
           <label for="">Address</label>
-          <input type="text" value="@{{ pocket.address }}" readonly>
+          <input type="text" name="address" value="@{{ pocket.address }}" readonly>
           
           <label for="">Notes</label>
-          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes" v-model="pocket.notes"></textarea>
+          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes">@{{ pocket.notes }}</textarea>
           <div class="toggles-container">
             <div class="input-group toggle-field">
               <label>Active?</label>
-              <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle" value="1">
+              <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle" value=1>
               <label for="pocket-@{{ $index }}-active"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Public?</label>
-              <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value="1">
+              <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
               <label for="pocket-@{{ $index }}-public"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Enable for login?</label>
-              <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" value="1" v-model="pocket.login_toggle">
+              <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1>
               <label for="pocket-@{{ $index }}-login"></label>
             </div>
 
             <div class="input-group toggle-field">
               <label>Enable as Second Factor?</label>
-              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value="1">
+              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value=1>
               <label for="pocket-@{{ $index }}-second-factor"></label>
             </div>
           </div>
-          <button type="submit" class="btn-save">Save</button>
-          <a 
-            href="/inventory/address/@{{ pocket.address }}/delete" 
-            onclick="return confirm('Are you sure you want to delete this pocket?')" 
-            class="btn-delete">Delete</a>
+          <button type="submit"
+            class="btn-save">
+            Save
+          </button>
+          <a v-on:click="deletePocket(pocket)" 
+            class="btn-delete">
+            Delete
+          </a>
         </form>
       </div> <!-- End Pocket Settings -->
     </div> <!-- End Pocket List -->
@@ -189,6 +205,9 @@ var vm = new Vue({
     currentPocket: {}
   },
   methods: {
+    bindEvents: function(){
+      $('form.js-auto-ajax').on('submit', this.submitFormAjax);
+    },
     toggleEdit: function(event){
       var $pocket = $(event.target).closest('.pocket');
       var $settingsButton = $pocket.find('.settings-btn i');
@@ -201,44 +220,89 @@ var vm = new Vue({
       }
     },
     setCurrentPocket: function(pocket){
-      this.currentPocket = pocket;
-    }
-  },
- ready:function(){
-    $(this.el).find(['v-cloak']).slideDown();
-  }
-});
+      vm.currentPocket = pocket;
+    },
+    startLoading: function(pocket){
+      var $indicator = $('#pocket-' + pocket.address).find('.pocket-indicator');
+      $indicator.addClass('is-loading');
+    },
+    endLoading: function(pocket){
+      var $indicator = $('#pocket-' + pocket.address).find('.pocket-indicator');
+      $indicator.removeClass('is-loading');
+    },
+    editPocket: function(e){
+      e.preventDefault();
 
-// Initialize new address modal
-var addAddressModal = new Modal();
-addAddressModal.init(document.getElementById(
-  'addPocketModal'));
+      var $form = $(e.target);
+      var pocketIndex = $form.closest('.pocket').attr('data-pocket-index');
+      var pocket = this.pockets[pocketIndex];
+      this.startLoading(pocket);
 
+      var formUrl = $form.attr('action');
+      var formMethod = $form.attr('method');
+      var formString = $form.serialize();
+      var errorTimeout = null;
 
-function configureAjaxForm(parentSelector) {
-  $('form', parentSelector).on('submit', function(e) {
-    e.preventDefault();
+      $.ajax({
+        type: formMethod,
+        url: formUrl,
+        data: formString,
+        dataType: 'json'
+      }).done(function(data) {
+        vm.endLoading(pocket);
+        console.log(data);
+        console.log('Pocket was updated successfully (' + $form.attr('data-address') + ').');
+      }).fail(function(data, status, error) {
+        vm.endLoading(pocket);
+        console.log(data);
+        console.log('There was an error updating this pocket (' + $form.attr('data-address') + ').')
+      });
+    },
+    deletePocket: function(pocket){
+      var url = '/inventory/address/' + pocket.address + '/delete';
+      this.startLoading(pocket);
+      $.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'json'
+      }).done(function(data) {
+        vm.endLoading(pocket);
+        vm.pockets.$remove(pocket);
+        console.log('Pocket was deleted successfully (' + pocket.address + ').');
+      }).fail(function(data, status, error) {
+        vm.endLoading(pocket);
+        console.log('There was an error deleting this pocket (' + pocket.address + ').')
+      });
+    },
+    submitFormAjax: function(e){
+      e.preventDefault();
+      var $form = $(e.target);
+      var formUrl = $form.attr('action');
+      var formMethod = $form.attr('method');
+      var formString = $form.serialize();
+      console.log(formUrl);
+      console.log(formMethod);
+      console.log(formString);
+      var errorTimeout = null;
+      // clear the error
+      $('.error-placeholder', $form).empty();
+      if (errorTimeout) { clearTimeout(errorTimeout); }
 
-    var $form = $(this);
-    var formUrl = $form.attr('action');
-    var formString = $form.serialize();
-    var errorTimeout = null;
-
-    // clear the error
-    $('.error-placeholder', $form).empty();
-    if (errorTimeout) { clearTimeout(errorTimeout); }
-
-    $.ajax({
-      type: "POST",
-      url: formUrl,
-      data: formString,
-      dataType: 'json'
-    }).done(function(data) {
-      // success - redirect
+      $.ajax({
+        type: formMethod,
+        url: formUrl,
+        data: formString,
+        dataType: 'json'
+      }).done(function(data) {
+        console.log(data);
+        // success - redirect
         if (data.redirectUrl != null) {
           window.location = data.redirectUrl;
         }
-    }).fail(function(data, status, error) {
+      }).fail(function(data, status, error) {
+        console.log(data);
+        console.log(status);
+        console.log(error);
         // failure - show an error.
         var errorMsg = '';
         if (data.responseJSON != null && data.responseJSON.error != null) {
@@ -253,19 +317,24 @@ function configureAjaxForm(parentSelector) {
           $('.error-placeholder', $form).empty();
           errorTimeout = null;
         }, 10000);
-    });
-  });
-}
+      });
+    }
+  },
+ ready:function(){
+    this.bindEvents();
+    $(this.el).find(['v-cloak']).slideDown();
+  }
+});
+
+// Initialize new address modal
+var addPocketModal = new Modal();
+addPocketModal.init(document.getElementById(
+  'addPocketModal'));
 
 // Initialize verify address modal
-var verifyAddressModal = new Modal();
-verifyAddressModal.init(document.getElementById(
+var verifyPocketModal = new Modal();
+verifyPocketModal.init(document.getElementById(
   'verifyPocketModal'));
-
-// handle new address submit
-configureAjaxForm('#addPocketModal');
-configureAjaxForm('#verifyPocketModal');
-
 
 </script>
 

@@ -11,9 +11,15 @@ body.pockets
       padding-bottom: 0
       transition: all 0.5s ease
       .pocket-indicator
+        .loading
+          display: none
+        &.is-loading
+          .loading
+            display: inherit
+          .active-indicator
+            display: none
         i
           font-size: 34px
-          color: $brand-green
       .pocket-main, .pocket-settings
         padding: 0 20px
         position: relative
