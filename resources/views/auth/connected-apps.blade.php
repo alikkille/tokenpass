@@ -29,7 +29,7 @@
               <i class="material-icons">cancel</i>
               Revoke
             </a>
-            <button class="option" v-on:click="toggleScopes">
+            <button href="" class="option" v-on:click="toggleScopes">
               <i class="material-icons">keyboard_arrow_down</i>
               Permissions
             </button>
