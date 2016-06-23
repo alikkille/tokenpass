@@ -58,7 +58,7 @@ class InventoryTest extends TestCase
         $response = $this->call('GET', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/delete', array(
             'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
         ) , array());
-        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD deleted!', Session::get('message'));
+        PHPUnit::assertContains('Address deleted!', Session::get('message'));
 
         // Attempt to delete non existant address
         $response = $this->call('GET', '/inventory/address/1FakeAddressNaow/delete', array(
@@ -86,7 +86,7 @@ class InventoryTest extends TestCase
         $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/edit', array(
             'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
         ) , array());
-        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD updated!', Session::get('message'));
+        PHPUnit::assertContains('Address updated!', Session::get('message'));
     }
 
     public function testToggleAddress() {
