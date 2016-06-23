@@ -18,7 +18,7 @@
 <div class="hero">
   <div class="hero-flex-content">
     <h1 class="hero-heading">Digital access tokens in your bitcoin wallet.</h1>
-    <button class="btn-cta">Get Started</button>
+    <a href="/auth/register" class="btn-cta">Get Started</a>
   </div>
   <div class="hero-bg" style="background-image: url(/img/landing_hero.png)"></div>
 </div>
