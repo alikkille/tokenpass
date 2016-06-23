@@ -2,6 +2,7 @@ var gulp = require('gulp'),
     util = require('gulp-util'),
     sass = require('gulp-sass'),
     concat = require('gulp-concat'),
+    autoprefixer = require('gulp-autoprefixer'),
     uglify = require('gulp-uglify'),
     rename = require('gulp-rename'),
     plumber = require('gulp-plumber'),
@@ -22,6 +23,7 @@ gulp.task('styles', function() {
     .pipe(plumber({ errorHandler: errorHandler }))
     .pipe(sass({ indentedSyntax: true }).on('error', util.log))
     .pipe(concat('application.css'))
+    .pipe(autoprefixer())
     .pipe(gulp.dest(CSS_DEST))
 });
 
