@@ -79,10 +79,10 @@ class AuthController extends Controller
         $captcha = $this->checkCaptcha($request);
         if (env('USE_RECAPTCHA') == true) {
             if (is_null($captcha)) {
-                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
+                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
             }
             if ($captcha->isSuccess() == false) {
-                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
+                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
             }
         }
 
