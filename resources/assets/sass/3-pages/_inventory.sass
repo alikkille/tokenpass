@@ -71,12 +71,36 @@ body.inventory
             padding: 0 0 0 20px
             width: auto
             border-top: none
-            border-left: 1px solid #EEEEEE
             margin-left: auto
           &:hover
             cursor: pointer
             color: tint($brand-primary, 25%)
 
       .secondary-info
+        display: block
         overflow-x: auto
         padding: 10px 0 5px 0
+        .pocket
+          .detail-heading
+            text-transform: uppercase
+            font-weight: bold
+            font-size: 12px
+            margin-bottom: 4px
+          +outer-container
+          margin-bottom: 10px
+          table
+            th, td
+              padding: 2px 0
+          .pocket-details-main
+            padding-bottom: 2px
+            margin-bottom: 5px
+            border-bottom: 1px solid #eee
+            +tablet
+              +span-columns(6)
+              padding-bottom: 0
+              margin-bottom: 0
+              border-right: 1px solid #eee
+              border-bottom: none
+          .pocket-details-second
+            +tablet
+              +span-columns(6)

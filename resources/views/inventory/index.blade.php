@@ -52,31 +52,49 @@
       </div>
 
       <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Address</th>
-              <th>Real</th>
-              <th>Promised</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="pocket in token.balanceAddresses">
-              <td>
-                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
-              </td>
-              <td>@{{ formatQuantity(pocket.real) }}</td>
-              <td>
-                <div v-if="pocket.provisional.length > 0">
-                  @{{ formatQuantity(totalProvisional(pocket)) }}
-                </div>
-                <div v-else>
-                  n/a
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-for="pocket in token.balanceAddresses" class="pocket">
+          <div class="pocket-details-main">
+            <div class="detail-heading">Pocket Details</div>
+            <!-- Heading -->
+            <div class="pocket-heading">
+              <span class="muted">Address /</span>
+              <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+            </div>
+            <!-- Real Balance -->
+            <div class="pocket-real-balance">
+              <span class="muted">Real Balance /</span>
+              @{{ formatQuantity(pocket.real) }}
+            </div>
+            <div class="pocket-promised-balance">
+              <span class="muted">Promised Total /</span>
+              @{{ formatQuantity(totalProvisional(pocket)) }}
+            </div>
+          </div>
+
+          <div class="pocket-details-second">
+          <!-- Promised transactions -->
+            <div v-if="pocket.provisional.length > 0">
+              <div class="detail-heading">Promised Transactions</div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Amount</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="promise in pocket.provisional">
+                    <td>@{{ formatQuantity(promise.quantity) }}</td>
+                    <td class="muted">@{{ promise.source }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="muted" v-else>
+              No promised transactions
+            </div>
+          </div>
+        </div>
       </div>
 
 		</div>
