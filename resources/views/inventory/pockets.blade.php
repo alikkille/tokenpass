@@ -259,20 +259,24 @@ var vm = new Vue({
       });
     },
     deletePocket: function(pocket){
-      var url = '/inventory/address/' + pocket.address + '/delete';
       this.startLoading(pocket);
-      $.ajax({
-        type: 'GET',
-        url: url,
-        dataType: 'json'
-      }).done(function(data) {
+      if (confirm('Are you sure you want to delete this pocket?')) {
+        var url = '/inventory/address/' + pocket.address + '/delete';
+        $.ajax({
+          type: 'GET',
+          url: url,
+          dataType: 'json'
+        }).done(function(data) {
+          vm.endLoading(pocket);
+          vm.pockets.$remove(pocket);
+          console.log('Pocket was deleted successfully (' + pocket.address + ').');
+        }).fail(function(data, status, error) {
+          vm.endLoading(pocket);
+          console.log('There was an error deleting this pocket (' + pocket.address + ').')
+        });
+      } else {
         vm.endLoading(pocket);
-        vm.pockets.$remove(pocket);
-        console.log('Pocket was deleted successfully (' + pocket.address + ').');
-      }).fail(function(data, status, error) {
-        vm.endLoading(pocket);
-        console.log('There was an error deleting this pocket (' + pocket.address + ').')
-      });
+      }
     },
     submitFormAjax: function(e){
       e.preventDefault();
