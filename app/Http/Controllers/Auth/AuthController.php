@@ -76,8 +76,8 @@ class AuthController extends Controller
      */
     public function postRegister(Request $request)
     {
-        $captcha = $this->checkCaptcha($request);
-        if (env('USE_RECAPTCHA') == true) {
+        if (env('APP_ENV') != 'testing') {
+            $captcha = $this->checkCaptcha($request);
             if (is_null($captcha)) {
                 return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
             }
