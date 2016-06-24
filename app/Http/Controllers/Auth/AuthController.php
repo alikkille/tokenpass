@@ -27,6 +27,7 @@ use TKAccounts\Models\User;
 use TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
+use ReCaptcha;
 use Validator;
 
 
@@ -75,6 +76,17 @@ class AuthController extends Controller
      */
     public function postRegister(Request $request)
     {
+        $captcha = $this->checkCaptcha($request);
+
+        if (env('APP_ENV') != 'testing') {
+            if (is_null($captcha)) {
+                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
+            }
+            if ($captcha->isSuccess() == false) {
+                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
+            }
+        }
+
         $register_vars = $request->all();
         $register_vars['slug'] = Util::slugify(isset($register_vars['username']) ? $register_vars['username'] : '');
 
@@ -103,6 +115,21 @@ class AuthController extends Controller
         // if we came from an authorization request
         //   then continue by redirecting the user to their original, intended request
         return redirect()->intended($this->redirectPath());
+    }
+
+    private function checkCaptcha($request) {
+        $secret = env('RECAPTCHA');
+        $response = null;
+        $reCaptcha = new \ReCaptcha\ReCaptcha($secret);
+
+        if ($request["g-recaptcha-response"]) {
+            $response = $reCaptcha->verify(
+                $request["g-recaptcha-response"],
+                $_SERVER["REMOTE_ADDR"]
+            );
+        }
+
+        return $response;
     }
 
 
