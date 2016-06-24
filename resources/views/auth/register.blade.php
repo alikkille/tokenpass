@@ -16,7 +16,7 @@
                 <input type="email" name="email" placeholder="email" value="{{ old('email') }}" required>
                 <input type="password" name="password" placeholder="password" required>
                 <input type="password" name="password_confirmation" placeholder="password (again)" required>
-                <div class="g-recaptcha" data-sitekey="6LcUbiMTAAAAAPIG1vHrzhUBhvbuyENNHUx0-UZp"></div>
+                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_PUBLIC') }}"></div>
                 <button type="submit" class="login-btn">Register</button>
             </form>
         </div>
