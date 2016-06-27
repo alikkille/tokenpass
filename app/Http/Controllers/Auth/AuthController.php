@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
@@ -76,13 +77,13 @@ class AuthController extends Controller
      */
     public function postRegister(Request $request)
     {
-        $captcha = $this->checkCaptcha($request);
-        if (env('USE_RECAPTCHA') == true) {
+        if (env('APP_ENV') != 'testing') {
+            $captcha = $this->checkCaptcha($request);
             if (is_null($captcha)) {
-                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
             }
             if ($captcha->isSuccess() == false) {
-                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+                return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
             }
         }
 
@@ -513,6 +514,19 @@ class AuthController extends Controller
         }
 
     }
+
+    /**
+     * Get the failed login message.
+     *
+     * @return string
+     */
+    protected function getGenericFailedMessage()
+    {
+        return Lang::has('auth.generic.fail')
+            ? Lang::get('auth.generic.fail')
+            : 'There has been an error, please check your input.';
+    }
+
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
