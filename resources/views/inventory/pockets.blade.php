@@ -12,7 +12,7 @@
     <div class="modal-content">
       <h3 class="light">Verify Pocket</h3>
       <div class="modal-x close-modal">
-        <i class="material-icons">cancel</i>
+        <i class="material-icons">clear</i>
       </div>
       <p>
         In order for Tokenpass to track your address balances
@@ -52,7 +52,7 @@
     <div class="modal-content">
       <h3 class="light">Register New Address</h3>
       <div class="modal-x close-modal">
-        <i class="material-icons">cancel</i>
+        <i class="material-icons">clear</i>
       </div>
       <form class="js-auto-ajax" action="/inventory/address/new" method="POST">
 
