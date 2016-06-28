@@ -10,7 +10,7 @@
 		<div class="form-wrapper">
 			@include('partials.errors', ['errors' => $errors])
 			@if(isset(parse_url(Session::get('url.intended'))['host']))
-			@if(parse_url(env('SITE_HOST'))['host'] == parse_url(Session::get('url.intended'))['host'])
+			@if(parse_url(env('SITE_HOST'))['host'] != parse_url(Session::get('url.intended'))['host'])
 				<div class="error-wrapper text-success"><p class="alert-info">You are about to sign into <strong>{{parse_url(Session::get('url.intended'))['host']}}</strong> ({{Session::get('url.intended')}})</p>
 				</div>
 					@endif
