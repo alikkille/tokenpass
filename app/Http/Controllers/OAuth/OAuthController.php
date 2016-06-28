@@ -14,6 +14,7 @@ use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
+use TKAccounts\Models\OAuthScope;
 
 /**
  */
@@ -77,12 +78,14 @@ class OAuthController extends Controller
         $formParams = array_except($authParams,'client');
         $formParams['client_id'] = $client_id;
         $formParams['scopes'] = array();
+        $scope_list = array();
         foreach($authParams['scopes'] as $scope_k => $scope){
 			$formParams['scopes'][] = $scope_k;
+            $scope_list[] = OAuthScope::find($scope->getID());
 		}
 		$formParams['scopes'] = join(',', $formParams['scopes']);
 
-        return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$authParams['scopes']]);
+        return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$scope_list]);
     }
 
     /**

@@ -10,9 +10,11 @@
 
 <p>The application <span class="application-name">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
 <ul class="list-unstyled grant-list">
-@foreach ($scopes as $scope)
-<li>{{{ $scope->getDescription() }}} </li>
-@endforeach
+    @foreach ($scopes as $scope)
+    <li><strong>@if(trim($scope->label) != ''){{{ $scope->label }}}@else{{{ $scope->id }}}@endif</strong><br>
+        {{{ $scope->description }}} 
+    </li>
+    @endforeach
 </ul>
 
 <p>What would you like to do?</p>
