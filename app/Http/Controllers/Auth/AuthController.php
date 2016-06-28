@@ -356,6 +356,10 @@ class AuthController extends Controller
         } else {
             $user = Auth::user();
         }
+        
+        if(!$user){
+            return redirect('auth/login');
+        }
 
         $sigval = Address::getUserVerificationCode($user, 'simple');
         return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
@@ -367,6 +371,10 @@ class AuthController extends Controller
         } else {
             $user = Auth::user();
         }
+        
+        if(!$user){
+            return redirect('auth/login');
+        }        
 
         $sigval = Address::getUserVerificationCode($user, 'simple');
         $sig = Address::extract_signature($request->request->get('signed_message'));

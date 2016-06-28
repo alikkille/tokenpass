@@ -135,6 +135,9 @@ class Address extends Model
     public static function getUserVerificationCode($user, $type='readable')
     {
         $result = [];
+        if(!$user){
+            return false;
+        }
         $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
         if ($sign_auth == false) {
             Address::getVerificationType($type, $user);
