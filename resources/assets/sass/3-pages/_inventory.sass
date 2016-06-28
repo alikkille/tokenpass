@@ -42,7 +42,6 @@ body.inventory
         width: 100%
         *
           vertical-align: middle
-          line-height: 1.6
 
       .primary-info
         font-size: 18px
@@ -58,20 +57,26 @@ body.inventory
           display: inline-block
           margin-right: 10px
           text-align: right
+        .token-actions
+          text-align: right
+          width: 100%
+          +tablet
+            padding: 0 0 0 20px
+            width: auto
+            margin-left: auto
         .detail-toggle
+          display: inline-block
           text-align: right
           text-transform: uppercase
           font-weight: bold
           color: $brand-primary
           font-size: 14px
-          width: 100%
           border-top: 1px solid #EEEEEE
+          &:not(:last-child)
+            margin-right: 15px
           +tablet
             text-align: left
-            padding: 0 0 0 20px
-            width: auto
             border-top: none
-            margin-left: auto
           &:hover
             cursor: pointer
             color: tint($brand-primary, 25%)
@@ -80,6 +85,7 @@ body.inventory
         display: block
         overflow-x: auto
         padding: 10px 0 5px 0
+        line-height: 1.6
         .pocket
           .detail-heading
             text-transform: uppercase

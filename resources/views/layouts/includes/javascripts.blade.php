@@ -1,7 +1,7 @@
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <!-- Google Recaptcha -->
-<script src='https://www.google.com/recaptcha/api.js'></script>
+<script type="text/javascript" src='https://www.google.com/recaptcha/api.js'></script>
 
 <!-- Render in dev environments -->
 <script type="text/javascript" src="/vendor/vue.js"></script>

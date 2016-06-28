@@ -1,36 +1,15 @@
-/* Tooltip container */
-.tooltip
+body.dashboard
+  .tooltip-wrapper
     position: relative
-    display: inline-block    
-    border-bottom: 1px dotted $brand-primary /* If you want dots under the hoverable text */
-    ul
-      margin: 0
-      padding: 10px 25px
-      li
-        list-style-type: circle
-
-/* Tooltip text */
-.tooltip .tooltiptext
-    visibility: hidden
-    max-width: 200px
-    background-color: rgba($gray, 0.8)
-    color: $white
-    text-align: center
-    padding: 5px
-    border-radius: 4px
-    box-shadow: 1px 1px 1px rgba($gray, 0.3)
-    word-wrap: break-word
-    position: absolute
-    top: -5px
-    right: 105% 
-    z-index: 1
-
-/* Show the tooltip text when you mouse over the tooltip container */
-.tooltip:hover .tooltiptext
-    visibility: visible
-
-// Example use:
-// <div class="tooltip">
-//   Hover over me
-//   <span class="tooltiptext">Tooltip text</span>
-// </div>
+    display: inline-block
+    border-bottom: 1px dotted #4A90E2
+    .tooltip
+      position: absolute
+      display: block
+      box-shadow: 1px 2px 2px #ccc
+      background: #fff
+      top: 100%
+      z-index: 200
+      padding: 6px 12px
+    .tooltip-text
+      display: none
