@@ -430,10 +430,7 @@ class AuthController extends Controller
             {
                 return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
             }
-
-            return view('accounts/dashboard', [
-                'user' => Auth::user(),
-            ]);
+            return $this->handleUserWasAuthenticated($request, true);
         } else {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()
             ]);
