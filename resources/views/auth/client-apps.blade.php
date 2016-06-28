@@ -110,10 +110,11 @@
 					@{{ currentApp.secret }}
 				</div>
 			</div>
-            <hr>
-            <div class="input-group">
-                <button class="btn-regenerate">Regenerate Keys</button>
-            </div>
+ 			<!-- TODO: Regenerate keys button
+ 			<hr> 
+      <div class="input-group">
+          <button class="btn-regenerate">Regenerate Keys</button>
+      </div> -->
 		</div>
 	</div> <!-- END VIEW APP MODAL -->
 
