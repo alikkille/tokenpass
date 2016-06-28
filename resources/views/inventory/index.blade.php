@@ -116,10 +116,10 @@
       		</span>
         </div>
         <div class="token-actions">
-          <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
+          <!-- TODO: Lend tokens functionality -->
+          <!--  <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
             Lend This Token
-            <!-- <i class="material-icons">keyboard_arrow_down</i> -->
-          </a>
+          </a> -->
           <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
             Balance Breakdown
             <i class="material-icons">keyboard_arrow_down</i>

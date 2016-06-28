@@ -2,7 +2,12 @@
   color: $brand-red
 
 .text-success, .alert-success, .panel-success
-  color: $brand-green
+  color: $brand-green-contrast
+
+body.dashboard
+  .text-danger, .alert-danger, .panel-danger, .text-success, .alert-success, .panel-success
+    display: inline-block
+    font-weight: bold
   
 .error-heading
   color: $gray
