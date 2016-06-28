@@ -11,7 +11,7 @@
 			@include('partials.errors', ['errors' => $errors])
 
 			@if(Session::get('url.intended') !== NULL)
-				<div><p class="alert-info">You are about to sign into <strong>{{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get('url.intended'))['name']}}</strong>! (<a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get('url.intended'))['app_link']}}">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get('url.intended'))['app_link']}}</a>)</p>
+				<div><p class="alert-info">You are about to sign into <strong><a href={{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get("url.intended"))["app_link"]}}>{{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get('url.intended'))['name']}}!</a></strong></p>
 				</div>
 			@endif
 			<form method="POST" action="/auth/login">
