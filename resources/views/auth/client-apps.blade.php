@@ -62,7 +62,9 @@
 				<i class="material-icons">clear</i>
 			</div>
 
-		  <form action="/auth/apps/new" method="POST">
+		  <form class="js-auto-ajax" action="/auth/apps/new" method="POST">
+
+		        <div class="error-placeholder panel-danger"></div>
 
 				<label for="client-name">Client Name:</label>
 				<input type="text" name="name" id="client-name" required/>
@@ -124,7 +126,9 @@
 				<i class="material-icons">clear</i>
 			</div>
 
-		  <form action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
+		  <form class="js-auto-ajax" action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
+
+					<div class="error-placeholder panel-danger"></div>
 
 					<label for="client-name">Client Name:</label>
 					<input type="text" name="name" id="client-name" value="@{{ currentApp.name }}" required />
@@ -158,6 +162,9 @@ var vm = new Vue({
     currentApp: {}
   },
   methods: {
+    bindEvents: function(){
+      $('form.js-auto-ajax').on('submit', this.submitFormAjax);
+    },
     setCurrentApp: function(app){
       this.currentApp = app;
     },
@@ -166,9 +173,55 @@ var vm = new Vue({
 			    year: "numeric", month: "short", day: "numeric"
 			};
     	return new Date(dateString).toLocaleDateString('en-us', options);
+    },
+    submitFormAjax: function(e){
+      e.preventDefault();
+      var $form = $(e.target);
+      var formUrl = $form.attr('action');
+      var formMethod = $form.attr('method');
+      var formString = $form.serialize();
+      console.log(formUrl);
+      console.log(formMethod);
+      console.log(formString);
+      var errorTimeout = null;
+      // clear the error
+      $('.error-placeholder', $form).empty();
+      if (errorTimeout) { clearTimeout(errorTimeout); }
+
+      $.ajax({
+        type: formMethod,
+        url: formUrl,
+        data: formString,
+        dataType: 'json'
+      }).done(function(data) {
+        console.log(data);
+        // success - redirect
+        if (data.redirectUrl != null) {
+          window.location = data.redirectUrl;
+        }
+      }).fail(function(data, status, error) {
+        console.log(data);
+        console.log(status);
+        console.log(error);
+        // failure - show an error.
+        var errorMsg = '';
+        if (data.responseJSON != null && data.responseJSON.error != null) {
+          errorMsg = data.responseJSON.error;
+        } else {
+          errorMsg = 'There was an unknown error';
+        }
+
+        // show the error
+        $('.error-placeholder', $form).html(errorMsg);
+        errorTimeout = setTimeout(function() {
+          $('.error-placeholder', $form).empty();
+          errorTimeout = null;
+        }, 10000);
+      });
     }
   },
- ready:function(){
+  ready:function(){
+    this.bindEvents();
     $(this.el).find(['v-cloak']).slideDown();
   }
 });

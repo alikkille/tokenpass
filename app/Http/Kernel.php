@@ -20,6 +20,9 @@ class Kernel extends HttpKernel
 
         // handle oAuth exceptions
         \LucaDegasperi\OAuth2Server\Middleware\OAuthExceptionHandlerMiddleware::class,
+
+        // trust configured proxies
+        \Fideloper\Proxy\TrustProxies::class,
     ];
 
     /**
@@ -42,5 +45,8 @@ class Kernel extends HttpKernel
 
         // require admin
         'admin'                      => \TKAccounts\Http\Middleware\AdminAuthenticate::class,
+
+        // TLS
+        'tls'                        => \TKAccounts\Http\Middleware\RequireTLS::class,
     ];
 }
