@@ -383,7 +383,7 @@ class AuthController extends Controller
             UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
             if (empty($request['redirect'])) {
                 Auth::loginUsingId($user->id);
-                return redirect('/');
+                return $this->handleUserWasAuthenticated($request, true);
             }
             return redirect(urldecode($request['redirect']));
         } else {
