@@ -12,7 +12,17 @@ class OAuthClient extends APIModel {
     public $incrementing = false;
 
     protected $api_attributes = ['id','name'];
-    
+
+    public static function getOAuthClientDetails($url) {
+
+        $parts = parse_url($url);
+        parse_str($parts['query'], $query);
+        $client_id =  $query['client_id'];
+        $result = DB::table('oauth_clients')->where('id', $client_id)->first();
+
+        return (Array) $result;
+    }
+
     public static function getUserClients($user_id)
     {
 		$get = OAuthClient::where('user_id', $user_id)->get();
