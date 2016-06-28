@@ -41,7 +41,7 @@
           <li v-for="scope in entry.scopes" class="scope" data-level="@{{ scope.notice_level }}">
             <div class="entry-module label">
               <div class="title">Label</div>
-              <div class="details">@{{ scope.label }}</div>
+              <div class="details">@{{ (scope.label != null) ? scope.label : scope.id }}</div>
             </div>
             <div class="entry-module description">
               <div class="title">Description</div>
