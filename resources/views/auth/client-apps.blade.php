@@ -59,7 +59,7 @@
 		<div class="modal-content">
 			<h3>Register Client Application</h3>
 			<div class="modal-x close-modal">
-				<i class="material-icons">cancel</i>
+				<i class="material-icons">clear</i>
 			</div>
 
 		  <form action="/auth/apps/new" method="POST">
@@ -85,7 +85,7 @@
 		<div class="modal-content">
 			<h3>Client App API Keys</h3>
 			<div class="modal-x close-modal">
-				<i class="material-icons">cancel</i>
+				<i class="material-icons">clear</i>
 			</div>
 
 			<div class="input-group">
@@ -121,7 +121,7 @@
 		<div class="modal-content">
 			<h3>Update Client Application</h3>
 			<div class="modal-x close-modal">
-				<i class="material-icons">cancel</i>
+				<i class="material-icons">clear</i>
 			</div>
 
 		  <form action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
