@@ -1,29 +1,33 @@
 body.dashboard
+  $input-spacing: 15px
   label, input
     display: block
   label
     text-transform: uppercase
-    color: $gray-light
+    color: $gray
     margin-bottom: 4px
-    font-size: 12px
+    font-size: 14px
     font-weight: bold
-  input, textarea
+  input, textarea, select
+    font-size: 12px
     width: 100%
     border: 1px solid $gray-lighter
+    background-color: #fff
     outline: none
-    padding: 10px 20px
+    padding: 12px 20px
     letter-spacing: 1px
-    margin-bottom: 10px
+    margin-bottom: $input-spacing
+  select
+    height: 41px
+
   input[disabled]
     background-color: $gray-lighter
     color: $white
     cursor: not-allowed
   .sublabel
-    float: left
-    color: $gray-dark
-    font-size: 11px
-    font-weight: 200
-    margin-bottom: 3px
+    color: $gray-light
+    font-size: 12px
+    margin-top: 6px
   form
     button
       +btn_fill($gray)
@@ -109,6 +113,6 @@ body.dashboard
     background-color: #8ce196
 
   .input-group
-    margin-bottom: 10px
-    input
+    margin-bottom: $input-spacing
+    input, textarea, select
       margin-bottom: 0

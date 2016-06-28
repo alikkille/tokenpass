@@ -26,7 +26,7 @@
           <div class="title">Options</div>
           <div class="details">
             <a class="option" href="/auth/revokeapp/@{{ entry.client.uuid }}">
-              <i class="material-icons">cancel</i>
+              <i class="material-icons">clear</i>
               Revoke
             </a>
             <button href="" class="option" v-on:click="toggleScopes">

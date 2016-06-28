@@ -8,6 +8,75 @@
 
 <div id="tokensController">
 
+  <div id="promiseInfoModal" class="modal-container">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+      <h3 class="light">What is a Token Promise?</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">clear</i>
+      </div>
+      <p>A promised balance is made up of tokens you have the benefit of, but don't actually hold in one of your pockets.</p>
+
+      <p>You might have already bought them, but they haven't yet been delivered via the bitcoin network or maybe someone has lent you the use of one of their tokens temporarily.</p>
+
+      <p>Your Promised tokens balance is added with the tokens you possess in your pockets to create your total balance.</p>
+
+      <p>Your Total Balance is what is used for Token Controlled Access (TCA)</p>
+      <button class="close-modal">Close</button>
+    </div>
+  </div> <!-- End promise info modal -->
+
+  <div id="lendTokenModal" class="modal-container">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+      <h3 class="light">Lend Tokens</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">clear</i>
+      </div>
+
+      <form method="POST">
+        <div class="input-group">
+          <label for="lendee">Who would you like to lend to? *</label>
+          <input type="text" id="lendee" name="lendee">
+          <div class="sublabel">Tokenpass username or bitcoin address</div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-4">
+            <label for="quantity">Quantity *</label>
+            <input type="number" name="quantity" placeholder="10.5">
+            <div class="sublabel">You can lend up to @{{ formatQuantity(currentToken.balance) }} @{{ currentToken.name }}</div>
+          </div>
+          <div class="input-group span-8">
+            <label for="token">Token To Lend *</label>
+            <select v-model="currentToken" name="token" id="token">
+              <option v-bind:value="token" v-for="token in tokens | filterBy search">@{{ token.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="note">Note</label>
+          <input type="text" id="note" placeholder="Check out this new song on Tokenly Music!">
+          <div class="sublabel">Reason for lending</div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-6">
+            <label for="start_date">Start Date</label>
+            <input type="date" name="start_date" placeholder="DD/MM/YYYY" class="start_date datepicker">
+          </div>
+          <div class="input-group span-6">
+            <label for="end_date">End Date</label>
+            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
+          </div>
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div> <!-- End lend token modal  -->
+
 	<section class="title">
 		<span class="heading">Inventory</span>
 	  <div class="search-wrapper">
@@ -19,7 +88,9 @@
 		</a>
 	</section>
 	<section class="tokens" v-if="tokens.length" v-cloak>
-    <p class="muted">* contains promised tokens</p>
+    <p class="reveal-modal click-me" data-modal="promiseInfoModal">
+      * contains promised tokens
+    </p>
 	  <div class="token" v-for="token in tokens | filterBy search">
 	    <!-- TODO: Token's have avatars
     	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
@@ -44,9 +115,15 @@
             <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
       		</span>
         </div>
-        <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
-          Balance Breakdown
-          <i class="material-icons">keyboard_arrow_down</i>
+        <div class="token-actions">
+          <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
+            Lend This Token
+            <!-- <i class="material-icons">keyboard_arrow_down</i> -->
+          </a>
+          <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
+            Balance Breakdown
+            <i class="material-icons">keyboard_arrow_down</i>
+          </div>
         </div>
         <div class="clear"></div>
       </div>
@@ -162,9 +239,13 @@ var vm = new Vue({
   el: '#tokensController',
   data: {
     search: '',
-    tokens: data.tokens
+    tokens: data.tokens,
+    currentToken: {}
   },
   methods: {
+    setCurrentToken: function(token){
+      this.currentToken = token;
+    },
   	formatQuantity: function(q){
   		return this.delimitNumbers((q / 100000000));
   	},
@@ -205,6 +286,17 @@ var vm = new Vue({
     $(this.el).find(['v-cloak']).slideDown();
   }
 });
+
+// Initialize lend token modal
+var lendTokenModal = new Modal();
+lendTokenModal.init(document.getElementById(
+  'lendTokenModal'));
+
+// Initialize promise info modal
+var promiseInfoModal = new Modal();
+promiseInfoModal.init(document.getElementById(
+  'promiseInfoModal'));
+
 
 </script>
 @endsection
