@@ -2,12 +2,14 @@
 namespace TKAccounts\Http\Controllers\Auth;
 
 use Exception, Input, Session, DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Response;
+use InvalidArgumentException;
+use Rhumsaa\Uuid\Uuid;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\OAuthClient;
-use Illuminate\Support\Facades\Auth;
-use Rhumsaa\Uuid\Uuid;
 use TKAccounts\Repositories\OAuthClientRepository;
-use InvalidArgumentException;
 
 class AppsController extends Controller
 {
@@ -40,9 +42,7 @@ class AppsController extends Controller
 		$input = Input::all();
 		
 		if(!isset($input['name']) OR trim($input['name']) == ''){
-			Session::flash('message', 'Client name required');
-			Session::flash('message-class', 'alert-danger');
-			return redirect('auth/apps');
+            return $this->ajaxEnabledErrorResponse('Client name required', route('auth.apps'));
 		}
 		
 		$name = trim(htmlentities($input['name']));
@@ -54,9 +54,7 @@ class AppsController extends Controller
         $app_link = '';
         if(isset($input['app_link']) AND trim($input['app_link']) != ''){
             if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
-                Session::flash('message', 'Please enter a valid app URL');
-                Session::flash('message-class', 'alert-danger');
-                return redirect('auth/apps');
+                return $this->ajaxEnabledErrorResponse('Please enter a valid app URL', route('auth.apps'));
             }
             $app_link = $input['app_link'];
         }
@@ -72,33 +70,25 @@ class AppsController extends Controller
 		$save = $client->save();
 		
 		if(!$save){
-			Session::flash('message', 'Error saving new application');
-			Session::flash('message-class', 'alert-danger');
-			return redirect('auth/apps');
+            return $this->ajaxEnabledErrorResponse('Error saving new application', route('auth.apps'));
 		}
 		
 		try{
 			$update_endpoints = $this->updateEndpoints($client, $endpoints);
 		}
 		catch(InvalidArgumentException $e){
-			Session::flash('message', 'Invalid client endpoints');
-			Session::flash('message-class', 'alert-danger');
-			$client->delete();
-			return redirect('auth/apps');
+            $client->delete();
+            return $this->ajaxEnabledErrorResponse('Invalid client endpoints', route('auth.apps'));
 		}
 		
-		Session::flash('message', 'Client application registered!');
-		Session::flash('message-class', 'alert-success');
-		
-		return redirect('auth/apps');
+        return $this->ajaxEnabledSuccessResponse('Client application registered!', route('auth.apps'));
 	}
 	
 	public function updateApp($app_id)
 	{
 		$client = OAuthClient::where('id', $app_id)->first();
 		if(!$client OR $client->user_id != $this->user->id){
-			Session::flash('message', 'Client application not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
 		}	
 		else{
 			$input = Input::all();
@@ -111,9 +101,7 @@ class AppsController extends Controller
             $app_link = '';
             if(isset($input['app_link']) AND trim($input['app_link']) != ''){
                 if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
-                    Session::flash('message', 'Please enter a valid app URL');
-                    Session::flash('message-class', 'alert-danger');
-                    return redirect('auth/apps');
+                    return $this->ajaxEnabledErrorResponse('Please enter a valid app URL', route('auth.apps'));
                 }
                 $app_link = $input['app_link'];
             }            
@@ -123,22 +111,19 @@ class AppsController extends Controller
 			$save = $client->save();
 			
 			if(!$save){
-				Session::flash('message', 'Error saving new application');
-				Session::flash('message-class', 'alert-danger');
-				return redirect('auth/apps');
+                return $this->ajaxEnabledErrorResponse('Error saving new application', route('auth.apps'));
 			}
 			else{
 				try{
 					$update_endpoints = $this->updateEndpoints($client, $endpoints);
 				}
 				catch(InvalidArgumentException $e){
-					Session::flash('message', 'Invalid client endpoints');
-					Session::flash('message-class', 'alert-danger');
-					return redirect('auth/apps');
+                    return $this->ajaxEnabledErrorResponse('Invalid client endpoints', route('auth.apps'));
 				}
 			}
 		}
-		return redirect('auth/apps');
+
+        return $this->ajaxEnabledSuccessResponse('Client application updated.', route('auth.apps'));
 	}
 	
 	public function deleteApp($app_id)
@@ -213,5 +198,32 @@ class AppsController extends Controller
 
         return trim($out);
     }    
+
+    // ------------------------------------------------------------------------
+    protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
+        if (Request::ajax()) {
+            return Response::json(['success' => false, 'error' => $error_message], $error_code);
+        }
+
+        Session::flash('message', $error_message);
+        Session::flash('message-class', 'alert-danger');
+        return redirect($redirect_url);
+    }
+
+    protected function ajaxEnabledSuccessResponse($success_message, $redirect_url, $http_code = 200) {
+        if (Request::ajax()) {
+            return Response::json([
+                'success'     => true,
+                'message'     => $success_message,
+                'redirectUrl' => $redirect_url,
+            ], $http_code);
+        }
+
+        Session::flash('message', $success_message);
+        Session::flash('message-class', 'alert-success');
+
+
+        return redirect(route('inventory.pockets'));
+    }
     
 }
