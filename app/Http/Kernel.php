@@ -42,5 +42,8 @@ class Kernel extends HttpKernel
 
         // require admin
         'admin'                      => \TKAccounts\Http\Middleware\AdminAuthenticate::class,
+
+        // TLS
+        'tls'                        => \TKAccounts\Http\Middleware\RequireTLS::class,
     ];
 }
