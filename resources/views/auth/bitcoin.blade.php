@@ -10,10 +10,14 @@
   <div class="logo"><a href="/">token<strong>pass</strong></a></div>
     <div class="form-wrapper">
       @include('partials.errors', ['errors' => $errors])
-      @if(Session::get('url.intended') !== NULL)
-        <div><p class="alert-info">You are about to sign into <strong><a href={{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get("url.intended"))["app_link"]}}>{{\TKAccounts\Models\OAuthClient::getOAuthClientDetails(Session::get('url.intended'))['name']}}!</a></strong></p>
-        </div>
-      @endif
+        @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
+            <div>
+                <p class="alert-info">
+                    You are about to sign into 
+                    <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
+                </p>
+            </div>
+        @endif
       <form method="POST" action="/auth/bitcoin">
         {!! csrf_field() !!}
 

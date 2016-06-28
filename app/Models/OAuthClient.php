@@ -2,7 +2,7 @@
 
 namespace TKAccounts\Models;
 
-use Exception;
+use Exception, Session;
 use Tokenly\LaravelApiProvider\Model\APIModel, DB;
 
 class OAuthClient extends APIModel {
@@ -13,14 +13,48 @@ class OAuthClient extends APIModel {
 
     protected $api_attributes = ['id','name'];
 
-    public static function getOAuthClientDetails($url) {
-
-        $parts = parse_url($url);
-        parse_str($parts['query'], $query);
-        $client_id =  $query['client_id'];
+    public static function getOAuthClientDetailsFromURL($url)
+    {
+        $client_id = self::getOAUthClientIDFromURL($url);
+        if(!$client_id){
+            return false;
+        }
         $result = DB::table('oauth_clients')->where('id', $client_id)->first();
-
         return (Array) $result;
+    }
+    
+    public static function getOAuthClientDetailsFromIntended()
+    {
+        $client_id = self::getOAuthClientIDFromIntended();
+        if(!$client_id){
+            return false;
+        }
+        $result = DB::table('oauth_clients')->where('id', $client_id)->first();
+        return (Array) $result;        
+    }
+    
+    public static function getOAuthClientIDFromURL($url)
+    {
+        $parts = parse_url($url);
+        if(!isset($parts['query'])){
+            return false;
+        }
+        parse_str($parts['query'], $query);
+        if(!isset($query['client_id'])){
+            return false;
+        }
+        $client_id =  $query['client_id'];
+        return $client_id;
+    }
+    
+    public static function getOAuthClientIDFromIntended()
+    {
+        $intended = Session::get('url.intended');
+        if(!$intended OR $intended == null){
+            return false;
+        }
+        $client_id = OAuthClient::getOAuthClientIDFromURL($intended);
+        return $client_id;
     }
 
     public static function getUserClients($user_id)
