@@ -21,7 +21,8 @@
         "simplesoftwareio/simple-qrcode": "^1.4",
         "satooshi/php-coveralls": "^1.0",
         "bitwasp/bitcoin-lib": "dev-master@dev",
-        "google/recaptcha": "~1.1"
+        "google/recaptcha": "~1.1",
+        "fideloper/proxy": "^3.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

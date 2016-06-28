@@ -73,7 +73,7 @@ Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', '
 Route::get('pockets',                                  ['middleware' => 'tls', 'as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets']);
 
 //client applications / API keys
-Route::get('auth/apps',                                ['middleware' => 'tls', 'uses' => 'Auth\AppsController@index']);
+Route::get('auth/apps',                                ['middleware' => 'tls', 'as' => 'auth.apps', 'uses' => 'Auth\AppsController@index']);
 Route::post('auth/apps/new',                           ['middleware' => 'tls', 'uses' => 'Auth\AppsController@registerApp']);
 Route::post('auth/apps/{app}/edit',                    ['middleware' => 'tls', 'uses' => 'Auth\AppsController@updateApp']);
 Route::get('auth/apps/{app}/delete',                   ['middleware' => 'tls', 'uses' => 'Auth\AppsController@deleteApp']);

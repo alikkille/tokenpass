@@ -17,7 +17,7 @@ class RequireTLS
      */
     public function handle($request, Closure $next)
     {
-        if (env('APP_ENV') != 'testing' && !$request->secure()) {
+        if (env('USE_SSL', false) && env('APP_ENV') != 'testing' && !$request->secure()) {
             return redirect()->secure($request->getRequestUri());
         }
 
