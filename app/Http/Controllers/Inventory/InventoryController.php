@@ -28,7 +28,7 @@ class InventoryController extends Controller
     public function index()
     {
 
-		$addresses = Address::getAddressList($this->user->id, null, null);
+		$addresses = Address::getAddressList($this->user->id, null, true);
 		$balances = Address::getAllUserBalances($this->user->id);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 		$balance_addresses = array();

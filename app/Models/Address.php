@@ -39,7 +39,7 @@ class Address extends Model
         if($active_toggle !== null){
             $get = $get->where('active_toggle', '=', intval($active_toggle));
         }
-        if($active_toggle !== null){
+        if($login_toggle !== null){
             $get = $get->where('login_toggle', '=', intval($login_toggle));
         }
         return $get->orderBy('id', 'asc')->get();
@@ -96,7 +96,7 @@ class Address extends Model
 
     public static function getAllUserBalances($user_id, $filter_disabled = false, $and_provisional = true)
     {
-        $address_list = Address::getAddressList($user_id);
+        $address_list = Address::getAddressList($user_id, null, true);
         if(!$address_list OR count($address_list) == 0){
             return array();
         }
