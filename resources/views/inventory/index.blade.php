@@ -168,7 +168,7 @@
               </table>
             </div>
             <div class="muted" v-else>
-              No promised transactions
+              
             </div>
           </div>
         </div>
