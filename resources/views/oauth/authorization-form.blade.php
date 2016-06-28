@@ -1,11 +1,11 @@
 @extends('layouts.authorize')
 
+@section('htmltitle', 'Authorization Requested')
+
+
 @section('body_content')
 
-<h1>Authorization Requested</h1>
-
 @include('partials.errors', ['errors' => $errors])
-
 
 
 <p>The application <span class="application-name">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
@@ -16,7 +16,6 @@
 </ul>
 
 <p>What would you like to do?</p>
-
 
 <form method="POST" action="{{ route('oauth.authorize.post', $params) }}">
 
