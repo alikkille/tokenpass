@@ -925,11 +925,14 @@ class APIControllerTest extends TestCase {
     protected function forceUserCryptographicData($user) {
 
        $result = Address::getUserVerificationCode($user);
+       $instantCode = Address::getInstantVerifyMessage($user);
 
         DB::table('user_meta')->update([
             'meta_value' => '1',
             'updated_at' => time() + 50000
         ]);
+        
+        
     }
 
     protected function buildUserHelper() {
