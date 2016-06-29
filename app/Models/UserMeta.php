@@ -18,25 +18,28 @@ class UserMeta extends Model
 		return $output;
 	}
 	
-	public static function getMeta($id, $key)
+	public static function getMeta($id, $key, $full = false)
 	{
 		$get = UserMeta::where('user_id', '=', $id)->where('meta_key', '=', $key)->first();
 		if(!$get){
 			return false;
 		}
+        if($full){
+            return $get;
+        }
 		return $get->meta_value;
 	}
 
-    public static function getDurationValueHasBeenSet($value)
+    public static function getDurationValueHasBeenSet($userId, $value)
     {
-        $get = UserMeta::where('meta_value', '=', $value)->first();
+        $get = UserMeta::where('user_id', '=', $userId)->where('meta_value', '=', $value)->first();
         $time_diff =  time() - strtotime($get->updated_at);
         return $time_diff;
     }
 
-    public static function getMetaExtraValue($value)
+    public static function getMetaExtraValue($userId, $value)
     {
-        $get = UserMeta::where('meta_value', '=', $value)->first();
+        $get = UserMeta::where('user_id', '=', $userId)->where('meta_value', '=', $value)->first();
         return $get->extra;
     }
 
@@ -61,6 +64,19 @@ class UserMeta extends Model
 		$get->save();
 		return true;
 	}
+    
+    public static function clearMeta($id, $key)
+    {
+        $get = UserMeta::where('user_id', '=', $id)->where('meta_key', '=', $key)->first();
+        if(!$get){
+            return true;
+        }
+        $delete = $get->delete();
+        if(!$delete){
+            return false;
+        }
+        return true;
+    }
 	
 	
 }
