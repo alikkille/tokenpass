@@ -50,15 +50,17 @@ class AppsController extends Controller
 		if(isset($input['endpoints'])){
 			$endpoints = trim($input['endpoints']);
 		}
-        
-        $app_link = '';
-        if(isset($input['app_link']) AND trim($input['app_link']) != ''){
-            if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
-                return $this->ajaxEnabledErrorResponse('Please enter a valid app URL', route('auth.apps'));
-            }
-            $app_link = $input['app_link'];
+
+        if(!isset($input['app_link']) OR trim($input['app_link']) == ''){
+            return $this->ajaxEnabledErrorResponse('Please add an app URL', route('auth.apps'));
         }
-		
+
+        $app_link = '';
+        if(!filter_var($input['app_link'], FILTER_VALIDATE_URL)){
+            return $this->ajaxEnabledErrorResponse('Please enter a valid app URL', route('auth.apps'));
+        }
+        $app_link = $input['app_link'];
+
 		$token_generator = app('Tokenly\TokenGenerator\TokenGenerator');
 		$client = new OAuthClient;
 		$client->id = $token_generator->generateToken(32, 'I');
@@ -87,6 +89,7 @@ class AppsController extends Controller
 	public function updateApp($app_id)
 	{
 		$client = OAuthClient::where('id', $app_id)->first();
+        
 		if(!$client OR $client->user_id != $this->user->id){
             return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
 		}	
