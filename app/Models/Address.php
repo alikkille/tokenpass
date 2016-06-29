@@ -128,7 +128,7 @@ class Address extends Model
     public static function getInstantVerifyMessage($user, $regen = true)
     {
         $get = UserMeta::getMeta($user->id, 'instant_verify_message', true);
-        if($regen AND (!$get OR ($get AND ((time() - strtotime($get->updated_at)) > 600)))){
+        if($regen AND (!$get OR ($get AND ((time() - strtotime($get->updated_at)) > Config::get('tokenpass.instant_verify_code_expire'))))){
             return self::setInstantVerifyMessage($user);
         }
         if(!$get){
@@ -160,7 +160,7 @@ class Address extends Model
             $result['seconds'] = UserMeta::getDurationValueHasBeenSet($user->id, $sign_auth);
             $result['extra'] = UserMeta::getMetaExtraValue($user->id, $sign_auth);
         }
-        if ($result['seconds'] > 3600 OR $result['extra'] == 'signed') {
+        if ($result['seconds'] > Config::get('tokenpass.crypto_verify_code_expire') OR $result['extra'] == 'signed') {
             Address::getVerificationType($type, $user);
         }
 
