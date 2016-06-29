@@ -38,17 +38,19 @@
 
         <label for="Password">Confirm New Password</label>
         <input type="password" id="Password" name="new_password_confirmation">
-    
-        <div class="input-group">
-            <label for="Password">Current Password</label>
-            <input required="required" type="password" id="Password" name="password">
-            <div class="sublabel">Please verify your current password to save your changes</div>
-        </div>
 
         <div class="input-group">
             <label>Enable Second Factor on account?</label>
             <input id="account-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" @if($model->second_factor == 1) checked="checked" @endif value="1" >
             <label for="account-second-factor"></label>
+        </div>
+
+        <hr>
+        
+        <div class="input-group">
+            <label for="Password">Current Password</label>
+            <input required="required" type="password" id="Password" name="password">
+            <div class="sublabel">Please verify your current password to save your changes</div>
         </div>
         
         <button type="submit">Save</button>

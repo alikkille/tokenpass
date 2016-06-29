@@ -1,13 +1,14 @@
-@extends('accounts.base')
+@extends('layouts.guest')
 
 @section('htmltitle', 'Login With Bitcoin')
 
-@section('body_class', 'dashboard login')
+@section('body_class', 'login')
 
-@section('accounts_content')
+@section('body_content')
 
     <div class="everything">
         <div class="logo"><a href="/">token<strong>pass</strong></a></div>
+        <h1 class="login-heading">BTC Two Factor Authentication</h1>
         <div class="form-wrapper">
             @include('partials.errors', ['errors' => $errors])
 			@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
@@ -20,9 +21,7 @@
 			@endif
             <form method="POST" action="/auth/signed">
                 {!! csrf_field() !!}
-                <p>
-                    <strong>Bitcoin Two Factor Authentication</strong>
-                </p>
+
                 <div class="tooltip-wrapper" data-tooltip="Sign this message with a verified bitcoin address which has 2FA enabled, this is for your security">
                     <i class="help-icon material-icons">help_outline</i>
                 </div>
