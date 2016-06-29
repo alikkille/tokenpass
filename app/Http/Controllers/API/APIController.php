@@ -1439,7 +1439,7 @@ class APIController extends Controller
 		}
 
 		//get the message needed to verify and check inputs
-		$verify_message = Address::getUserVerificationCode($user);
+		$verify_message = Address::getInstantVerifyMessage($user, false);
 		$input_sig = Input::get('sig');
 		$input_message = Input::get('msg');
 		if(!$input_sig OR trim($input_sig) == ''){
@@ -1447,7 +1447,7 @@ class APIController extends Controller
 			return Response::json($output, 400);
 		}
 
-		if(!$input_message OR $input_message != $verify_message['user_meta']){
+		if(!$input_message OR $input_message != $verify_message){
 			$output['error'] = 'msg invalid';
 			return Response::json($output, 400);
 		}

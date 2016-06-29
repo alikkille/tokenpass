@@ -125,13 +125,23 @@ class Address extends Model
         return $balances;
     }
 
-    public static function getInstantVerifyMessage($user)
+    public static function getInstantVerifyMessage($user, $regen = true)
+    {
+        $get = UserMeta::getMeta($user->id, 'instant_verify_message', true);
+        if($regen AND (!$get OR ($get AND ((time() - strtotime($get->updated_at)) > 600)))){
+            return self::setInstantVerifyMessage($user);
+        }
+        return $get->meta_value;
+    }
+    
+    public static function setInstantVerifyMessage($user)
     {
         $entropy = Address::getSecureCodeGeneration(8);
         $message = hash('sha256', $user->uuid . ' ' . $entropy);
+        UserMeta::setMeta($user->id, 'instant_verify_message', $message);
         return $message;
     }
-
+    
     public static function getUserVerificationCode($user, $type='readable')
     {
         $result = [];
@@ -144,8 +154,8 @@ class Address extends Model
             $sign_auth = UserMeta::getMeta($user->id, 'sign_auth');
         }
         if ($sign_auth != false) {
-            $result['seconds'] = UserMeta::getDurationValueHasBeenSet($sign_auth);
-            $result['extra'] = UserMeta::getMetaExtraValue($sign_auth);
+            $result['seconds'] = UserMeta::getDurationValueHasBeenSet($user->id, $sign_auth);
+            $result['extra'] = UserMeta::getMetaExtraValue($user->id, $sign_auth);
         }
         if ($result['seconds'] > 3600 OR $result['extra'] == 'signed') {
             Address::getVerificationType($type, $user);
