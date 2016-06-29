@@ -340,6 +340,20 @@ var verifyPocketModal = new Modal();
 verifyPocketModal.init(document.getElementById(
   'verifyPocketModal'));
 
+window.inventory_refresh_check = false;
+$('.add-pocket-btn').click(function(e){
+    if(!window.inventory_refresh_check){
+        window.inventory_refresh_check = setInterval(function(){
+            var url = '/inventory/check-refresh';
+            $.get(url, function(data){
+                if(data.result){
+                    location.reload();
+                }
+            });
+        }, 5000);
+    }
+});
+
 </script>
 
 @endsection
