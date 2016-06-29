@@ -131,6 +131,9 @@ class Address extends Model
         if($regen AND (!$get OR ($get AND ((time() - strtotime($get->updated_at)) > 600)))){
             return self::setInstantVerifyMessage($user);
         }
+        if(!$get){
+            return false;
+        }
         return $get->meta_value;
     }
     
