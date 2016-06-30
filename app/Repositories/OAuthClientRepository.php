@@ -3,8 +3,10 @@
 namespace TKAccounts\Repositories;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
+use DB, Input;
 
 /*
 * OAuthClientRepository
@@ -28,6 +30,32 @@ class OAuthClientRepository extends APIRepository
         }
 
         return $attributes;
+    }
+    
+    
+    public function update(Model $model, $attributes)
+    {
+        $update = parent::update($model, $attributes);
+        if(!$update){
+            return false;
+        }
+        
+        $endpoints = '';
+        if(Input::get('endpoints')){
+           $endpoints = trim(Input::get('endpoints')); 
+        }
+        DB::table('oauth_client_endpoints')->where('client_id', $model->id)->delete();
+        if($endpoints != ''){
+            $stamp = date('Y-m-d H:i:s');
+            $vals = array('client_id' => $model->id, 'created_at' => $stamp, 'updated_at' => $stamp);
+            $split_endpoints = explode("\n", $endpoints);
+            foreach($split_endpoints as $endpoint){
+                $vals['redirect_uri'] = trim($endpoint);
+                DB::table('oauth_client_endpoints')->insert($vals);
+            }
+        }
+        
+        return $update;
     }
 
 }

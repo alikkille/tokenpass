@@ -1,0 +1,7 @@
+.outer-container
+  +outer-container
+  @for $i from 1 through 12
+    .span-#{$i}
+      +span-columns(12)
+      +mobile
+        +span-columns($i)

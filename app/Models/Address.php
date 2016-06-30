@@ -1,7 +1,7 @@
 <?php
 namespace TKAccounts\Models;
 
-use DB;
+use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use TKAccounts\Models\Address;
@@ -20,10 +20,14 @@ class Address extends Model
     protected $casts = [
         'verified' => 'boolean',
         'public' => 'boolean',
+        'from_api' => 'boolean',
+        'active_toggle' => 'boolean',
+        'login_toggle' => 'boolean',
+        'second_factor_toggle' => 'boolean',
     ];
 
     
-    public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false)
+    public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false, $login_toggle=null)
     {
         $get = Address::where('user_id', '=', $userId);
         if($verified_only){
@@ -34,6 +38,9 @@ class Address extends Model
         }
         if($active_toggle !== null){
             $get = $get->where('active_toggle', '=', intval($active_toggle));
+        }
+        if($login_toggle !== null){
+            $get = $get->where('login_toggle', '=', intval($login_toggle));
         }
         return $get->orderBy('id', 'asc')->get();
     }
@@ -89,7 +96,7 @@ class Address extends Model
 
     public static function getAllUserBalances($user_id, $filter_disabled = false, $and_provisional = true)
     {
-        $address_list = Address::getAddressList($user_id);
+        $address_list = Address::getAddressList($user_id, null, true);
         if(!$address_list OR count($address_list) == 0){
             return array();
         }
@@ -117,10 +124,101 @@ class Address extends Model
         }
         return $balances;
     }
-    
-    public static function getVerifyCode($address)
+
+    public static function getInstantVerifyMessage($user, $regen = true)
     {
-        return substr(hash('sha256', $address->address.':'.$address->user_id), 0, 10);
+        $get = UserMeta::getMeta($user->id, 'instant_verify_message', true);
+        if($regen AND (!$get OR ($get AND ((time() - strtotime($get->updated_at)) > Config::get('tokenpass.instant_verify_code_expire'))))){
+            return self::setInstantVerifyMessage($user);
+        }
+        if(!$get){
+            return false;
+        }
+        return $get->meta_value;
+    }
+    
+    public static function setInstantVerifyMessage($user)
+    {
+        $entropy = Address::getSecureCodeGeneration(8);
+        $message = hash('sha256', $user->uuid . ' ' . $entropy);
+        UserMeta::setMeta($user->id, 'instant_verify_message', $message);
+        return $message;
+    }
+    
+    public static function getUserVerificationCode($user, $type='readable')
+    {
+        $result = [];
+        if(!$user){
+            return false;
+        }
+        $sign_auth = UserMeta::getMeta($user->id,'sign_auth');
+        if ($sign_auth == false) {
+            Address::getVerificationType($type, $user);
+            $sign_auth = UserMeta::getMeta($user->id, 'sign_auth');
+        }
+        if ($sign_auth != false) {
+            $result['seconds'] = UserMeta::getDurationValueHasBeenSet($user->id, $sign_auth);
+            $result['extra'] = UserMeta::getMetaExtraValue($user->id, $sign_auth);
+        }
+        if ($result['seconds'] > Config::get('tokenpass.crypto_verify_code_expire') OR $result['extra'] == 'signed') {
+            Address::getVerificationType($type, $user);
+        }
+
+        $result['user_meta'] = UserMeta::getMeta($user->id,'sign_auth');
+
+        return $result;
+    }
+
+    private static function getVerificationType($type, $user=null) {
+        switch ($type) {
+            case 'complex':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getInstantVerifyMessage($user),0,0,'unsigned');
+        break;
+            case 'readable':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration() .' '. date('Y/m/d'),0,0,'unsigned');
+        break;
+            case 'complex readable':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(8),0,0,'unsigned');
+        break;
+            case 'simple':
+                UserMeta::setMeta($user->id,'sign_auth',Address::getSecureCodeGeneration(),0,0,'unsigned');
+        break;
+        }
+    }
+
+    public static function getSecureCodeGeneration($entropy=null, $language=null)
+    {
+        if(is_null($language)) {
+            $file_content = file_get_contents(base_path() . "/database/wordlists/english.txt");
+        } else {
+            $file_content = file_get_contents(base_path() . '/database/wordlists/' . $language .'txt');
+        }
+        $dictionary = explode(PHP_EOL, $file_content);
+
+        if(is_null($entropy)) {
+            $one = random_int(0, 2047);
+            $two = random_int(0, 2047);
+            $code = random_int(0, 99);
+        } else {
+            $x = 0;
+            $generation = [];
+            while ($x < $entropy) {
+                $generation[$x] = random_int(0, 2047);
+                $x++;
+            }
+
+            $response = NULL;
+            foreach ($generation as $item) {
+                $response = $response . $dictionary[$item] . ' ' ;
+            }
+
+            return (string) trim($response);
+        }
+        $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
+        if($verify_prefix){
+            $verify_prefix .= ' ';
+        }
+        return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
     
     public static function updateUserBalances($user_id)
@@ -250,13 +348,67 @@ class Address extends Model
         }
         return true;
     }
+    
+    public function user()
+    {
+        return User::find($this->user_id);
+    }
 
-	public static function getInstantVerifyMessage($user)
+    public function balances()
+    {
+        $get = Address::getAddressBalances($this->id, false, false);
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    public function promises()
+    {
+        return Address::getPromiseBalances($this->id);
+    }
+    
+    public function getPromiseBalances($addressId)
+    {
+        $address = Address::find($addressId);
+        if(!$address){
+            return false;
+        }
+        $get = DB::table('provisional_tca_txs')->where('destination', $address->address)->get();
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+	public static function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
 	{
-		$message = hash('sha256', $user->uuid);
-		return $message;
+		$inputMessage = trim($text);
+		if(strpos($inputMessage, $start) !== false){
+			//pgp style signed message format, extract the actual signature from it
+			$expMsg = explode("\n", $inputMessage);
+			foreach($expMsg as $k => $line){
+				if($line == $end){
+					if(isset($expMsg[$k-1])){
+						$inputMessage = trim($expMsg[$k-1]);
+					}
+				}
+			}
+		}
+		return $inputMessage;
 	}
-	
+    
+    public static function checkUser2FAEnabled($user)
+    {
+        if($user->second_factor == 0){
+            return false;
+        }
+        $count = Address::where('user_id', $user->id)->where('second_factor_toggle', 1)->where('verified', 1)->count();
+        if(!$count OR $count == 0){
+            return false;
+        }
+        return true;
+    }
 
 }
 

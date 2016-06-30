@@ -1,6 +1,7 @@
 <?php
 namespace TKAccounts\Http\Controllers\API;
 use DB, Exception, Response, Input, Hash;
+use BitWasp\BitcoinLib\BitcoinLib;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -148,6 +149,108 @@ class APIController extends Controller
 		}
 		return Response::json($output, $http_code);
 	}
+
+    public function checkSignRequirement($username) {
+        $output = array();
+        $input = Input::all();
+
+        //check if a valid application client_id
+        $valid_client = false;
+        if(isset($input['client_id'])){
+            $get_client = AuthClient::find(trim($input['client_id']));
+            if($get_client){
+                $valid_client = $get_client;
+            }
+        }
+        if(!$valid_client){
+            $output['error'] = 'Invalid API client ID';
+            $output['result'] = false;
+            return Response::json($output, 403);
+        }
+
+        $user = User::where('username', $username)->orWhere('slug', $username)->first();
+        if(!$user) {
+            $output['result'] = false;
+            $output['error'] = 'Username not found';
+            return Response::json($output, 404);
+        }
+
+        $details = Address::getUserVerificationCode($user);
+        $output['result'] = $details['extra'];
+
+        return Response::json($output);
+    }
+
+    // disabled until encoding of url is fixed
+    public function setSignRequirement() {
+        $output = array();
+        $input = Input::all();
+
+        //check if a valid application client_id
+        $valid_client = false;
+        if(isset($input['client_id'])){
+            $get_client = AuthClient::find(trim($input['client_id']));
+            if($get_client){
+                $valid_client = $get_client;
+            }
+        }
+        if(!$valid_client){
+            $output['error'] = 'Invalid API client ID';
+            $output['result'] = false;
+            return Response::json($output, 403);
+        }
+
+        $user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
+        if(!$user) {
+            $output['result'] = false;
+            $output['error'] = 'Username not found';
+            return Response::json($output, 404);
+        }
+
+		$user = User::where('uuid', $input['user_id'])->first();
+
+		$get_token = DB::table('oauth_access_tokens')->where('id', $input['token'])->first();
+		$valid_access = false;
+		if($get_token AND $user){
+			$get_sesh = DB::table('oauth_sessions')->where('id', $get_token->session_id)->first();
+			if($get_sesh AND $get_sesh->client_id == $input['client_id'] AND $get_sesh->owner_id == $user->id){
+				$valid_access = true;
+			}
+		}
+
+		if(!$valid_access){
+			$output['error'] = 'Invalid access token, client ID or user ID';
+			return Response::json($output);
+		}
+
+        // calculate address for signing.
+        $user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
+		$verification = Address::getUserVerificationCode($user);
+
+        $address = BitcoinLib::deriveAddressFromSignature($input['signature'], $verification['user_meta']);
+        if(!$address) {
+            $output['result'] = false;
+            $output['error'] = 'Signature derive function failed';
+            return Response::json($output, 403);
+        }
+
+        //verify signed message on xchain
+        $xchain = app('Tokenly\XChainClient\Client');
+        try{
+            $verify = $xchain->verifyMessage($address, $input['signature'], $verification['user_meta']);
+        } catch(Exception $e) {
+            $verify = false;
+        }
+        if(!$verify OR !isset($verify['result']) OR !$verify['result']){
+            $output['error'] = 'Signature invalid';
+            return Response::json($output, 400);
+        }
+        if($verify) {
+            UserMeta::setMeta($user->id,'sign_auth',$verification['user_meta'],0,0,'signed');
+            $output['result'] = 'Signed';
+            return Response::json($output);
+        }
+    }
 	
 	public function getAddresses($username, $force_refresh = false)
 	{
@@ -170,8 +273,7 @@ class APIController extends Controller
 		}		
 		
 		$user = User::where('username', $username)->orWhere('slug', $username)->first();
-		if(!$user){
-			$http_code = 404;
+		if(!$user) {
 			$output['result'] = false;
 			$output['error'] = 'Username not found';
 			return Response::json($output, 404);
@@ -327,7 +429,7 @@ class APIController extends Controller
 		$result['verified'] = boolval($getAddress->verified);
 		$result['balances'] = Address::getAddressBalances($getAddress->id, true);
 		if(!$result['verified']){
-			$result['verify_code'] = Address::getVerifyCode($getAddress);
+			$result['verify_code'] = Address::getSecureCodeGeneration();
 		}		
 		$output['result'] = $result;
 		
@@ -365,6 +467,28 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 		$user = $user['user'];
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }
 		
 		$type = 'btc';
 		if(isset($input['type'])){
@@ -430,6 +554,7 @@ class APIController extends Controller
 			'label'         => $label,
 			'public'        => $public,
 			'active_toggle' => $active,
+            'from_api' => true,
     	]);
 		
 		if(!$new){
@@ -444,7 +569,7 @@ class APIController extends Controller
 		$result['label'] = $label;
 		$result['public'] = $public;
 		$result['active'] = $active;
-		$result['verify_code'] = Address::getVerifyCode($new);
+		$result['verify_code'] = Address::getSecureCodeGeneration();
 		$output['result'] = $result;
 		
 		return Response::json($output);
@@ -484,6 +609,27 @@ class APIController extends Controller
 			return Response::json($output, 403);
 		}
 
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
@@ -546,6 +692,28 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }        
 
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
 		if(!$getAddress){
@@ -599,6 +767,28 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 403);
 		}
+        
+		$find_connect = DB::table('client_connections')->where('user_id', $user->id)->where('client_id', $valid_client->id)->first();
+		if(!$find_connect OR count($find_connect) == 0){
+			$output['error'] = 'User has not authenticated yet with client application';
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}		
+		
+		$manage_scope = false;
+		try{
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
+		}
+		catch(\Exception $e){
+			$output['error'] = $e->getMessage();
+			$output['result'] = false;
+			return Response::json($output, 403);
+		}        
+        if(!$manage_scope){
+			$output['error'] = 'Connection must have Manage Address scope applied';
+			$output['result'] = false;
+            return Response::json($output, 403);
+        }        
 
 		
 		$getAddress = Address::where('user_id', $user->id)->where('address', $address)->first();
@@ -620,7 +810,7 @@ class APIController extends Controller
 			return Response::json($output, 400);
 		}			
 		
-		$verify_code = Address::getVerifyCode($getAddress);
+		$verify_code = Address::getSecureCodeGeneration();
 		
 		$sig = $this->extract_signature($input['signature']);
 		$xchain = app('Tokenly\XChainClient\Client');
@@ -1131,8 +1321,8 @@ class APIController extends Controller
 		if(!$valid_client){
 			$output['error'] = 'Invalid API client ID';
 			return Response::json($output, 403);
-		}			
-        
+		}
+
         if(isset($input['address_list']) AND is_array($input['address_list'])){
             //lookup multiple users at once
             $get = Address::select('address', 'user_id', 'public', 'active_toggle', 'verified')->whereIn('address', $input['address_list'])->get();
@@ -1247,15 +1437,16 @@ class APIController extends Controller
 			$output['error'] = 'Address required'; 
 			return Response::json($output, 400);
 		}
-		
+
 		//get the message needed to verify and check inputs
-		$verify_message = Address::getInstantVerifyMessage($user);
+		$verify_message = Address::getInstantVerifyMessage($user, false);
 		$input_sig = Input::get('sig');
 		$input_message = Input::get('msg');
 		if(!$input_sig OR trim($input_sig) == ''){
 			$output['error'] = 'sig required';
 			return Response::json($output, 400);
 		}
+
 		if(!$input_message OR $input_message != $verify_message){
 			$output['error'] = 'msg invalid';
 			return Response::json($output, 400);
@@ -1265,7 +1456,7 @@ class APIController extends Controller
         $address = Input::get('address');
         $existing_addresses = Address::where('address', $address)->get();
             if (!empty($existing_addresses[0])) {
-                $output['error'] = 'Address already authenticated';
+                $output['error'] = 'Address already exists';
                 return Response::json($output, '400');
         }
 		
@@ -1313,6 +1504,7 @@ class APIController extends Controller
 		
 		UserMeta::setMeta($user->id, 'force_inventory_page_refresh', 1);
 		UserMeta::setMeta($user->id, 'inventory_refresh_message', 'Address '.$address->address.' registered and verified!');
+        UserMeta::clearMeta($user->id, 'instant_verify_message');
 		$output['result'] = true;
 		
 		return Response::json($output);

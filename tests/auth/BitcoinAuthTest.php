@@ -11,15 +11,28 @@ class BitcoinAuthTest extends TestCase {
     public function testBitcoinAuthorizeFormGet() {
         // check loading authorize form
         $response = $this->call('GET', '/auth/bitcoin');
-
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($response->getContent());
-        $sigval = $dom->getElementsByTagName('strong')->item(1)->textContent;
-
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('<form', $response->getContent());
-        $this->assertInternalType('string',$sigval);
+        PHPUnit::assertInternalType('string', Session::get('sigval'));
+    }
+
+    public function testPRNGeneration() {
+        $file_content = file_get_contents('database/wordlists/english.txt');
+        $dictionary = explode(PHP_EOL, $file_content);
+
+        $x = 1;
+        $list = [];
+        while($x <= 1000) {
+            $one = random_int(0, 2047);
+            $two = random_int(0, 2047);
+            $code = random_int(0, 99);
+            array_push($list, $dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code);
+            $x++;
+        }
+
+        $unique = array_unique($list);
+        PHPUNIT::assertEquals($unique, $list);
+
     }
 
     public function testBitcoinAuthorizeFormPostCorrectData() {
@@ -43,6 +56,19 @@ class BitcoinAuthTest extends TestCase {
     protected function setupXChainMock() {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
+    }
+
+    public function testGetByVerifiedAddress() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+        $user = $user_helper->createNewUser();
+        $address_helper->createNewAddress($user);
+
+        $incorrect = \TKAccounts\Models\User::getByVerifiedAddress('1WrongAddy');
+        $this->assertFalse($incorrect);
+
+        $correct = \TKAccounts\Models\User::getByVerifiedAddress('1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD');
+        $this->assertEquals('1', $correct->user_id);
     }
 
 }

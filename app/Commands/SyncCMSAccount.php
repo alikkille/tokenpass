@@ -54,20 +54,23 @@ class SyncCMSAccount extends Command implements SelfHandling
 		}
 		foreach($address_list as $row){
 			if(!in_array($row['address'], $used)){
-                $address = app('TKAccounts\Repositories\AddressRepository')->create([
-                    'user_id'    => $this->accounts_user->id,
-                    'type'       => $row['type'],
-                    'address'    => $row['address'],
-                    'label'      => trim($row['label']),
-                    'verified'   => $row['verified'],
-                    'public'     => $row['public'],
-                    'created_at' => $row['submitDate'],
-                    'updated_at' => $stamp,
-                ]);
+                $exists = Address::where('address', $row['address'])->first();
+                if(!$exists){
+                    $address = app('TKAccounts\Repositories\AddressRepository')->create([
+                        'user_id'    => $this->accounts_user->id,
+                        'type'       => $row['type'],
+                        'address'    => $row['address'],
+                        'label'      => trim($row['label']),
+                        'verified'   => $row['verified'],
+                        'public'     => $row['public'],
+                        'created_at' => $row['submitDate'],
+                        'updated_at' => $stamp,
+                    ]);
 
-                if ($address['verified']) {
-                    // make sure to sync the new address with any xchain balances
-                    $address->syncWithXChain();
+                    if ($address['verified']) {
+                        // make sure to sync the new address with any xchain balances
+                        $address->syncWithXChain();
+                    }
                 }
 			}
 			elseif(isset($used_rows[$row['address']])){

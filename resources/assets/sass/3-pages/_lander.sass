@@ -1,0 +1,94 @@
+$content-width: 680px
+
+@mixin heading
+  margin: 0 auto
+  text-align: center
+  text-transform: uppercase
+  font-size: 32px
+  font-weight: bold
+  color: $gray
+  margin-bottom: 40px
+
+.content-wrapper
+  max-width: $content-width
+  margin: 0 auto
+
+.mission-area
+  +content_area
+  .mission-heading
+    margin: 0 auto
+    text-align: center
+    font-size: 26px
+    font-weight: bold
+    color: $gray
+
+.how-area
+  +content_area
+  background-color: $gray-lightest
+  .how-heading
+    +heading
+  .how-token-modules
+    font-size: 22px
+    .title
+      text-align: left
+      margin-bottom: 40px
+      +tablet
+        text-align: center
+    .module
+      width: 100%
+      margin-bottom: 40px
+      +outer-container
+      +tablet
+        margin-bottom: 20px
+      .heading
+        +tablet
+          +span-columns(3)
+        text-transform: uppercase
+        font-size: 14px
+        color: $gray-light
+      .node
+        display: none
+        +tablet
+          +span-columns(1)
+          display: block
+      .description
+        +tablet
+          +span-columns(8)
+    
+.feature-area
+  +content_area
+  .feature-heading
+    +heading
+  .features
+    +outer-container
+    padding: 0 $gutter-px
+    .feature
+      float: left
+      font-weight: 200
+      width: 100%
+      box-sizing: border-box
+      text-align: center
+      +tablet
+        text-align: left
+      &:not(:last-of-type)
+        padding-right: 0
+        margin-bottom: 40px
+      .icon
+        i.material-icons
+          font-size: 64px
+      .title
+        font-size: 28px
+        margin-bottom: 10px
+      .subtext
+        font-size: 16px
+        line-height: 1.5
+      +tablet
+        +span-columns(4)
+        &:not(:last-of-type)
+          padding-right: 50px
+          margin-bottom: 0
+.why-area
+  +content_area
+  background-color: $gray-lightest
+  .why-heading
+    +heading

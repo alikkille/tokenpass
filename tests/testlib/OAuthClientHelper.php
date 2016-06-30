@@ -8,7 +8,21 @@ use \PHPUnit_Framework_Assert as PHPUnit;
 */
 class OAuthClientHelper
 {
+    static $OFFSET = 0;
+
     public function __construct() {
+    }
+
+    public function createRandomOAuthClient($override_vars=[]) {
+        return $this->createSampleOAuthClient($this->getRandomOAuthClientVars());
+    }
+
+    public function getRandomOAuthClientVars() {
+        ++self::$OFFSET;
+        return [
+            'id'   => 'APITOKEN_'.sprintf('%03d', self::$OFFSET),
+            'name' => 'client '.sprintf('%03d', self::$OFFSET),
+        ];
     }
 
     public function createSampleOAuthClient($override_vars=[]) {

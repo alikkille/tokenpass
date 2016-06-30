@@ -1,323 +1,302 @@
 @extends('accounts.base')
 
+@section('htmltitle', 'Inventory')
+
+@section('body_class', 'dashboard inventory')
+
 @section('accounts_content')
-	<h1>Token Inventory</h1>
-	@if(Session::has('message'))
-		<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-	@endif	
-	<p>
-		In order to use <em>Token Controlled Access</em> (TCA) features within the Tokenly ecosystem,
-		you must register at least one valid bitcoin address from your Counterparty compatible bitcoin wallet.
-		You will be asked to prove ownership of each address by cryptographically signing a simple verification code.
-	</p>
-	<p>
-		<strong>What is Token Controlled Access?</strong><br>
-		Simply put, access to features, special permissions, unique content and other privileges
-		can be granted based on the contents of your Bitcoin wallet. By signing the verification message for your address,
-		we can safely assume that you truely are the owner of it, and can then grant various levels of access
-		depending on which tokens you possess and how much. For instance, you might be able to access
-		a hidden community message board by owning at least 1 TOKENLY token in one of your addresses.
-	</p>
-	<p>
-		Use the interface below to register & verify your bitcoin addresses and manage your Token Inventory. 
-	</p>
-	<h3>My Bitcoin Addresses</h3>
-	@if($addresses AND count($addresses) > 0)
-		<p>
-			<strong># Addresses:</strong> {{ number_format(count($addresses)) }}
-		</p>
-		<table class="table table-bordered data-table address-table">
-			<thead>
-				<tr>
-					<th>Label</th>
-					<th>Address</th>
-					<th>Public</th>
-					<th>Active</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach($addresses as $address)
-					<tr>
-						<td>{{ $address->label }}</td>
-						<td><a href="https://blockscan.com/address/{{ $address->address }}" target="_blank">{{ $address->address }}</a></td>
-						<td>
-							@if($address->public == 1)
-								Yes
-							@else
-								No
-							@endif
-						</td>
-						<td class="active-toggle">
-							<input type="checkbox" @if(intval($address->active_toggle) == 1 AND intval($address->verified) == 1) checked="checked" @endif data-toggle="toggle" data-width="30" data-height="20" data-address="{{ $address->address }}" @if(intval($address->verified) != 1) disabled @endif >
-						</td>
-						<td class="table-action">
-							@if($address->verified == 0)
-								<a href="#" class="btn btn-warning" title="Verify Address Ownership"  data-toggle="modal" data-target="#verify-address-modal-{{ $address->id }}"><i class="fa fa-check"></i> Verify</a>
-								<span id="{{ $address->address }}-verifycode" style="display: none;">{{ \TKAccounts\Models\Address::getVerifyCode($address) }}</span>
-								<!-- Modal -->
-								<div class="modal fade" id="verify-address-modal-{{ $address->id }}" tabindex="-1" role="dialog">
-								  <div class="modal-dialog" role="document">
-									<div class="modal-content">
-									  <div class="modal-header">
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-										<h3 class="modal-title" id="myModalLabel">Verify Bitcoin Address Ownership</h3>
-									  </div>
-									  <form action="/inventory/address/{{ $address->address }}/verify" method="post">
-									  <div class="modal-body">
-										<p>
-											In order for Tokenpass to track your address balances
-											and provide access to "Token Controlled Access" features, you must 
-											first prove ownership of this bitcoin address. 
-										</p>
-										<p>
-											To verify address ownership, open up your Counterparty compatible Bitcoin wallet
-											and use the <strong>Sign Message</strong> feature.
-										</p>
-										<p>
-											Sign the verification code below and submit the resulting
-											signature. 
-										</p>
-										<div class="well">
-											<h3 class="lg text-center">
-												<strong>Verification Code:</strong><br>
-												<span class="text-info">{{ \TKAccounts\Models\Address::getVerifyCode($address) }}</span>
-											</h3>
-										</div>
-										<div class="form-group">
-											<label for="btc-address">BTC Address:</label>
-											<input type="text" id="btc-address" class="form-control" readonly value="{{ $address->address }}" />
-										</div>
-										<div class="form-group">
-											<label for="btc-sign-{{ $address->id }}">Enter Message Signature:</label>
-											<textarea class="form-control" name="sig" style="height: 150px;" required></textarea>
-										</div>
-									  </div>
-									  <div class="modal-footer">
-										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-										<button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Verify</button>
-									  </div>
-									  </form>
-									</div>
-								  </div>
-								</div>										
-							@else
-								<a href="#" class="btn btn-info" title="Edit" data-toggle="modal" data-target="#edit-address-modal-{{ $address->id }}"><i class="fa fa-pencil"></i></a>
-								<!-- Modal -->
-								<div class="modal fade" id="edit-address-modal-{{ $address->id }}" tabindex="-1" role="dialog">
-								  <div class="modal-dialog" role="document">
-									<div class="modal-content">
-									  <div class="modal-header">
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-										<h3 class="modal-title" id="myModalLabel">Edit Bitcoin Address Info</h3>
-									  </div>
-									  <form action="/inventory/address/{{ $address->address }}/edit" method="post">
-									  <div class="modal-body">
-									   <p>
-											<strong>Date added:</strong> {{ date('Y/m/d', strtotime($address->created_at)) }}
-									   </p>										  
-										<div class="form-group">
-											<label for="btc-address">BTC Address:</label>
-											<input type="text" id="btc-address" class="form-control" readonly value="{{ $address->address }}" />
-										</div>
-										<div class="form-group">
-											<label for="btc-label-{{ $address->id }}">Reference Label:</label>
-											<input type="text" name="label" id="btc-label-{{ $address->id }}" class="form-control" placeholder="(optional)" value="{{ $address->label }}" />
-										</div>
-										<div class="form-group checkbox-inline">
-											<input type="checkbox" name="public" id="btc-public-{{ $address->id }}" value="1" @if($address->public == 1) checked="checked" @endif />
-											<label for="btc-public-{{ $address->id }}"><strong>Make address public?</strong></label>
-											<div>
-												<small>Connected applications will be able to directly view your bitcoin address</small>
-											</div>
-										</div>
-									  </div>
-									  <div class="modal-footer">
-										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-										<button type="submit" class="btn btn-success">Save</button>
-									  </div>
-									  </form>
-									</div>
-								  </div>
-								</div>								
-							@endif
-							<a href="/inventory/address/{{ $address->address }}/delete" class="btn btn-danger delete" title="Delete"><i class="fa fa-close"></i></a>
-						</td>
-					</tr>
-				@endforeach
-			</tbody>
-		</table>
-	@else
-		<p>
-			No Bitcoin addresses found.
-		</p>
-	@endif
-	<p class="pull-right">
-		<strong>Need a Bitcoin wallet? Try <a href="http://pockets.tokenly.com" target="_blank">Tokenly Pockets</a>.</strong>
-	</p>
-	<p>
-		<a href="#" class="btn btn-success new-address btn-lg" data-toggle="modal" data-target="#new-address-modal"><i class="fa fa-plus"></i> Register Address</a>
-		<a href="#" class="btn btn-info instant-address btn-lg" data-toggle="modal" data-target="#instant-address-modal"><i class="fa fa-plus"></i> Register With Mobile <i class="fa fa-mobile-phone"></i> </a>
-	</p>
-	<div class="clear"></div>
-	<!-- Modal -->
-	<div class="modal fade" id="new-address-modal" tabindex="-1" role="dialog">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h3 class="modal-title" id="myModalLabel">Register New Bitcoin Address</h3>
-		  </div>
-		  <form action="/inventory/address/new" method="post">
-		  <div class="modal-body">
-			<p>
-				Use the form below to register a new bitcoin address to your account.<br>
-				After submission, you will be asked to
-				prove ownership of the address using the "Verify" button.
-			</p>
-			<div class="form-group">
-				<label for="btc-address">BTC Address:</label>
-				<input type="text" name="address" id="btc-address" class="form-control" required />
-			</div>
-			<div class="form-group">
-				<label for="btc-label">Reference Label:</label>
-				<input type="text" name="label" id="btc-label" class="form-control" placeholder="(optional)" />
-			</div>
-			<div class="form-group checkbox-inline">
-				<input type="checkbox" name="public" id="btc-public" value="1" />
-				<label for="btc-public"><strong>Make address public?</strong></label>
-				<div>
-					<small>Connected applications will be able to directly view your bitcoin address</small>
-				</div>
-			</div>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			<button type="submit" class="btn btn-success">Submit</button>
-		  </div>
-		  </form>
-		</div>
+
+<div id="tokensController">
+
+  <div id="promiseInfoModal" class="modal-container">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+      <h3 class="light">What is a Token Promise?</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">clear</i>
+      </div>
+      <p>A promised balance is made up of tokens you have the benefit of, but don't actually hold in one of your pockets.</p>
+
+      <p>You might have already bought them, but they haven't yet been delivered via the bitcoin network or maybe someone has lent you the use of one of their tokens temporarily.</p>
+
+      <p>Your Promised tokens balance is added with the tokens you possess in your pockets to create your total balance.</p>
+
+      <p>Your Total Balance is what is used for Token Controlled Access (TCA)</p>
+      <button class="close-modal">Close</button>
+    </div>
+  </div> <!-- End promise info modal -->
+
+  <div id="lendTokenModal" class="modal-container">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+      <h3 class="light">Lend Tokens</h3>
+      <div class="modal-x close-modal">
+        <i class="material-icons">clear</i>
+      </div>
+
+      <form method="POST">
+        <div class="input-group">
+          <label for="lendee">Who would you like to lend to? *</label>
+          <input type="text" id="lendee" name="lendee">
+          <div class="sublabel">Tokenpass username or bitcoin address</div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-4">
+            <label for="quantity">Quantity *</label>
+            <input type="number" name="quantity" placeholder="10.5">
+            <div class="sublabel">You can lend up to @{{ formatQuantity(currentToken.balance) }} @{{ currentToken.name }}</div>
+          </div>
+          <div class="input-group span-8">
+            <label for="token">Token To Lend *</label>
+            <select v-model="currentToken" name="token" id="token">
+              <option v-bind:value="token" v-for="token in tokens | filterBy search">@{{ token.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="note">Note</label>
+          <input type="text" id="note" placeholder="Check out this new song on Tokenly Music!">
+          <div class="sublabel">Reason for lending</div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-6">
+            <label for="start_date">Start Date</label>
+            <input type="date" name="start_date" placeholder="DD/MM/YYYY" class="start_date datepicker">
+          </div>
+          <div class="input-group span-6">
+            <label for="end_date">End Date</label>
+            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
+          </div>
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div> <!-- End lend token modal  -->
+
+	<section class="title">
+		<span class="heading">Inventory</span>
+	  <div class="search-wrapper">
+	    <input type="text" placeholder="Search for a token..." v-model="search">
+	    <div class="icon"><i class="material-icons">search</i></div>
 	  </div>
-	</div>
-	<!-- instant address modal -->
-	<div class="modal fade" id="instant-address-modal" tabindex="-1" role="dialog">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h3 class="modal-title" id="myModalLabel">Register Bitcoin Address With Mobile Device</h3>
-		  </div>
-		  
-		  <div class="modal-body">
-			<p>
-				If you are using a bitcoin wallet on your mobile device (e.g <a href="https://wallet.indiesquare.me/" target="_blank">IndieSquareWallet</a>) which
-				supports <strong>Tokenpass Instant Address Verification</strong>, you may scan the 
-				<strong>QR code</strong> below to register and 
-				verify ownership of your bitcoin address in a single step.
-			</p>
-			<p class="text-center">
-				<?php
-				$verify_message = \TKAccounts\Models\Address::getInstantVerifyMessage($user);
-				?>
-				<span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
-					<?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message) ?>
-				</span>
-			</p>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		  </div>
+	  <a href="/inventory/refresh" class="btn-dash-title">
+	  	<i class="material-icons">refresh</i>Refresh Token Balances
+		</a>
+	</section>
+	<section class="tokens" v-if="tokens.length" v-cloak>
+    <p class="reveal-modal click-me" data-modal="promiseInfoModal">
+      * contains promised tokens
+    </p>
+	  <div class="token" v-for="token in tokens | filterBy search">
+	    <!-- TODO: Token's have avatars
+    	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
+    	-->
+
+	    <div class="primary-info">
+        <div class="token-indicator">
+          <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
+          <label for="token-@{{ token.name }}"></label>
+        </div>
+        <div class="token-info">
+  	    	<span class="muted quantity">
+            <div v-if="token.hasPromisedTokens">
+              <em>* @{{ formatQuantity(token.balance) }}</em>
+            </div>
+            <div v-else>
+              @{{ formatQuantity(token.balance) }}
+            </div>
+      		</span>
+
+  	    	<span class="nickname">
+            <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
+      		</span>
+        </div>
+        <div class="token-actions">
+          <!-- TODO: Lend tokens functionality -->
+          <!--  <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
+            Lend This Token
+          </a> -->
+          <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
+            Balance Breakdown
+            <i class="material-icons">keyboard_arrow_down</i>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+
+      <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
+        <div v-for="pocket in token.balanceAddresses" class="pocket">
+          <div class="pocket-details-main">
+            <div class="detail-heading">Pocket Details</div>
+            <!-- Heading -->
+            <div class="pocket-heading">
+              <span class="muted">Address /</span>
+              <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+            </div>
+            <!-- Real Balance -->
+            <div class="pocket-real-balance">
+              <span class="muted">Real Balance /</span>
+              @{{ formatQuantity(pocket.real) }}
+            </div>
+            <div class="pocket-promised-balance">
+              <span class="muted">Promised Total /</span>
+              @{{ formatQuantity(totalProvisional(pocket)) }}
+            </div>
+          </div>
+
+          <div class="pocket-details-second">
+          <!-- Promised transactions -->
+            <div v-if="pocket.provisional.length > 0">
+              <div class="detail-heading">Promised Transactions</div>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Amount</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="promise in pocket.provisional">
+                    <td>@{{ formatQuantity(promise.quantity) }}</td>
+                    <td class="muted">@{{ promise.source }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="muted" v-else>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
 		</div>
-	  </div>
-	</div>	
-	@if($addresses AND count($addresses) > 0)
-	<hr>
-	<h3>My Tokens</h3>
-	@if($balances AND count($balances) > 0)
-		<p>
-			<strong># Unique Tokens:</strong> {{ number_format(count($balances)) }}
-		</p>
-		<table class="table table-bordered table-striped 0n-2 balance-table data-table">
-			<thead>
-				<tr>
-					<th>Asset</th>
-					<th>Balance</th>
-					<th>Active</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach($balances as $asset => $quantity)
-					<?php
-					if(intval($quantity) <= 0){
-						continue;
-					}
-					?>
-					<tr>
-						<td>
-							@if($asset == 'BTC')
-								<strong><i class="fa fa-btc"></i> Bitcoin</strong>
-							@else
-								<a href="https://blockscan.com/assetInfo/{{ $asset }}" target="_blank">{{ $asset }}</a>
-							@endif
-						</td>
-						<td><strong>{{ number_format($quantity / 100000000, 8) }}</strong></td>
-						<td class="active-toggle">
-							<input type="checkbox" @if(!in_array($asset, $disabled_tokens)) checked="checked" @endif data-toggle="toggle" data-width="30" data-height="20" data-asset="{{ $asset }}">
-						</td>
-						<td class="table-action">
-							<a href="#" class="btn btn-info asset-balance-toggle" title="Show address balances" data-asset="{{ $asset }}"><i class="fa fa-btc"></i> Addresses @if(isset($balance_addresses[$asset])) ({{ count($balance_addresses[$asset]) }}) @endif<i class="fa fa-chevron-right down-toggle"></i></a>
-						</td>
-					</tr>
-					<tr style="display: none;" id="{{ $asset }}_addresses">
-						<td></td>
-						<td colspan="3">
-							<table class="table data-table address-balance-table">
-								<thead>
-									<tr>
-										<th>Address</th>
-										<th>Balance</th>
-									</tr>
-								</thead>
-								<tbody>
-									@if(isset($balance_addresses[$asset]))
-										@foreach($balance_addresses[$asset] as $addr => $row)
-											<tr>
-												<td><a href="https://blockscan.com/address/{{ $addr }}" target="_blank">{{ $addr }}</a></td>
-												<td>
-                                                    {{ rtrim(rtrim(number_format($row['real'] / 100000000, 8),"0"),".") }}
-                                                    @if(count($row['provisional']) > 0)
-                                                        @foreach($row['provisional'] as $promise)
-                                                            <br>
-                                                            <span class="promise-value text-success"
-                                                                title="promised from source address {{ $promise->source }}">
-                                                                {{ rtrim(rtrim(number_format($promise->quantity/100000000,8),"0"),".") }} promised
-                                                            </span>
-                                                        @endforeach
-                                                    @endif
-                                                </td>
-											</tr>
-										@endforeach
-									@endif
-								</tbody>
-							</table>
-						</td>
-					</tr>
-				@endforeach
-			</tbody>
-		</table>
-	@else
-		<p class="alert alert-warning">
-			It appears you do not have any tokens yet. Have you <em>verified</em> any bitcoin addresses?
-		</p>
-	@endif
-	<p class="pull-right">
-		<strong>Looking to obtain some new tokens? Check out <a href="http://tokenrank.tokenly.com/" target="_blank">TokenRank</a>.</strong>
-	</p>
-	<p>
-		<a href="/inventory/refresh" class="btn btn-lg btn-success"><i class="fa fa-refresh"></i> Refresh Token Balances</a>
-	</p>
-	@endif
-	<br>
-	<hr>
+	</section>
+</div>
+@endsection
+
+@section('page-js')
+<script>
+
+// Convert php object of key-value pairs into array of balance objects.
+var BALANCES = {!! json_encode($balances) !!};
+var BALANCE_ADDRESSES = {!! json_encode($balance_addresses) !!};
+var DISABLED_TOKENS = {!! json_encode($disabled_tokens) !!};
+
+// Process tokens for vue consumption
+var data = (function(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS){
+
+  // Convert balances into an array of token objects
+  var tokens_arr = [];
+  for(var key in BALANCES){
+    var balanceAddress = getBalanceAddresses(key);
+    if(balanceAddress.length == 0){
+        continue;
+    }
+    tokens_arr.push({
+      name: key,
+      balance: BALANCES[key],
+      balanceAddresses: balanceAddress,
+      hasPromisedTokens: hasPromisedTokens(balanceAddress),
+      toggle: !DISABLED_TOKENS.includes(key)
+    });
+  }
+
+  // Get array of address balances of each token
+  function getBalanceAddresses(token){
+    var balance_addresses_arr = [];
+    var balances = BALANCE_ADDRESSES[token]
+    for (var key in balances){
+      balance_addresses_arr.push({
+        address: key,
+        provisional: balances[key]['provisional'],
+        real: balances[key]['real']
+      })
+    }
+    return balance_addresses_arr;
+  }
+
+  function hasPromisedTokens(balanceAddresses){
+    for (var i = 0; i < balanceAddresses.length; i++) {
+      if (balanceAddresses[i]["provisional"].length > 0){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return {
+    tokens: tokens_arr
+  };
+
+})(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS)
+
+var vm = new Vue({
+  el: '#tokensController',
+  data: {
+    search: '',
+    tokens: data.tokens,
+    currentToken: {}
+  },
+  methods: {
+    setCurrentToken: function(token){
+      this.currentToken = token;
+    },
+  	formatQuantity: function(q){
+  		return this.delimitNumbers((q / 100000000));
+  	},
+    totalProvisional: function(balanceAddress){
+      var total = 0;
+      for (var i = 0; i < balanceAddress.provisional.length; i++){
+        total += balanceAddress.provisional[i].quantity;
+      }
+      return total;
+    },
+    toggleSecondaryInfo: function(event){
+      var $token = $(event.target).closest('.token');
+      var $secondaryInfo = $token.find('.secondary-info');
+      $secondaryInfo.slideToggle();
+    },
+    hideAllSecondaryInfo: function(){
+      $('.token .secondary-info').hide();
+    },
+    delimitNumbers: function(str) {
+      return (str + "").replace(/\b(\d+)((\.\d+)*)\b/g, function(a, b, c) {
+        return (b.charAt(0) > 0 && !(c || ".").lastIndexOf(".") ? b.replace(/(\d)(?=(\d{3})+$)/g, "$1,") : b) + c;
+      });
+    },
+    toggleActive: function(token){
+      var url = 'inventory/asset/' + token.name + '/toggle';
+      $.ajax(url,{
+        type: 'POST',
+        data: {
+          toggle: token.toggle
+        },
+        success: function(res){
+          console.log('' + token.name + ' toggle updated successfully.');
+        } 
+      });
+    }
+  },
+ ready:function(){
+    $(this.el).find(['v-cloak']).slideDown();
+  }
+});
+
+// Initialize lend token modal
+var lendTokenModal = new Modal();
+lendTokenModal.init(document.getElementById(
+  'lendTokenModal'));
+
+// Initialize promise info modal
+var promiseInfoModal = new Modal();
+promiseInfoModal.init(document.getElementById(
+  'promiseInfoModal'));
+
+
+</script>
 @endsection

@@ -1,10 +1,24 @@
 {
   "private": true,
-  "devDependencies": {
-    "gulp": "^3.8.8"
+  "name": "tokenly-accounts-assets",
+  "version": "0.0.1",
+  "description": "Tokenpass",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "",
+  "license": "AGPL-3.0",
   "dependencies": {
-    "laravel-elixir": "^2.0.0",
-    "bootstrap-sass": "^3.0.0"
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.1",
+    "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.5"
+  },
+  "devDependencies": {
+    "gulp-autoprefixer": "^3.1.0"
   }
 }

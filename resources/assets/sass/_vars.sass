@@ -1,0 +1,33 @@
+$font-stack: "ProximaNova", "HelveticaNeue", Helvetica, Arial, sans-serif
+
+$black:                     #181818
+$gray-dark:                 #272a2b
+$gray:                      #4A4A4A
+$gray-light:                #9B9B9B
+$gray-lighter:              #C4C4C4
+$gray-lightest:             #f7f7f9
+$white:                     #FAFAFA
+
+$brand-primary:             #4A90E2
+$brand-green:               #B8E986
+$brand-green-contrast:      #4caf50
+$brand-red:                 #FF5757
+$brand-yellow:              #F4D330
+
+$gutter-px: 40px
+
+$mobile: 480px
+$tablet: 768px
+$desktop: 1024px
+
+@mixin mobile
+  @media (min-width: #{$mobile})
+    @content
+
+@mixin tablet
+  @media (min-width: #{$tablet})
+    @content
+
+@mixin desktop
+  @media (min-width: #{$desktop})
+    @content

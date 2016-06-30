@@ -73,9 +73,24 @@ class ClientConnectionRepository extends APIRepository
             $out[] = [
                 'connection' => $client_connection,
                 'client'     => $client_repository->findByID($client_connection['client_id']),
+                'scopes' => $client_connection->scopes(),
             ];
         }
         return $out;
+    }
+    
+    public function findByClientId($client_id)
+    {
+        return $this->prototype_model->where('client_id', $client_id)->get();
+    }
+    
+    public function getConnectionScopes($connection_id)
+    {
+        $get = $this->prototype_model->where('id', $connection_id)->first();
+        if($get){
+            return $get->scopes();
+        }
+        return array();
     }
 
 }

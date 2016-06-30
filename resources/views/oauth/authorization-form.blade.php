@@ -1,22 +1,23 @@
 @extends('layouts.authorize')
 
-@section('body_content')
+@section('htmltitle', 'Authorization Requested')
 
-<h1>Authorization Requested</h1>
+
+@section('body_content')
 
 @include('partials.errors', ['errors' => $errors])
 
 
-
 <p>The application <span class="application-name">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
 <ul class="list-unstyled grant-list">
-@foreach ($scopes as $scope)
-<li>{{{ $scope->getDescription() }}} </li>
-@endforeach
+    @foreach ($scopes as $scope)
+    <li><strong>@if(trim($scope->label) != ''){{{ $scope->label }}}@else{{{ $scope->id }}}@endif</strong><br>
+        {{{ $scope->description }}} 
+    </li>
+    @endforeach
 </ul>
 
 <p>What would you like to do?</p>
-
 
 <form method="POST" action="{{ route('oauth.authorize.post', $params) }}">
 

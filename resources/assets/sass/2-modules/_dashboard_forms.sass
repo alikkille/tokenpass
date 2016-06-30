@@ -1,0 +1,118 @@
+body.dashboard
+  $input-spacing: 15px
+  label, input
+    display: block
+  label
+    text-transform: uppercase
+    color: $gray
+    margin-bottom: 4px
+    font-size: 14px
+    font-weight: bold
+  input, textarea, select
+    font-size: 12px
+    width: 100%
+    border: 1px solid $gray-lighter
+    background-color: #fff
+    outline: none
+    padding: 12px 20px
+    letter-spacing: 1px
+    margin-bottom: $input-spacing
+  select
+    height: 41px
+
+  input[disabled]
+    background-color: $gray-lighter
+    color: $white
+    cursor: not-allowed
+  .sublabel
+    color: $gray-light
+    font-size: 12px
+    margin-top: 6px
+  form
+    button
+      +btn_fill($gray)
+      +btn_small
+
+  input.toggle 
+    position: absolute
+    margin-left: -9999px
+    visibility: hidden
+  
+  input.toggle + label 
+    display: block
+    position: relative
+    cursor: pointer
+    outline: none
+    -webkit-user-select: none
+    -moz-user-select: none
+    -ms-user-select: none
+    user-select: none
+  
+  $switch-size: 30px
+  input.toggle-big + label
+    transform: scale(2)
+    transform-origin: top left
+    margin-bottom: $switch-size + 4
+  input.toggle-round-flat + label
+    padding: 2px
+    width: $switch-size * 2
+    height: $switch-size
+    background-color: #dddddd
+    -webkit-border-radius: $switch-size
+    -moz-border-radius: $switch-size
+    -ms-border-radius: $switch-size
+    -o-border-radius: $switch-size
+    border-radius: $switch-size
+    -webkit-transition: background 0.4s
+    -moz-transition: background 0.4s
+    -o-transition: background 0.4s
+    transition: background 0.4s
+  
+  input.toggle-round-flat + label:before, input.toggle-round-flat + label:after
+    display: block
+    position: absolute
+    content: ""
+  
+  input.toggle-round-flat + label:before
+    top: 2px
+    left: 2px
+    bottom: 2px
+    right: 2px
+    background-color: #fff
+    -webkit-border-radius: $switch-size
+    -moz-border-radius: $switch-size
+    -ms-border-radius: $switch-size
+    -o-border-radius: $switch-size
+    border-radius: $switch-size
+    -webkit-transition: background 0.4s
+    -moz-transition: background 0.4s
+    -o-transition: background 0.4s
+    transition: background 0.4s
+  
+  input.toggle-round-flat + label:after
+    top: 4px
+    left: 4px
+    bottom: 4px
+    width: $switch-size - 8
+    background-color: #dddddd
+    -webkit-border-radius: $switch-size - 8
+    -moz-border-radius: $switch-size - 8
+    -ms-border-radius: $switch-size - 8
+    -o-border-radius: $switch-size - 8
+    border-radius: $switch-size - 8
+    -webkit-transition: margin 0.4s, background 0.4s
+    -moz-transition: margin 0.4s, background 0.4s
+    -o-transition: margin 0.4s, background 0.4s
+    transition: margin 0.4s, background 0.4s
+  
+  input.toggle-round-flat:checked + label
+    background-color: #8ce196
+  
+  input.toggle-round-flat:checked + label:after
+    margin-left: $switch-size
+    background-color: #8ce196
+
+  .input-group
+    margin-bottom: $input-spacing
+    input, textarea, select
+      margin-bottom: 0
