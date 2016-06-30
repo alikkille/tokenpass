@@ -164,7 +164,6 @@ class InventoryController extends Controller
 		}
 
 		else{
-
 			$input = Input::all();
             
 			if(isset($input['label'])){
@@ -184,13 +183,13 @@ class InventoryController extends Controller
 			$get->public = $public;
             
             $login_toggle = 0;
-            if(!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1){
+            if(!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1 AND $get->second_factor_toggle == 0){
                 $login_toggle = 1;
             }
             $get->login_toggle = $login_toggle;
             
             $second_factor = 0;
-            if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1){
+            if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1 AND $get->login_toggle == 0){
                 $second_factor = 1;
             }
             $get->second_factor_toggle = $second_factor;      
@@ -272,8 +271,6 @@ class InventoryController extends Controller
 		return redirect('inventory');
 	}
 
-
-
     public function checkPageRefresh()
     {
         $output = array('result' => false);
@@ -293,7 +290,6 @@ class InventoryController extends Controller
         return Response::json($output);
     }
 
-
     public function getPockets()
     {
 		$addresses = Address::getAddressList($this->user->id, null, null);
@@ -305,7 +301,7 @@ class InventoryController extends Controller
 				Session::flash($address->address, $address['secure_code']);
 			}
 		}
-
+		
 		return view('inventory.pockets', array(
 			'addresses' => $addresses,
 		));
