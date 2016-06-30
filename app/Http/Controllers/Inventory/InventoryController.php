@@ -158,10 +158,13 @@ class InventoryController extends Controller
 	public function editAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+
 		if(!$get){
             return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
+
 		else{
+
 			$input = Input::all();
             
 			if(isset($input['label'])){
@@ -253,178 +256,6 @@ class InventoryController extends Controller
 			}
 		}
 		return redirect(route('inventory.pockets'));
-	}
-
-	public function toggleAddress($address)
-	{
-		$output = array('result' => false);
-		$response_code = 200;
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
-		if(!$get){
-			$output['error'] = 'Address not found';
-			$response_code = 400;
-		}
-		else{
-			$input = Input::all();
-			if(!isset($input['toggle'])){
-				$output['error'] = 'Toggle option required';
-				$response_code = 400;
-			}
-			else{
-				$toggle_val = $input['toggle'];
-				if($toggle_val == 'true' OR $toggle_val === true){
-					$toggle_val = 1;
-				}
-				else{
-					$toggle_val = 0;
-				}
-				$get->active_toggle = $toggle_val;
-				$save = $get->save();
-				if(!$save){
-					$output['error'] = 'Error updating address';
-					$response_code = 500;
-				}
-				else{
-					$output['result'] = true;
-				}
-			}
-		}
-		return Response::json($output, $response_code);
-	}
-
-    public function toggleLogin($address)
-    {
-        $output = array('result' => false);
-        $response_code = 200;
-        $get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
-        $total_addresses = Address::getAddressList($this->user->id, null,1,1,1);
-        if(count($total_addresses) > 4) {
-            $output['error'] = 'Too many Addresses are used for Login, maximum of five.';
-            $response_code = 400;
-        }
-        if(!$get){
-            $output['error'] = 'Address not found';
-            $response_code = 400;
-        } else {
-            if($get->from_api){
-                $output['error'] = 'Cannot enable login for addresses added via API.';
-                $response_code = 400;
-            }
-            else{
-                $input = Input::all();
-                if(!isset($input['toggle'])){
-                    $output['error'] = 'Toggle option required';
-                    $response_code = 400;
-                }
-                else{
-                    $toggle_val = $input['toggle'];
-                    if($toggle_val == 'true' OR $toggle_val === true){
-                        $toggle_val = 1;
-                    }
-                    else{
-                        $toggle_val = 0;
-                    }
-                    $get->login_toggle = $toggle_val;
-                    $save = $get->save();
-                    if(!$save){
-                        $output['error'] = 'Error updating address';
-                        $response_code = 500;
-                    }
-                    else{
-                        $output['result'] = true;
-                    }
-                }
-            }
-        }
-        return Response::json($output, $response_code);
-    }
-
-	public function toggleSecondFactor()
-	{
-		$output = array('result' => false);
-		$response_code = 200;
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
-
-		if(!$get){
-			$output['error'] = 'Address not found';
-			$response_code = 400;
-		}
-		else {
-            if($get->from_api){
-                $output['error'] = 'Cannot enable 2FA for addresses added via API.';
-                $response_code = 400;
-            }
-            else{            
-                $input = Input::all();
-                if(!isset($input['toggle'])){
-                    $output['error'] = 'Toggle option required';
-                    $response_code = 400;
-                }
-                else{
-                    $toggle_val = $input['toggle'];
-                    if($toggle_val == 'true' OR $toggle_val === true){
-                        $toggle_val = 1;
-                    }
-                    else{
-                        $toggle_val = 0;
-                    }
-                    $get->second_factor_toggle = $toggle_val;
-                    $save = $get->save();
-                    if(!$save){
-                        $output['error'] = 'Error updating address';
-                        $response_code = 500;
-                    }
-                    else{
-                        $output['result'] = true;
-                    }
-                }
-            }
-		}
-		return Response::json($output, $response_code);
-	}
-
-	public function toggleAsset($asset)
-	{
-		$output = array('result' => false);
-		$response_code = 200;
-
-		$disabled_tokens = json_decode(UserMeta::getMeta($this->user->id, 'disabled_tokens'), true);
-		if(!is_array($disabled_tokens)){
-			$disabled_tokens = array();
-		}
-
-		$input = Input::all();
-		if(!isset($input['toggle'])){
-			$output['error'] = 'Toggle option required';
-			$response_code = 400;
-		}
-		else{
-			$toggle_val = $input['toggle'];
-			if($toggle_val == 'true' OR $toggle_val === true){
-				$toggle_val = 1;
-			}
-			else{
-				$toggle_val = 0;
-			}
-
-			if($toggle_val == 1 AND in_array($asset, $disabled_tokens)){
-				$k = array_search($asset, $disabled_tokens);
-				unset($disabled_tokens[$k]);
-				$disabled_tokens = array_values($disabled_tokens);
-			}
-			elseif($toggle_val == 0 AND !in_array($asset, $disabled_tokens)){
-				$disabled_tokens[] = $asset;
-			}
-			$save = UserMeta::setMeta($this->user->id, 'disabled_tokens', json_encode($disabled_tokens));
-			if(!$save){
-				$output['error'] = 'Error updating list of disabled tokens';
-				$response_code = 500;
-			}
-			else{
-				$output['result'] = true;
-			}
-		}
-		return Response::json($output, $response_code);
 	}
 
 	public function refreshBalances()

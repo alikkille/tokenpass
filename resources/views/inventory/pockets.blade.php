@@ -115,11 +115,16 @@
         <div class="pocket-indicator">
           <div class="loading"></div>
           <div class="active-indicator">
-            <div v-if="pocket.active_toggle">
-              <i class="material-icons text-success">check</i>
+            <div v-if="pocket.verified">
+              <div v-if="pocket.active_toggle">
+                <i class="material-icons text-success">check</i>
+              </div>
+              <div v-else>
+                <i class="material-icons text-danger">close</i>
+              </div>
             </div>
             <div v-else>
-              <i class="material-icons text-danger">close</i>
+              <i class="material-icons text-warning">warning</i>
             </div>
           </div>
         </div>

@@ -89,76 +89,6 @@ class InventoryTest extends TestCase
         PHPUnit::assertContains('Address updated!', Session::get('message'));
     }
 
-    public function testToggleAddress() {
-        $address_helper = app('AddressHelper');
-        $user_helper = app('UserHelper')->setTestCase($this);
-
-        $user = $user_helper->createNewUser();
-        $user_helper->loginWithForm($this->app);
-
-        $address = $address_helper->createNewAddress($user);
-
-        // Attempt to toggle non existant address
-        $response = $this->call('POST', '/inventory/address/1FakeAddressNaow/toggle', array(
-            'address' => '1FakeAddressNaow',
-            'toggle' => true
-        ) , array());
-
-        PHPUnit::assertEquals(400, $response->getStatusCode());
-
-        // toggle an entry correctly
-        $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggle', array(
-            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD',
-            'toggle' => true
-        ) , array());
-
-        PHPUnit::assertEquals(200, $response->getStatusCode());;
-    }
-
-    public function testToggleLogin() {
-        $address_helper = app('AddressHelper');
-        $user_helper = app('UserHelper')->setTestCase($this);
-
-        $user = $user_helper->createNewUser();
-        $user_helper->loginWithForm($this->app);
-
-        $address = $address_helper->createNewAddress($user);
-
-        // Attempt to toggle non existant address
-        $response = $this->call('POST', '/inventory/address/1FakeAddressNaow/toggleLogin', array(
-            'address' => '1FakeAddressNaow',
-            'toggle' => true
-        ) , array());
-
-        PHPUnit::assertEquals(400, $response->getStatusCode());
-
-        // toggle an entry correctly
-        $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggleLogin', array(
-            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD',
-            'toggle' => true
-        ) , array());
-
-        PHPUnit::assertEquals(200, $response->getStatusCode());;
-    }
-
-    public function testToggleAsset() {
-        $address_helper = app('AddressHelper');
-        $user_helper = app('UserHelper')->setTestCase($this);
-
-        $user = $user_helper->createNewUser();
-        $user_helper->loginWithForm($this->app);
-
-        $address = $address_helper->createNewAddress($user);
-
-        // toggle an entry correctly
-        $response = $this->call('POST', '/inventory/asset/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggle', array(
-            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD',
-            'toggle' => true
-        ) , array());
-
-        PHPUnit::assertEquals(200, $response->getStatusCode());;
-    }
-
     public function testRefreshBalance() {
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);
@@ -184,8 +114,7 @@ class InventoryTest extends TestCase
         $response = $this->call('GET', '/inventory/check-refresh', array() , array());
         PHPUnit::assertEquals(200, $response->getStatusCode());;
     }
-
-
+    
     public function testInventoryVerifyAddress() {
 
         $this->setupXChainMock();
