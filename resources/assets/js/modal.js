@@ -18,11 +18,13 @@
     };
 
     self.showModal = function(){
+      $('body').addClass('modal-open');
       self.$modal.css({'display': 'block'});
       self.$modal.animate({opacity: 1, top: '0'}, self.animationTime);
     };
 
     self.hideModal = function(){
+      $('body').removeClass('modal-open')
       self.$modal.animate({opacity: 0, top: self.hideOffsetTop}, self.animationTime, function(){
         self.$modal.css({'display': 'none'});
       });
