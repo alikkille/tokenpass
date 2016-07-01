@@ -110,6 +110,8 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
     @endif
+    <p>A Pocket is a Token Compatible Bitcoin Address that can be used to store and use Access Tokens - Once you've verified your pockets, Tokenpass keeps track of what access tokens you own at any given time and passes that information along to websites, integrations and applications each user chooses to authorize.</p>
+    <p>Need a Token Compatible Wallet? Visit <a href="https://pockets.tokenly.com" target="_blank">https://pockets.tokenly.com</a> to download yours free today.</p>
     <div v-if="pockets.length">
       <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
         <div class="pocket-main">
@@ -168,17 +170,18 @@
                 <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
                 <label for="pocket-@{{ $index }}-public"></label>
               </div>
-
               <div class="input-group toggle-field">
                 <label>Enable for login?</label>
-                <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1>
+                <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1 :disabled="pocket.second_factor_toggle == 1" >
                 <label for="pocket-@{{ $index }}-login"></label>
               </div>
-
               <div class="input-group toggle-field">
                 <label>Enable as Second Factor?</label>
-                <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value=1>
+                <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value=1 :disabled="pocket.login_toggle == 1">
                 <label for="pocket-@{{ $index }}-second-factor"></label>
+              </div>
+              <div class="tooltip-wrapper" data-tooltip="Please choose either Login or 2FA">
+                <i class="help-icon material-icons">help_outline</i>
               </div>
             </div>
             <button type="submit"
@@ -193,9 +196,7 @@
         </div> <!-- End Pocket Settings -->
       </div> <!-- End Pocket List -->
     </div>
-    <div v-else>Looks like you don't have any pockets registered. You can do so by clicking the 'Add Pocket' button above!</div>
   </section>
-
 </div>
 
 @endsection
@@ -212,6 +213,7 @@ var vm = new Vue({
     pockets: pockets,
     currentPocket: {}
   },
+
   methods: {
     bindEvents: function(){
       $('form.js-auto-ajax').on('submit', this.submitFormAjax);
@@ -227,6 +229,7 @@ var vm = new Vue({
         $settingsButton.text('cancel')
       }
     },
+
     setCurrentPocket: function(pocket){
       vm.currentPocket = pocket;
     },
@@ -238,6 +241,7 @@ var vm = new Vue({
       var $indicator = $('#pocket-' + pocket.address).find('.pocket-indicator');
       $indicator.removeClass('is-loading');
     },
+
     editPocket: function(e){
       e.preventDefault();
 
@@ -250,6 +254,7 @@ var vm = new Vue({
       var formMethod = $form.attr('method');
       var formString = $form.serialize();
       var errorTimeout = null;
+
 
       $.ajax({
         type: formMethod,

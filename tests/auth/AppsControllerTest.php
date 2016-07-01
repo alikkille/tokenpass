@@ -94,6 +94,30 @@ class AppsControllerTest extends TestCase
         PHPUnit::assertEquals(302 , $correct->status());
     }
 
+    public function testRegenerateApp() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+        $address_helper->createNewAddress($user);
+
+        $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient([
+            'user_id' => '1'
+        ]);
+
+        $correct = $this->call('GET', '/auth/apps/MY_API_TOKEN/new', array(
+            'name'  =>  'tina',
+            'app_link' => 'http://bit.split/call'
+        ) , array());
+
+        $correct = $this->call('PATCH', '/auth/apps/MY_API_TOKEN/regen', array() , array());
+        $result =  DB::table('oauth_clients')->first();
+        
+        PHPUnit::assertStringStartsNotWith('MY_API_TOKEN', $result->id);
+        PHPUnit::assertContains('Client application updated.', Session::get('message'));
+        PHPUnit::assertEquals(302 , $correct->status());
+    }
+
     public function testDeleteApp() {
 
         $address_helper = app('AddressHelper');

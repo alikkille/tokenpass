@@ -131,45 +131,53 @@
 
         <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
           <div v-for="pocket in token.balanceAddresses" class="pocket">
+            <div class="detail-heading">@{{ pocket.label }}</div>
             <div class="pocket-details-main">
-              <div class="detail-heading">Pocket Details</div>
               <!-- Heading -->
               <div class="pocket-heading">
                 <span class="muted">Address /</span>
                 <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
               </div>
+              <div class="pocket-promised-balance">
+                <span class="muted">Total /</span>
+                @{{ formatQuantity(pocket.real + totalProvisional(pocket)) }}
+              </div>
+            </div>
+
+            <div class="pocket-details-second">
               <!-- Real Balance -->
               <div class="pocket-real-balance">
                 <span class="muted">Real Balance /</span>
                 @{{ formatQuantity(pocket.real) }}
               </div>
-              <div class="pocket-promised-balance">
-                <span class="muted">Promised Total /</span>
-                @{{ formatQuantity(totalProvisional(pocket)) }}
-              </div>
-            </div>
-
-            <div class="pocket-details-second">
-            <!-- Promised transactions -->
+              <!-- Promised transactions -->
               <div v-if="pocket.provisional.length > 0">
-                <div class="detail-heading">Promised Transactions</div>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Amount</th>
-                      <th>Source</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="promise in pocket.provisional">
-                      <td>@{{ formatQuantity(promise.quantity) }}</td>
-                      <td class="muted">@{{ promise.source }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <!-- <div class="detail-subheading">Promised Transactions</div> -->
+                <div class="pocket-promised-balance">
+                  <span class="muted">Promised Balance /</span>
+                  @{{ formatQuantity(totalProvisional(pocket)) }}
+                </div>
+                <div class="pocket-promised-table-wrapper">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="promise in pocket.provisional">
+                        <td class="muted">@{{ promise.source }}</td>
+                        <td>@{{ formatQuantity(promise.quantity) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <div class="muted" v-else>
-                
+              <div v-else>
+                <div class="pocket-promised-balance">
+                  <span class="muted">Promised Balance / None</span>
+                </div>
               </div>
             </div>
           </div>
@@ -177,7 +185,14 @@
 
   		</div>
     </div>
-    <div v-else>Looks like your token inventory is empty! Have you <a href="/pockets">registered</a> and verified a pocket?</div>
+    <div v-else>
+<!--       <p v-if="instanceVars.pockets.length > 0">
+        Buy some tokens with @{{ Object.keys(instanceVars.pockets[0] }} and they'll show up here.
+      </p>
+      <p v-else>
+        Add a verified pocket to fill your token inventory <a href="/pockets">here</a>.
+      </p> -->
+    </div>
 	</section>
 </div>
 @endsection
@@ -185,13 +200,19 @@
 @section('page-js')
 <script>
 
-// Convert php object of key-value pairs into array of balance objects.
-var BALANCES = {!! json_encode($balances) !!};
-var BALANCE_ADDRESSES = {!! json_encode($balance_addresses) !!};
-var DISABLED_TOKENS = {!! json_encode($disabled_tokens) !!};
+var instanceVars = {
+  balances: {!! json_encode($balances) !!}, 
+  balanceAddresses: {!! json_encode($balance_addresses) !!}, 
+  disabledTokens: {!! json_encode($disabled_tokens) !!},
+  addressLabels: {!! json_encode($address_labels) !!}
+}
 
 // Process tokens for vue consumption
-var data = (function(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS){
+var data = (function(args){
+  var BALANCES = args['balances'], 
+      BALANCE_ADDRESSES = args['balanceAddresses'], 
+      DISABLED_TOKENS = args['disabledTokens'], 
+      ADDRESS_LABELS = args['addressLabels']
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
@@ -216,6 +237,7 @@ var data = (function(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS){
     for (var key in balances){
       balance_addresses_arr.push({
         address: key,
+        label: ADDRESS_LABELS[key],
         provisional: balances[key]['provisional'],
         real: balances[key]['real']
       })
@@ -236,13 +258,14 @@ var data = (function(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS){
     tokens: tokens_arr
   };
 
-})(BALANCES, BALANCE_ADDRESSES, DISABLED_TOKENS)
+})(instanceVars)
 
 var vm = new Vue({
   el: '#tokensController',
   data: {
     search: '',
     tokens: data.tokens,
+    instanceVars: instanceVars,
     currentToken: {}
   },
   methods: {
