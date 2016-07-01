@@ -110,91 +110,92 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
     @endif
-    <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
-      <div class="pocket-main">
-        <div class="pocket-indicator">
-          <div class="loading"></div>
-          <div class="active-indicator">
-            <div v-if="pocket.verified">
-              <div v-if="pocket.active_toggle">
-                <i class="material-icons text-success">check</i>
+    <div v-if="pockets.length">
+      <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
+        <div class="pocket-main">
+          <div class="pocket-indicator">
+            <div class="loading"></div>
+            <div class="active-indicator">
+              <div v-if="pocket.verified">
+                <div v-if="pocket.active_toggle">
+                  <i class="material-icons text-success">check</i>
+                </div>
+                <div v-else>
+                  <i class="material-icons text-danger">close</i>
+                </div>
               </div>
               <div v-else>
-                <i class="material-icons text-danger">close</i>
+                <i class="material-icons text-warning">warning</i>
               </div>
             </div>
-            <div v-else>
-              <i class="material-icons text-warning">warning</i>
-            </div>
           </div>
-        </div>
-        <div class="primary-info">
-          <span class="name">
-            @{{ pocket.label || 'n/a' }}
-          </span>
-          <span class="address"><a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank" title="View on Block Explorer">@{{ pocket.address }}</a></span>
-        </div>
-        <div v-on:click="toggleEdit" class="settings-btn">  
-          <i class="material-icons" title="Edit address settings">settings</i>
-        </div>
-        <div data-modal="verifyPocketModal" v-on:click="setCurrentPocket(pocket)" v-show="!pocket.verified" class="verify-btn reveal-modal">
-          Verify
-        </div>
-        <div class="clear"></div>
-      </div><!-- End Pocket Information -->
-      <div class="pocket-settings">
-        <form v-on:submit="editPocket" action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
-
-          <div class="error-placeholder panel-danger"></div>
-
-          <label for="">Label</label>
-          <input type="text" name="label" v-model="pocket.label" placeholder="Tokenly Wallet">
-
-          <label for="">Address</label>
-          <input type="text" name="address" value="@{{ pocket.address }}" readonly>
-          
-          <label for="">Notes</label>
-          <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes">@{{ pocket.notes }}</textarea>
-          <div class="toggles-container">
-            <div class="input-group toggle-field">
-              <label>Active?</label>
-              <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle" value=1>
-              <label for="pocket-@{{ $index }}-active"></label>
-            </div>
-
-            <div class="input-group toggle-field">
-              <label>Public?</label>
-              <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
-              <label for="pocket-@{{ $index }}-public"></label>
-            </div>
-
-            <div class="input-group toggle-field">
-              <label>Enable for login?</label>
-              <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1 :disabled="pocket.second_factor_toggle == 1" >
-              <label for="pocket-@{{ $index }}-login"></label>
-            </div>
-            <div class="input-group toggle-field">
-              <label>Enable as Second Factor?</label>
-              <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value=1 :disabled="pocket.login_toggle == 1">
-              <label for="pocket-@{{ $index }}-second-factor"></label>
-            </div>
-            <div class="tooltip-wrapper" data-tooltip="Please choose either Login or 2FA">
-              <i class="help-icon material-icons">help_outline</i>
-            </div>
+          <div class="primary-info">
+            <span class="name">
+              @{{ pocket.label || 'n/a' }}
+            </span>
+            <span class="address"><a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank" title="View on Block Explorer">@{{ pocket.address }}</a></span>
           </div>
-          <button type="submit"
-            class="btn-save">
-            Save
-          </button>
-          <a v-on:click="deletePocket(pocket)" 
-            class="btn-delete">
-            Delete
-          </a>
-        </form>
-      </div> <!-- End Pocket Settings -->
-    </div> <!-- End Pocket List -->
+          <div v-on:click="toggleEdit" class="settings-btn">  
+            <i class="material-icons" title="Edit address settings">settings</i>
+          </div>
+          <div data-modal="verifyPocketModal" v-on:click="setCurrentPocket(pocket)" v-show="!pocket.verified" class="verify-btn reveal-modal">
+            Verify
+          </div>
+          <div class="clear"></div>
+        </div><!-- End Pocket Information -->
+        <div class="pocket-settings">
+          <form v-on:submit="editPocket" action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
+
+            <div class="error-placeholder panel-danger"></div>
+
+            <label for="">Label</label>
+            <input type="text" name="label" v-model="pocket.label" placeholder="Tokenly Wallet">
+
+            <label for="">Address</label>
+            <input type="text" name="address" value="@{{ pocket.address }}" readonly>
+            
+            <label for="">Notes</label>
+            <textarea placeholder="Use this field for personal notes about this pocket. This will not affect the pocket in any way." name="notes">@{{ pocket.notes }}</textarea>
+            <div class="toggles-container">
+              <div class="input-group toggle-field">
+                <label>Active?</label>
+                <input id="pocket-@{{ $index }}-active" name="active" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.active_toggle" value=1>
+                <label for="pocket-@{{ $index }}-active"></label>
+              </div>
+
+              <div class="input-group toggle-field">
+                <label>Public?</label>
+                <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
+                <label for="pocket-@{{ $index }}-public"></label>
+              </div>
+              <div class="input-group toggle-field">
+                <label>Enable for login?</label>
+                <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1 :disabled="pocket.second_factor_toggle == 1" >
+                <label for="pocket-@{{ $index }}-login"></label>
+              </div>
+              <div class="input-group toggle-field">
+                <label>Enable as Second Factor?</label>
+                <input id="pocket-@{{ $index }}-second-factor" name="second_factor" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.second_factor_toggle" value=1 :disabled="pocket.login_toggle == 1">
+                <label for="pocket-@{{ $index }}-second-factor"></label>
+              </div>
+              <div class="tooltip-wrapper" data-tooltip="Please choose either Login or 2FA">
+                <i class="help-icon material-icons">help_outline</i>
+              </div>
+            </div>
+            <button type="submit"
+              class="btn-save">
+              Save
+            </button>
+            <a v-on:click="deletePocket(pocket)" 
+              class="btn-delete">
+              Delete
+            </a>
+          </form>
+        </div> <!-- End Pocket Settings -->
+      </div> <!-- End Pocket List -->
+    </div>
+    <div v-else>Looks like you don't have any pockets registered. You can do so by clicking the 'Add Pocket' button above!</div>
   </section>
-
 </div>
 
 @endsection
