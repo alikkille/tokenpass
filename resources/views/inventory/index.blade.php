@@ -185,13 +185,21 @@
 
   		</div>
     </div>
-    <div v-else>
-<!--       <p v-if="instanceVars.pockets.length > 0">
-        Buy some tokens with @{{ Object.keys(instanceVars.pockets[0] }} and they'll show up here.
+    <div v-else>  
+      <p v-if="getVerifiedPocket()">
+        Buy some tokens with pocket
+        <span v-if="getVerifiedPocket().label">
+          <strong>@{{ getVerifiedPocket().label }}</strong>
+          (<span class="muted">@{{ getVerifiedPocket().address }}</span>)
+        </span>
+        <span v-else>
+          <strong>@{{ getVerifiedPocket().address }}</strong>
+        </span>
+        and they'll show up here.
       </p>
       <p v-else>
         Add a verified pocket to fill your token inventory <a href="/pockets">here</a>.
-      </p> -->
+      </p>
     </div>
 	</section>
 </div>
@@ -204,7 +212,8 @@ var instanceVars = {
   balances: {!! json_encode($balances) !!}, 
   balanceAddresses: {!! json_encode($balance_addresses) !!}, 
   disabledTokens: {!! json_encode($disabled_tokens) !!},
-  addressLabels: {!! json_encode($address_labels) !!}
+  addressLabels: {!! json_encode($address_labels) !!},
+  pockets: {!! json_encode($addresses) !!}
 }
 
 // Process tokens for vue consumption
@@ -266,7 +275,8 @@ var vm = new Vue({
     search: '',
     tokens: data.tokens,
     instanceVars: instanceVars,
-    currentToken: {}
+    currentToken: {},
+    verifiedPocketIndex: null
   },
   methods: {
     setCurrentToken: function(token){
@@ -306,6 +316,24 @@ var vm = new Vue({
           console.log('' + token.name + ' toggle updated successfully.');
         } 
       });
+    },
+    getVerifiedPocket: function(){
+      if (this.verifiedPocketIndex == null){
+        // Pockets haven't been searched
+        for(var i = 0; i < this.instanceVars.pockets.length; i++){
+          if (this.instanceVars.pockets[i].verified){
+            this.verifiedPocketIndex = i;
+            return this.instanceVars.pockets[this.verifiedPocketIndex];
+          }
+        }
+      } else if (this.verifiedPocketIndex === -1) {
+        // Pockets were searched, no verified pockets found
+        return null;
+      } else {
+        // Pockets already searched, return object with cached index 
+        return this.instanceVars.pockets[this.verifiedPocketIndex]; 
+      }
+      return null;
     }
   },
  ready:function(){
