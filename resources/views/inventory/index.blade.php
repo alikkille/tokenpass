@@ -87,94 +87,97 @@
 	  	<i class="material-icons">refresh</i>Refresh Token Balances
 		</a>
 	</section>
-	<section class="tokens" v-if="tokens.length" v-cloak>
+	<section class="tokens" v-cloak>
     <p class="reveal-modal click-me" data-modal="promiseInfoModal">
       * contains promised tokens
     </p>
-	  <div class="token" v-for="token in tokens | filterBy search">
-	    <!-- TODO: Token's have avatars
-    	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
-    	-->
+    <div v-if="tokens.length">
+  	  <div class="token" v-for="token in tokens | filterBy search">
+  	    <!-- TODO: Token's have avatars
+      	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
+      	-->
 
-	    <div class="primary-info">
-        <div class="token-indicator">
-          <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
-          <label for="token-@{{ token.name }}"></label>
-        </div>
-        <div class="token-info">
-  	    	<span class="muted quantity">
-            <div v-if="token.hasPromisedTokens">
-              <em>* @{{ formatQuantity(token.balance) }}</em>
-            </div>
-            <div v-else>
-              @{{ formatQuantity(token.balance) }}
-            </div>
-      		</span>
-
-  	    	<span class="nickname">
-            <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
-      		</span>
-        </div>
-        <div class="token-actions">
-          <!-- TODO: Lend tokens functionality -->
-          <!--  <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
-            Lend This Token
-          </a> -->
-          <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
-            Balance Breakdown
-            <i class="material-icons">keyboard_arrow_down</i>
+  	    <div class="primary-info">
+          <div class="token-indicator">
+            <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
+            <label for="token-@{{ token.name }}"></label>
           </div>
-        </div>
-        <div class="clear"></div>
-      </div>
+          <div class="token-info">
+    	    	<span class="muted quantity">
+              <div v-if="token.hasPromisedTokens">
+                <em>* @{{ formatQuantity(token.balance) }}</em>
+              </div>
+              <div v-else>
+                @{{ formatQuantity(token.balance) }}
+              </div>
+        		</span>
 
-      <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
-        <div v-for="pocket in token.balanceAddresses" class="pocket">
-          <div class="pocket-details-main">
-            <div class="detail-heading">Pocket Details</div>
-            <!-- Heading -->
-            <div class="pocket-heading">
-              <span class="muted">Address /</span>
-              <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
-            </div>
-            <!-- Real Balance -->
-            <div class="pocket-real-balance">
-              <span class="muted">Real Balance /</span>
-              @{{ formatQuantity(pocket.real) }}
-            </div>
-            <div class="pocket-promised-balance">
-              <span class="muted">Promised Total /</span>
-              @{{ formatQuantity(totalProvisional(pocket)) }}
+    	    	<span class="nickname">
+              <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
+        		</span>
+          </div>
+          <div class="token-actions">
+            <!-- TODO: Lend tokens functionality -->
+            <!--  <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
+              Lend This Token
+            </a> -->
+            <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
+              Balance Breakdown
+              <i class="material-icons">keyboard_arrow_down</i>
             </div>
           </div>
+          <div class="clear"></div>
+        </div>
 
-          <div class="pocket-details-second">
-          <!-- Promised transactions -->
-            <div v-if="pocket.provisional.length > 0">
-              <div class="detail-heading">Promised Transactions</div>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Amount</th>
-                    <th>Source</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="promise in pocket.provisional">
-                    <td>@{{ formatQuantity(promise.quantity) }}</td>
-                    <td class="muted">@{{ promise.source }}</td>
-                  </tr>
-                </tbody>
-              </table>
+        <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
+          <div v-for="pocket in token.balanceAddresses" class="pocket">
+            <div class="pocket-details-main">
+              <div class="detail-heading">Pocket Details</div>
+              <!-- Heading -->
+              <div class="pocket-heading">
+                <span class="muted">Address /</span>
+                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+              </div>
+              <!-- Real Balance -->
+              <div class="pocket-real-balance">
+                <span class="muted">Real Balance /</span>
+                @{{ formatQuantity(pocket.real) }}
+              </div>
+              <div class="pocket-promised-balance">
+                <span class="muted">Promised Total /</span>
+                @{{ formatQuantity(totalProvisional(pocket)) }}
+              </div>
             </div>
-            <div class="muted" v-else>
-              
+
+            <div class="pocket-details-second">
+            <!-- Promised transactions -->
+              <div v-if="pocket.provisional.length > 0">
+                <div class="detail-heading">Promised Transactions</div>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Amount</th>
+                      <th>Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="promise in pocket.provisional">
+                      <td>@{{ formatQuantity(promise.quantity) }}</td>
+                      <td class="muted">@{{ promise.source }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="muted" v-else>
+                
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-		</div>
+  		</div>
+    </div>
+    <div v-else>Looks like your token inventory is empty! Have you <a href="/pockets">registered</a> and verified a pocket?</div>
 	</section>
 </div>
 @endsection
