@@ -30,6 +30,7 @@ class InventoryController extends Controller
 
 		$addresses = Address::getAddressList($this->user->id, null, true);
 		$balances = Address::getAllUserBalances($this->user->id);
+        ksort($balances);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 		$balance_addresses = array();
         $address_labels = array();
