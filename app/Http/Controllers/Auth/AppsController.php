@@ -85,11 +85,32 @@ class AppsController extends Controller
 		
         return $this->ajaxEnabledSuccessResponse('Client application registered!', route('auth.apps'));
 	}
-	
+
+    public function regenerateApp($app_id) {
+        
+        $client = OAuthClient::where('id', $app_id)->first();
+        if(!$client OR $client->user_id != $this->user->id){
+            return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
+        }
+
+        $token_generator = app('Tokenly\TokenGenerator\TokenGenerator');
+
+        $client->id = $token_generator->generateToken(32, 'I');
+        $client->secret = $token_generator->generateToken(40, 'K');
+        $save = $client->save();
+
+        if(!$save){
+            return $this->ajaxEnabledErrorResponse('Error saving new application', route('auth.apps'));
+        }
+        else {
+            return $this->ajaxEnabledSuccessResponse('Client application updated.', route('auth.apps'));
+        }
+    }
+
 	public function updateApp($app_id)
 	{
 		$client = OAuthClient::where('id', $app_id)->first();
-        
+
 		if(!$client OR $client->user_id != $this->user->id){
             return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
 		}	

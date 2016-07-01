@@ -76,6 +76,7 @@ Route::get('pockets',                                  ['middleware' => 'tls', '
 Route::get('auth/apps',                                ['middleware' => 'tls', 'as' => 'auth.apps', 'uses' => 'Auth\AppsController@index']);
 Route::post('auth/apps/new',                           ['middleware' => 'tls', 'uses' => 'Auth\AppsController@registerApp']);
 Route::post('auth/apps/{app}/edit',                    ['middleware' => 'tls', 'uses' => 'Auth\AppsController@updateApp']);
+Route::patch('auth/apps/{app}/regen',                  ['middleware' => 'tls', 'uses' => 'Auth\AppsController@regenerateApp']);
 Route::get('auth/apps/{app}/delete',                   ['middleware' => 'tls', 'uses' => 'Auth\AppsController@deleteApp']);
 
 // -------------------------------------------------------------------------

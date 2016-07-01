@@ -110,11 +110,13 @@
 					@{{ currentApp.secret }}
 				</div>
 			</div>
- 			<!-- TODO: Regenerate keys button
+
  			<hr> 
       <div class="input-group">
-          <button class="btn-regenerate">Regenerate Keys</button>
-      </div> -->
+		  <form class="js-auto-ajax" action="/auth/apps/@{{ currentApp.id }}/regen" method="PATCH">
+			  <button type="submit">Regenerate Keys</button>
+		  </form>
+      </div>
 		</div>
 	</div> <!-- END VIEW APP MODAL -->
 
