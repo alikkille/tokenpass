@@ -1,5 +1,8 @@
+// Put on body tag when modal is open
+.modal-open
+  overflow: hidden
 .modal-container
-  position: absolute
+  position: fixed
   top: 0
   bottom: 0
   left: 0
@@ -9,6 +12,8 @@
   z-index: 1000
   display: none
   opacity: 0
+  overflow-x: hidden
+  overflow-y: auto
   .modal-bg
     position: fixed
     top: 0
@@ -24,12 +29,12 @@
     background-color: $white
     position: relative
     max-width: ($tablet - 10)
-    margin: 8% 10px
+    margin: 4% 10px
     padding: 20px
     +mobile
       padding: 40px
     +tablet
-      margin: 8% auto
+      margin: 4% auto
       padding: 40px
     
   .modal-x

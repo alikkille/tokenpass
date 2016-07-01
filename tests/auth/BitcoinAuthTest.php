@@ -58,4 +58,17 @@ class BitcoinAuthTest extends TestCase {
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
     }
 
+    public function testGetByVerifiedAddress() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+        $user = $user_helper->createNewUser();
+        $address_helper->createNewAddress($user);
+
+        $incorrect = \TKAccounts\Models\User::getByVerifiedAddress('1WrongAddy');
+        $this->assertFalse($incorrect);
+
+        $correct = \TKAccounts\Models\User::getByVerifiedAddress('1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD');
+        $this->assertEquals('1', $correct->user_id);
+    }
+
 }
