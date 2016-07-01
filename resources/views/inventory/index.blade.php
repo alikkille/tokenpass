@@ -185,7 +185,14 @@
 
   		</div>
     </div>
-    <div v-else>Looks like your token inventory is empty! Have you <a href="/pockets">registered</a> and verified a pocket?</div>
+    <div v-else>
+<!--       <p v-if="instanceVars.pockets.length > 0">
+        Buy some tokens with @{{ Object.keys(instanceVars.pockets[0] }} and they'll show up here.
+      </p>
+      <p v-else>
+        Add a verified pocket to fill your token inventory <a href="/pockets">here</a>.
+      </p> -->
+    </div>
 	</section>
 </div>
 @endsection
@@ -258,6 +265,7 @@ var vm = new Vue({
   data: {
     search: '',
     tokens: data.tokens,
+    instanceVars: instanceVars,
     currentToken: {}
   },
   methods: {
