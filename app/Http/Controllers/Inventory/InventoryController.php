@@ -32,6 +32,7 @@ class InventoryController extends Controller
 		$balances = Address::getAllUserBalances($this->user->id);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 		$balance_addresses = array();
+        $address_labels = array();
 		foreach($addresses as $address){
 
 			$bals = Address::getAddressBalances($address->id, false, false);
@@ -57,10 +58,13 @@ class InventoryController extends Controller
                 }
                 $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
             }
+            
+            $address_labels[$address->address] = trim($address->label);
 		}
-
+        
         $vars = [
             'addresses' => $addresses,
+            'address_labels' => $address_labels,
             'balances' => $balances,
             'balance_addresses' => $balance_addresses,
             'disabled_tokens' => $disabled_tokens];
