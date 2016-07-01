@@ -2,6 +2,8 @@
 
 use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
+use TKAccounts\Models\OAuthClient;
+
 
 /*
 * OAuthTest
@@ -10,6 +12,38 @@ class OAuthTest extends TestCase {
 
 
     protected $use_database = true;
+    
+    public function testGetOAuthClientDetails() {
+        $oauth_helper = app('OAuthHelper')->setTestCase($this);
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $url = 'http://token.pass/oauth/authorize?client_id=client1id&redirect_uri=http%3A%2F%2Fbit.split%2Faccount%2Fauthorize%2Fcallback&response_type=code&scope=user%2Ctca&state=OMVQLWiY0DWy7zrQAkVnfNK0ILOVDezGZCtqPodn';
+
+        $correct = OAuthClient::getOAuthClientDetailsFromURL($url);
+        $this->assertInternalType('array', $correct);
+        $this->assertContains('client1secret', $correct['secret']);
+
+        $this->withSession(['url.intended' => $url]);
+
+        $correct = OAuthClient::getOAuthClientDetailsFromIntended();
+        $this->assertInternalType('array', $correct);
+        $this->assertContains('client1secret', $correct['secret']);
+
+        $url = "http://token.pass/oauth/autho?no_client_id=83277846823gri3rg";
+        $incorrect = OAuthClient::getOAuthClientDetailsFromURL($url);
+        $this->assertFalse($incorrect);
+
+        $this->withSession(['url.intended' => $url]);
+        $incorrect = OAuthClient::getOAuthClientDetailsFromIntended();
+        $this->assertFalse($incorrect);
+
+        $correct = OAuthClient::getUserClients(0);
+        $this->assertContains('client1secret', $correct[0]['secret']);
+
+        $incorrect = OAuthClient::getUserClients(5);
+        $this->assertFalse($incorrect);
+
+    }
 
     public function testOAuthAuthorizeFormRequest() {
         $user_helper = app('UserHelper')->setTestCase($this);

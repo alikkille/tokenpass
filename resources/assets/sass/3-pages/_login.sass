@@ -1,0 +1,93 @@
+body.login
+  background-color: #F7F7F7
+  .everything
+    position: relative
+    top: 7vh
+    max-width: 420px
+    padding: $gutter
+    margin: 0 auto
+  .logo
+    color: $gray
+    font-size: 42px
+    text-align: center
+    margin-bottom: 30px
+    a
+      color: $gray
+  .login-heading
+    text-transform: uppercase
+    font-size: 18px
+    letter-spacing: 1px
+    padding-bottom: 6px
+    color: $gray
+    border-bottom: 2px solid $gray
+    margin-bottom: 20px
+  .helptext
+    line-height: 1.4
+    font-size: 14px
+    color: $gray
+  [data-tooltip]
+    position: relative
+  .tooltip
+    position: absolute
+    z-index: 100
+    top: 100%
+    right: 0
+    background-color: rgba($gray, 0.9)
+    color: $white
+    font-size: 14px
+    padding: 20px
+    line-height: 1.4
+    border-radius: 4px
+  .help-icon
+    position: relative
+    z-index: 200
+    color: $brand-primary
+    float: right
+    margin-bottom: 4px
+    i.material-icons
+      font-size: 16px
+      vertical-align: middle
+    &:hover
+      cursor: pointer
+  form
+    label
+      display: block
+      font-size: 12px
+      text-transform: uppercase
+      color: $gray-light
+      margin-bottom: 4px
+    input:disabled
+      background-color: $gray-light
+      color: $white
+      font-weight: normal
+    input, textarea
+      display: block
+      position: relative
+      width: 100%
+      background-color: transparent
+      border: 1px solid $gray-lighter
+      border-radius: 4px
+      padding: 13px 20px
+      font-size: 18px
+      letter-spacing: 1px
+      font-weight: 200
+      margin-bottom: 15px
+    button
+      margin-top: 10px
+      +btn_fill($gray)
+      width: 100%
+  .login-subtext
+    text-align: center
+    margin: 30px 0 0 0
+    font-weight: 200
+    font-size: 14px
+    color: $gray-light
+    line-height: 1.6
+    a
+      color: $gray-light
+      text-decoration: underline
+  .signin-with-btc-btn
+    display: block
+    text-align: center
+    +btn_border($gray)
+    width: 100%

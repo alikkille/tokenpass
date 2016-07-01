@@ -1,26 +1,93 @@
 @extends('layouts.guest')
 
-
 @section('body_content')
 
-<h1>Welcome to Tokenpass</h1>
-
-<div class="spacer1"></div>
-
-<p>Tokenpass is where you register and login for Tokenly services such as Swapbot.</p>
-
-
-<div class="spacer1"></div>
-
-<p>If you have a <a href="https://letstalkbitcoin.com">Let's Talk Bitcoin</a> account with, then you can create a Tokenly Account immediately by logging in with your existing login and password.</p>
-<a href="/auth/login" class="btn btn-primary">Login</a>
-<a href="/auth/bitcoin" class="btn btn-primary">Bitcoin Login</a>
-
-
-<div class="spacer2"></div>
-
-<p>You can also register and create a new Tokenly Account.</p>
-
-<a href="/auth/register" class="btn btn-success">Create a New Account</a>
+<div class="landing-nav-menu-mobile" id="mobile-nav">
+  <div class="landing-nav-menu-header"><i class="material-icons toggle-mobile-nav">close</i></div>
+  <ul>
+    <li><a href="/auth/register">Register</a></li>
+    <li><a href="/auth/login">Login</a></li>
+  </ul>
+</div>
+<div class="landing-nav pristine">
+  <div class="landing-nav-container"><a href="/"><span class="logo">token<strong>pass</strong></span></a>
+    <div class="landing-nav-menu"><a class="btn-register" href="/auth/register">Register</a><a class="btn-login" href="/auth/login">Login</a></div>
+    <div class="landing-nav-menu-btn"><i class="material-icons toggle-mobile-nav">dehaze</i></div>
+  </div>
+</div>
+<div class="hero">
+  <div class="hero-flex-content">
+    <h1 class="hero-heading">Digital access tokens in your bitcoin wallet.</h1>
+    <a href="/auth/register" class="btn-cta">Get Started</a>
+  </div>
+  <div class="hero-bg" style="background-image: url(/img/landing_hero.jpg)"></div>
+</div>
+<div class="mission-area">
+  <div class="content-wrapper">
+    <div class="mission-heading">Tokens give you special features and privileges based on the contents of your bitcoin wallet.</div>
+  </div>
+</div>
+<div class="how-area">
+  <div class="content-wrapper">
+    <div class="how-heading">How It Works</div>
+    <div class="how-content">
+      <div class="how-token-modules">
+        <div class="title">Tokens can be represented in two ways…</div>
+        <div class="module">
+          <div class="heading"><span>Redeemables</span></div>
+          <div class="node"><span>></span></div>
+          <div class="description"><span>…as something redeemable - think ‘digital gift certificate</span></div>
+        </div>
+        <div class="module">
+          <div class="heading"><span>Access Tokens</span></div>
+          <div class="node"><span>></span></div>
+          <div class="description"><span>…or as an Access Token that gives holders entry to features, services or accounts they wouldn’t have access to otherwise.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="feature-area">
+  <div class="feature-heading">Features</div>
+  <div class="features">
+    <div class="feature">
+      <div class="icon"><i class="material-icons">visibility</i></div>
+      <div class="title">Privacy Control</div>
+      <div class="subtext">Control which wallet addresses are visible to the world.</div>
+    </div>
+    <div class="feature">
+      <div class="icon"><i class="material-icons">radio_button_on</i></div>
+      <div class="title">Inventory Management</div>
+      <div class="subtext">Browse and search your collection of access tokens. </div>
+    </div>
+    <div class="feature">
+      <div class="icon"><i class="material-icons">lock_outline</i></div>
+      <div class="title">Secure Access</div>
+      <div class="subtext">Authentication using TCA is secure with cryptocurrency tech.</div>
+    </div>
+  </div>
+</div>
+<div class="why-area">
+  <div class="content-wrapper">
+    <div class="why-heading">Why Use Tokens?</div>
+    <div class="why-content">
+      <p><strong>> Want to give supporters from your pre-sale access to exclusive updates to your project?</strong><br><span>Create a token that controls access to a private blog or discussion forum and distribute to anyone who holds you pre-sale token.</span></p>
+      <p><strong>> Are you an artist who wants to give early access to your followers?</strong><br><span>Just create a token and give your followers instructions on how to retrieve it. </span></p>
+      <p><span>Token Controlled Access allows for limitless possibilities when engaging with your audience. Create acess tokens for games, business, or anything that provides value to someone. </span></p>
+      <p>
+        <strong>Visit <a href="https://tokenly.com" target="_blank">Tokenly.com</a> to learn more about tokens.</strong>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-content">
+    <div class="content-wrapper">
+        <p class="text-center">
+            <span>&copy; <a href="https://tokenly.com" target="_blank">Tokenly</a> {{ date('Y') }}</span> - <a href="https://github.com/tokenly/tokenpass" target="_blank">Github</a>
+        </p>
+    </div>
+  </div>
+</div>
 
 @endsection

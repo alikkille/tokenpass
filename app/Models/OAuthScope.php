@@ -11,6 +11,6 @@ class OAuthScope extends APIModel {
 
     public $incrementing = false;
 
-    protected $api_attributes = ['id','description'];
+    protected $api_attributes = ['id','description', 'label', 'notice_level'];
 
 }

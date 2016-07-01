@@ -46,6 +46,7 @@ class AddressHelper
             'verified'           => true,
             'public'             => true,
             'active_toggle'      => true,
+            'login_toggle'       => true,
         ];
     }
 }

@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('apitoken', 16)->unique();
             $table->string('apisecretkey', 40);
 
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('username')->unique();
             $table->string('slug')->unique();
             $table->string('email')->unique();

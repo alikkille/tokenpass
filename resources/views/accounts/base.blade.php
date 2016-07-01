@@ -2,21 +2,11 @@
 
 @section('body')
 
-<div class="spacer1"></div>
+  @include('accounts.includes.navigation')
 
-<div class="container">
+  @yield('accounts_content')
 
-    <div class="row">
-        <div class="col-md-3">
-            @include('accounts.includes.sidebar')
-        </div>
-
-        <div class="col-md-9">
-            @yield('accounts_content')
-        </div>
-    </div>
-
-</div>
-
-
+  @include('accounts.includes.footer')
+  
 @endsection
+

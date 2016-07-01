@@ -22,7 +22,7 @@ class InventoryTest extends TestCase
         $response = $this->call('GET', '/inventory');
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('<h1>Token Inventory', $response->getContent());
+        $this->assertContains('>Inventory</', $response->getContent());
     }
 
     public function testRegisterAddress() {
@@ -58,7 +58,7 @@ class InventoryTest extends TestCase
         $response = $this->call('GET', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/delete', array(
             'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
         ) , array());
-        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD deleted!', Session::get('message'));
+        PHPUnit::assertContains('Address deleted!', Session::get('message'));
 
         // Attempt to delete non existant address
         $response = $this->call('GET', '/inventory/address/1FakeAddressNaow/delete', array(
@@ -86,10 +86,10 @@ class InventoryTest extends TestCase
         $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/edit', array(
             'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
         ) , array());
-        PHPUnit::assertContains('Address 1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD updated!', Session::get('message'));
+        PHPUnit::assertContains('Address updated!', Session::get('message'));
     }
 
-    public function testToggleAddress() {
+    public function testRefreshBalance() {
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);
 
@@ -98,21 +98,23 @@ class InventoryTest extends TestCase
 
         $address = $address_helper->createNewAddress($user);
 
-        // Attempt to toggle non existant address
-        $response = $this->call('POST', '/inventory/address/1FakeAddressNaow/toggle', array(
-            'address' => '1FakeAddressNaow'
-        ) , array());
-
-        PHPUnit::assertEquals(400, $response->getStatusCode());
-
-        // toggle an entry correctly
-        $response = $this->call('POST', '/inventory/address/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggle', array(
-            'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'
-        ) , array());
-
+        $response = $this->call('GET', '/inventory/refresh', array() , array());
+       // PHPUnit::assertContains('Token inventory balances updated!', Session::get('message'));
     }
 
+    public function testCheckPageRefresh() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
 
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        $response = $this->call('GET', '/inventory/check-refresh', array() , array());
+        PHPUnit::assertEquals(200, $response->getStatusCode());;
+    }
+    
     public function testInventoryVerifyAddress() {
 
         $this->setupXChainMock();
@@ -145,11 +147,13 @@ class InventoryTest extends TestCase
         // Private key used is : KzPMHLZfubuRR8GxZyG2vygqWk391RuEGTqFH1jUtyWgKXrH3FFT
         $address_sig = 'IC8nBnxL1wE8P4jWGkVZI1IVucw4lDAQ3YVK7ZdeQCCbQwCoU+PcQUnEAN5C71pjVVqdyFzbgOJsbp6B0Agwsg8=';
         $sig_message = '4cda873ee9';
+        Session::flash('sigval', $sig_message);
 
         // Test with all correct info
         $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp/verify', array(
             'sig' => $address_sig
         ) , array());
+
         PHPUnit::assertContains('Address 1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp ownership proved successfully!', Session::get('message'));
         PHPUnit::assertEquals(302 , $response->status());
 

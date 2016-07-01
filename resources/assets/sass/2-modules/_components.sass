@@ -1,0 +1,58 @@
+.or-divider-module
+  +outer-container
+  margin: 50px 0 40px 0
+  position: relative
+  .divider
+    display: inline-block
+    +span-columns(5)
+    border-top: 1px solid $gray-lighter
+    vertical-align: middle
+    color: transparent
+  .or
+    color: $gray-light
+    font-weight: 200
+    margin-top: -12px
+    font-size: 24px
+    display: inline-block
+    vertical-align: middle
+    text-align: center
+    +span-columns(2)
+
+.clear
+  clear: both
+
+.muted
+  color: $gray-light
+
+[v-cloak], .v-cloak, 
+  display: none !important
+
+
+// LOADING SPINNERS
+$base-line-height: 24px
+$spin-duration: 1s
+
+@keyframes spin
+  0%
+    transform: rotate(0deg)
+
+  100%
+    transform: rotate(360deg)
+
+
+.loading
+  border-radius: 50%
+  width: $base-line-height
+  height: $base-line-height
+  border: .25rem solid $brand-primary
+  border-top-color: lighten($brand-primary, 20%)
+  animation: spin $spin-duration infinite linear
+  &--double
+    border-style: double
+    border-width: .5rem
+
+.click-me
+  color: $brand-primary
+  &:hover
+    cursor: pointer
+    color: lighten($brand-primary, 10%)

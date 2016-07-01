@@ -1,0 +1,138 @@
+body.pockets
+  section.pockets
+    $address-height: 80px
+    .pocket
+      max-height: $address-height
+      background-color: #fff
+      border-top: 1px solid #EEEEEE
+      border-left: 1px solid #EEEEEE
+      border-right: 1px solid #EEEEEE
+      overflow: hidden
+      padding-bottom: 0
+      transition: all 0.5s ease
+      .pocket-indicator
+        .loading
+          display: none
+        &.is-loading
+          .loading
+            display: inherit
+          .active-indicator
+            display: none
+        i
+          font-size: 34px
+      .pocket-main, .pocket-settings
+        padding: 0 20px
+        position: relative
+        background-color: #fff
+      .pocket-main
+        height: $address-height
+        z-index: 50
+      .pocket-settings
+        z-index: 10
+        opacity: 0
+        margin-top: 10px
+        transition: all 0.6s ease
+        transform: translateY(-5px)
+        .btn-delete
+          +btn_border(lighten($brand-red, 10%))
+          +btn_border_small
+        .btn-save
+          +btn_fill($gray-dark)
+          +btn_small
+        .toggles-container
+          +outer-container
+          .toggle-field
+            float: left
+            margin-right: 20px
+      &.editing
+        max-height: 500px
+        padding-bottom: 30px
+        .pocket-settings
+          opacity: 1
+          transform: translateY(0)
+      &:last-of-type
+        border-bottom: 1px solid #EEEEEE
+      .pocket-main
+        .primary-info
+          float: left
+          font-size: 18px
+          font-weight: 200
+          height: 100%
+          .name
+            display: block
+            font-size: 18px
+            font-weight: 200
+            margin-top: 19px
+            margin-bottom: 4px
+          .address
+            display: block
+            font-size: 14px
+            font-weight: 200
+            color: $gray-light
+        .active-toggle-wrapper, .pocket-indicator
+          padding-top: 20px
+          padding-right: 20px
+          height: 100%
+          float: left
+          position: relative
+          display: none
+          +mobile
+            display: block
+        .active-toggle-module
+          position: relative
+          width: 60px
+          &:hover
+            cursor: pointer
+          .module-switch
+            z-index: 100
+            position: absolute
+            top: 0
+            bottom: 0
+            width: 36px
+            height: 36px
+            border-radius: 36px
+            border: 1px solid $white
+            transition: all 0.2s ease
+          &[data-toggle="1"]
+            .module-switch
+              left: 0
+              background-color: $brand-green
+          &[data-toggle="0"]
+            .module-switch
+              left: 24px
+              background-color: $brand-red
+
+          .module-background
+            z-index: 50
+            position: absolute
+            top: 0
+            left: 0
+            width: 100%
+            height: 36px
+            border-radius: 36px
+            background-color: $gray-lighter
+
+        .verify-btn
+          +btn_fill($brand-primary)
+          +btn_small
+          float: right
+          margin: 16px 20px 0 0
+        .settings-btn
+          +btn_border($gray-light)
+          +btn_border_small
+          float: right
+          text-align: center
+          width: 44px
+          padding: 10px 9px 8px 9px
+          margin: 16px 0 0 0
+          i
+            font-size: 19px
+  .new-pocket-btn
+    +btn_fill($gray)
+    +btn_small
+    width: 100%
+    margin-top: 20px
+    +tablet
+      width: auto
+      margin-top: 0
+      float: right

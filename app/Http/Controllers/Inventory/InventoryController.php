@@ -3,11 +3,12 @@
 namespace TKAccounts\Http\Controllers\Inventory;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
+use Input, \Exception, Session, Response;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
-use TKAccounts\Models\UserMeta;
 use TKAccounts\Models\Provisional;
-use Input, \Exception, Session, Response;
+use TKAccounts\Models\UserMeta;
 
 class InventoryController extends Controller
 {
@@ -26,12 +27,15 @@ class InventoryController extends Controller
 
     public function index()
     {
-		$addresses = Address::getAddressList($this->user->id, null, null);
-		$balances = Address::getAllUserBalances($this->user->id);
-		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 
+		$addresses = Address::getAddressList($this->user->id, null, true);
+		$balances = Address::getAllUserBalances($this->user->id);
+        ksort($balances);
+		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 		$balance_addresses = array();
+        $address_labels = array();
 		foreach($addresses as $address){
+
 			$bals = Address::getAddressBalances($address->id, false, false);
 			if(!$bals OR count($bals) == 0){
 				continue;
@@ -55,13 +59,18 @@ class InventoryController extends Controller
                 }
                 $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
             }
+            
+            $address_labels[$address->address] = trim($address->label);
 		}
-		return view('inventory.index', array(
-			'addresses' => $addresses,
-			'balances' => $balances,
-			'balance_addresses' => $balance_addresses,
-			'disabled_tokens' => $disabled_tokens,
-		));
+        
+        $vars = [
+            'addresses' => $addresses,
+            'address_labels' => $address_labels,
+            'balances' => $balances,
+            'balance_addresses' => $balance_addresses,
+            'disabled_tokens' => $disabled_tokens];
+
+		return view('inventory.index', $vars);
     }
 
     public function registerAddress()
@@ -72,9 +81,7 @@ class InventoryController extends Controller
 
 		//check required fields
 		if(!isset($input['address']) OR trim($input['address']) == ''){
-			Session::flash('message', 'Bitcoin address required');
-			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+            return $this->ajaxEnabledErrorResponse('Bitcoin address required', route('inventory.pockets'));
 		}
 
 		//setup data
@@ -93,15 +100,11 @@ class InventoryController extends Controller
             $xchain = app('Tokenly\XChainClient\Client');
             $validate = $xchain->validateAddress($address);
         } catch (Exception $e) {
-            Session::flash('message', $e);
-            Session::flash('message-class', 'alert-danger');
-            return redirect('inventory');
+            return $this->ajaxEnabledErrorResponse($e->getMessage(), route('inventory.pockets'));
         }
 
 		if(!$validate OR !$validate['result']){
-			Session::flash('message', 'Please enter a valid bitcoin address');
-			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+            return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory.pockets'));
 		}
 
 		//check if they have this address registered already
@@ -115,9 +118,7 @@ class InventoryController extends Controller
 				}
 			}
 			if($found){
-				Session::flash('message', 'Address has already been registered for this account');
-				Session::flash('message-class', 'alert-danger');
-				return redirect('inventory');
+                return $this->ajaxEnabledErrorResponse('Address has already been registered for this account', route('inventory.pockets'));
 			}
 		}
 
@@ -133,73 +134,85 @@ class InventoryController extends Controller
 		$save = (!!$new_address);
 
 		if(!$save){
-			Session::flash('message', 'Error saving address');
-			Session::flash('message-class', 'alert-danger');
-			return redirect('inventory');
+            return $this->ajaxEnabledErrorResponse('Error saving address', route('inventory.pockets'), 500);
 		}
 
 		// sync with XChain
         $new_address->syncWithXChain();
 
-		Session::flash('message', 'Bitcoin address registered!');
-		Session::flash('message-class', 'alert-success');
-		return redirect('inventory');
+        return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
 	}
 
 	public function deleteAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 		if(!$get){
-			Session::flash('message', 'Address not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
 		else{
 			$delete = $get->delete();
 			if(!$delete){
-				Session::flash('message', 'Error deleting address '.$address);
-				Session::flash('message-class', 'alert-danger');
+                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
 			}
 			else{
-				Session::flash('message', 'Address '.$address.' deleted!');
-				Session::flash('message-class', 'alert-success');
+                return $this->ajaxEnabledSuccessResponse('Address deleted!', route('inventory.pockets'));
 			}
 		}
-		return redirect('inventory');
 	}
 
 	public function editAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+
 		if(!$get){
-			Session::flash('message', 'Address not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
+
 		else{
 
 			$input = Input::all();
-
+            
 			if(isset($input['label'])){
 				$get->label = trim(htmlentities($input['label']));
 			}
+            
+			$active = 0;
+			if(isset($input['active']) AND intval($input['active']) == 1){
+				$active = 1;
+			}
+			$get->active_toggle = $active;            
 
 			$public = 0;
 			if(isset($input['public']) AND intval($input['public']) == 1){
 				$public = 1;
 			}
 			$get->public = $public;
+            
+            $login_toggle = 0;
+            if(!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1){
+                $login_toggle = 1;
+            }
+            $get->login_toggle = $login_toggle;
+            
+            $second_factor = 0;
+            if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1){
+                $second_factor = 1;
+            }
+            $get->second_factor_toggle = $second_factor;      
+            
+            if(isset($input['notes'])){
+                $get->notes = trim(htmlentities($input['notes']));
+            }      
 
 			$save = $get->save();
 
 			if(!$save){
-				Session::flash('message', 'Error updating address '.$address);
-				Session::flash('message-class', 'alert-danger');
+                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
 			}
 			else{
-				Session::flash('message', 'Address '.$address.' updated!');
-				Session::flash('message-class', 'alert-success');
+                return $this->ajaxEnabledSuccessResponse('Address updated!', route('inventory.pockets'));
 			}
 		}
-		return redirect('inventory');
 	}
 
 	public function verifyAddressOwnership($address)
@@ -207,136 +220,47 @@ class InventoryController extends Controller
         $existing_addresses = Address::where('address', $address)->get();
         foreach($existing_addresses as $item) {
             if ($item->user_id != Auth::user()->id) {
-                Session::flash('message', 'The address '.$address.' is already in use by another account');
-                Session::flash('message-class', 'alert-danger');
-                return redirect('inventory');
+                return $this->ajaxEnabledErrorResponse('The address '.$address.' is already in use by another account', route('inventory.pockets'), 400);
             }
         }
 
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 
 		if(!$get){
-			Session::flash('message', 'Address not found');
-			Session::flash('message-class', 'alert-danger');
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		}
 		else{
 			$input = Input::all();
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
-				Session::flash('message', 'Signature required');
-				Session::flash('message-class', 'alert-danger');
+                return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
 			}
 			else{
-				$sig = $this->extract_signature($input['sig']);
+				$sig = Address::extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
-
-				$verify_message = $xchain->verifyMessage($get->address, $sig, Address::getVerifyCode($get));
+				$verify_message = $xchain->verifyMessage($get->address, $sig, Session::get($address));
 				$verified = false;
 				if($verify_message AND $verify_message['result']){
 					$verified = true;
 				}
 
 				if(!$verified){
-					Session::flash('message', 'Signature for address '.$address.' is not valid');
-					Session::flash('message-class', 'alert-danger');
+                    return $this->ajaxEnabledErrorResponse('Signature for address '.$address.' is not valid', route('inventory.pockets'), 400);
 				}
 				else{
 					$get->verified = 1;
 					$save = $get->save();
 
 					if(!$save){
-						Session::flash('message', 'Error updating address '.$address);
-						Session::flash('message-class', 'alert-danger');
+                        return $this->ajaxEnabledErrorResponse('Error updating address '.$address, route('inventory.pockets'), 400);
 					}
 					else{
 						//Address::updateUserBalances($this->user->id); //do a fresh inventory update (disabled for now, too slow)
-						Session::flash('message', 'Address '.$address.' ownership proved successfully!');
-						Session::flash('message-class', 'alert-success');
+                        return $this->ajaxEnabledSuccessResponse('Address '.$address.' ownership proved successfully!', route('inventory.pockets'));
 					}
 				}
 			}
 		}
-		return redirect('inventory');
-	}
-
-	public function toggleAddress($address)
-	{
-		$output = array('result' => false);
-		$response_code = 200;
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
-		if(!$get){
-			$output['error'] = 'Address not found';
-			$response_code = 400;
-		}
-		else{
-			$input = Input::all();
-			if(!isset($input['toggle'])){
-				$output['error'] = 'Toggle option required';
-				$response_code = 400;
-			}
-			else{
-				$toggle_val = $input['toggle'];
-				if($toggle_val == 'true' OR $toggle_val === true){
-					$toggle_val = 1;
-				}
-				else{
-					$toggle_val = 0;
-				}
-				$get->active_toggle = $toggle_val;
-				$save = $get->save();
-				if(!$save){
-					$output['error'] = 'Error updating address';
-					$response_code = 500;
-				}
-				else{
-					$output['result'] = true;
-				}
-			}
-		}
-		return Response::json($output, $response_code);
-	}
-
-	public function toggleAsset($asset)
-	{
-		$output = array('result' => false);
-		$response_code = 200;
-
-		$disabled_tokens = json_decode(UserMeta::getMeta($this->user->id, 'disabled_tokens'), true);
-		if(!is_array($disabled_tokens)){
-			$disabled_tokens = array();
-		}
-
-		$input = Input::all();
-		if(!isset($input['toggle'])){
-			$output['error'] = 'Toggle option required';
-			$response_code = 400;
-		}
-		else{
-			$toggle_val = $input['toggle'];
-			if($toggle_val == 'true' OR $toggle_val === true){
-				$toggle_val = 1;
-			}
-			else{
-				$toggle_val = 0;
-			}
-
-			if($toggle_val == 1 AND in_array($asset, $disabled_tokens)){
-				$k = array_search($asset, $disabled_tokens);
-				unset($disabled_tokens[$k]);
-				$disabled_tokens = array_values($disabled_tokens);
-			}
-			elseif($toggle_val == 0 AND !in_array($asset, $disabled_tokens)){
-				$disabled_tokens[] = $asset;
-			}
-			$save = UserMeta::setMeta($this->user->id, 'disabled_tokens', json_encode($disabled_tokens));
-			if(!$save){
-				$output['error'] = 'Error updating list of disabled tokens';
-				$response_code = 500;
-			}
-			else{
-				$output['result'] = true;
-			}
-		}
-		return Response::json($output, $response_code);
+		return redirect(route('inventory.pockets'));
 	}
 
 	public function refreshBalances()
@@ -353,22 +277,7 @@ class InventoryController extends Controller
 		return redirect('inventory');
 	}
 
-	protected function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
-	{
-		$inputMessage = trim($text);
-		if(strpos($inputMessage, $start) !== false){
-			//pgp style signed message format, extract the actual signature from it
-			$expMsg = explode("\n", $inputMessage);
-			foreach($expMsg as $k => $line){
-				if($line == $end){
-					if(isset($expMsg[$k-1])){
-						$inputMessage = trim($expMsg[$k-1]);
-					}
-				}
-			}
-		}
-		return $inputMessage;
-	}
+
 
     public function checkPageRefresh()
     {
@@ -387,6 +296,51 @@ class InventoryController extends Controller
 			Session::flash('message-class', 'alert-success');
         }
         return Response::json($output);
+    }
+
+
+    public function getPockets()
+    {
+		$addresses = Address::getAddressList($this->user->id, null, null);
+		foreach($addresses as $address) {
+
+			// Generate message for signing and flash for POST results
+			if ($address->verified == 0) {
+				$address['secure_code'] = Address::getSecureCodeGeneration();
+				Session::flash($address->address, $address['secure_code']);
+			}
+		}
+
+		return view('inventory.pockets', array(
+			'addresses' => $addresses,
+		));
+    }
+
+    // ------------------------------------------------------------------------
+    protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
+        if (Request::ajax()) {
+            return Response::json(['success' => false, 'error' => $error_message], $error_code);
+        }
+
+        Session::flash('message', $error_message);
+        Session::flash('message-class', 'alert-danger');
+        return redirect($redirect_url);
+    }
+
+    protected function ajaxEnabledSuccessResponse($success_message, $redirect_url, $http_code = 200) {
+        if (Request::ajax()) {
+            return Response::json([
+                'success'     => true,
+                'message'     => $success_message,
+                'redirectUrl' => $redirect_url,
+            ], $http_code);
+        }
+
+        Session::flash('message', $success_message);
+        Session::flash('message-class', 'alert-success');
+
+
+        return redirect(route('inventory.pockets'));
     }
 
 }

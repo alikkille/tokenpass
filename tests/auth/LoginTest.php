@@ -41,6 +41,7 @@ class LoginTest extends TestCase {
 
         // login
         $response = $this->call('POST', '/auth/login', ['username' => 'wrong', 'password' => 'wrong', '_token' => true,]);
+
         if ($response instanceof Illuminate\Http\RedirectResponse) {
             $found_error = false;
             if ($errors_bag = $response->getSession()->get('errors')) {
