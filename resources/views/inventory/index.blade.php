@@ -155,7 +155,7 @@
                 <!-- <div class="detail-subheading">Promised Transactions</div> -->
                 <div class="pocket-promised-balance">
                   <span class="muted">Promised Balance /</span>
-                  @{{ formatQuantity(totalProvisional(pocket)) }}
+                  @{{ formatQuantity(pocket.provisional_total) }}
                 </div>
                 <div class="pocket-promised-table-wrapper">
                   <table class="table">
@@ -264,16 +264,20 @@ var data = (function(args){
     for (var key in balances){
       var real = balances[key]['real'];
       var provisional = balances[key]['provisional'];
-      if (provisional.length === 0) {
-        provisional = 0;
+
+      // total up provisionals
+      var provisional_total = 0;
+      for (var i = 0; i < provisional.length; i++){
+        provisional_total += provisional[i].quantity;
       }
-      var total = real + provisional;
+      var total = real + provisional_total;
       
       balance_addresses_arr.push({
         address: key,
         label: ADDRESS_LABELS[key],
-        provisional: balances[key]['provisional'],
-        real: balances[key]['real'],
+        provisional: provisional,
+        provisional_total: provisional_total,
+        real: real,
         total: total
       })
     }
@@ -311,13 +315,6 @@ var vm = new Vue({
   	formatQuantity: function(q){
   		return this.delimitNumbers((q / 100000000).noExponents());
   	},
-    totalProvisional: function(balanceAddress){
-      var total = 0;
-      for (var i = 0; i < balanceAddress.provisional.length; i++){
-        total += balanceAddress.provisional[i].quantity;
-      }
-      return total;
-    },
     toggleSecondaryInfo: function(event){
       var $token = $(event.target).closest('.token');
       var $secondaryInfo = $token.find('.secondary-info');
