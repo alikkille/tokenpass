@@ -13,149 +13,147 @@ use TKAccounts\Models\UserMeta;
 class InventoryController extends Controller
 {
 
-    /**
-     * Create a new authentication controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
+	/**
+	 * Create a new authentication controller instance.
+	 *
+	 * @return void
+	 */
+	public function __construct()
+	{
 		$this->middleware('auth');
 		$this->user = Auth::user();
-    }
+	}
 
 
-    public function index()
-    {
+	public function index()
+	{
 
 		$addresses = Address::getAddressList($this->user->id, null, true);
 		$balances = Address::getAllUserBalances($this->user->id);
-        ksort($balances);
+		ksort($balances);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
 		$balance_addresses = array();
-        $address_labels = array();
-		foreach($addresses as $address){
+		$address_labels = array();
+		foreach ($addresses as $address) {
 
 			$bals = Address::getAddressBalances($address->id, false, false);
-			if(!$bals OR count($bals) == 0){
+			if (!$bals OR count($bals) == 0) {
 				continue;
 			}
-			foreach($bals as $asset => $amnt){
-				if($amnt <= 0){
+			foreach ($bals as $asset => $amnt) {
+				if ($amnt <= 0) {
 					continue;
 				}
-				if(!isset($balance_addresses[$asset])){
+				if (!isset($balance_addresses[$asset])) {
 					$balance_addresses[$asset] = array();
 				}
 				$balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array());
 			}
-            $promises = Provisional::getAddressPromises($address->address);
-            foreach($promises as $promise){
-				if(!isset($balance_addresses[$promise->asset])){
+			$promises = Provisional::getAddressPromises($address->address);
+			foreach ($promises as $promise) {
+				if (!isset($balance_addresses[$promise->asset])) {
 					$balance_addresses[$promise->asset] = array();
-				}  
-                if(!isset($balance_addresses[$promise->asset][$address->address])){
-                    $balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array());
-                }
-                $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
-            }
-            
-            $address_labels[$address->address] = trim($address->label);
+				}
+				if (!isset($balance_addresses[$promise->asset][$address->address])) {
+					$balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array());
+				}
+				$balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
+			}
+
+			$address_labels[$address->address] = trim($address->label);
 		}
-        
-        $vars = [
-            'addresses' => $addresses,
-            'address_labels' => $address_labels,
-            'balances' => $balances,
-            'balance_addresses' => $balance_addresses,
-            'disabled_tokens' => $disabled_tokens];
+
+		$vars = [
+			'addresses' => $addresses,
+			'address_labels' => $address_labels,
+			'balances' => $balances,
+			'balance_addresses' => $balance_addresses,
+			'disabled_tokens' => $disabled_tokens];
 
 		return view('inventory.index', $vars);
-    }
+	}
 
-    public function registerAddress()
-    {
+	public function registerAddress()
+	{
 		//get input
 		$input = Input::all();
 
 
 		//check required fields
-		if(!isset($input['address']) OR trim($input['address']) == ''){
-            return $this->ajaxEnabledErrorResponse('Bitcoin address required', route('inventory.pockets'));
+		if (!isset($input['address']) OR trim($input['address']) == '') {
+			return $this->ajaxEnabledErrorResponse('Bitcoin address required', route('inventory.pockets'));
 		}
 
 		//setup data
 		$address = trim($input['address']);
 		$label = '';
-		if(isset($input['label'])){
+		if (isset($input['label'])) {
 			$label = trim(htmlentities($input['label']));
 		}
 		$public = 0;
-		if(isset($input['public']) AND intval($input['public']) === 1){
+		if (isset($input['public']) AND intval($input['public']) === 1) {
 			$public = 1;
 		}
 
 		//validate address
-        try {
-            $xchain = app('Tokenly\XChainClient\Client');
-            $validate = $xchain->validateAddress($address);
-        } catch (Exception $e) {
-            return $this->ajaxEnabledErrorResponse($e->getMessage(), route('inventory.pockets'));
-        }
+		try {
+			$xchain = app('Tokenly\XChainClient\Client');
+			$validate = $xchain->validateAddress($address);
+		} catch (Exception $e) {
+			return $this->ajaxEnabledErrorResponse($e->getMessage(), route('inventory.pockets'));
+		}
 
-		if(!$validate OR !$validate['result']){
-            return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory.pockets'));
+		if (!$validate OR !$validate['result']) {
+			return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory.pockets'));
 		}
 
 		//check if they have this address registered already
 		$user_addresses = Address::getAddressList($this->user->id, null, null);
-		if($user_addresses AND count($user_addresses) > 0){
+		if ($user_addresses AND count($user_addresses) > 0) {
 			$found = false;
-			foreach($user_addresses as $addr){
-				if($addr->address == $address){
+			foreach ($user_addresses as $addr) {
+				if ($addr->address == $address) {
 					$found = true;
 					break;
 				}
 			}
-			if($found){
-                return $this->ajaxEnabledErrorResponse('Address has already been registered for this account', route('inventory.pockets'));
+			if ($found) {
+				return $this->ajaxEnabledErrorResponse('Address has already been registered for this account', route('inventory.pockets'));
 			}
 		}
 
 		//register address
 		$new_address = app('TKAccounts\Repositories\AddressRepository')->create([
-			'user_id'  => $this->user->id,
-			'type'     => 'btc',
-			'address'  => $address,
-			'label'    => $label,
+			'user_id' => $this->user->id,
+			'type' => 'btc',
+			'address' => $address,
+			'label' => $label,
 			'verified' => 0,
-			'public'   => $public,
+			'public' => $public,
 		]);
 		$save = (!!$new_address);
 
-		if(!$save){
-            return $this->ajaxEnabledErrorResponse('Error saving address', route('inventory.pockets'), 500);
+		if (!$save) {
+			return $this->ajaxEnabledErrorResponse('Error saving address', route('inventory.pockets'), 500);
 		}
 
 		// sync with XChain
-        $new_address->syncWithXChain();
+		$new_address->syncWithXChain();
 
-        return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
+		return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
 	}
 
 	public function deleteAddress($address)
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
-		if(!$get){
-            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
-		}
-		else{
+		if (!$get) {
+			return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
+		} else {
 			$delete = $get->delete();
-			if(!$delete){
-                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
-			}
-			else{
-                return $this->ajaxEnabledSuccessResponse('Address deleted!', route('inventory.pockets'));
+			if (!$delete) {
+				return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
+			} else {
+				return $this->ajaxEnabledSuccessResponse('Address deleted!', route('inventory.pockets'));
 			}
 		}
 	}
@@ -164,54 +162,92 @@ class InventoryController extends Controller
 	{
 		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
 
-		if(!$get){
-            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
-		}
-
-		else{
+		if (!$get) {
+			return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
+		} else {
 			$input = Input::all();
-            
-			if(isset($input['label'])){
+
+			if (isset($input['label'])) {
 				$get->label = trim(htmlentities($input['label']));
 			}
-            
+
 			$active = 0;
-			if(isset($input['active']) AND intval($input['active']) == 1){
+			if (isset($input['active']) AND intval($input['active']) == 1) {
 				$active = 1;
 			}
-			$get->active_toggle = $active;            
+			$get->active_toggle = $active;
 
 			$public = 0;
-			if(isset($input['public']) AND intval($input['public']) == 1){
+			if (isset($input['public']) AND intval($input['public']) == 1) {
 				$public = 1;
 			}
 			$get->public = $public;
-            
-            $login_toggle = 0;
-            if(!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1 AND $get->second_factor_toggle == 0){
-                $login_toggle = 1;
-            }
-            $get->login_toggle = $login_toggle;
-            
-            $second_factor = 0;
-            if(!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1 AND $get->login_toggle == 0){
-                $second_factor = 1;
-            }
-            $get->second_factor_toggle = $second_factor;      
-            
-            if(isset($input['notes'])){
-                $get->notes = trim(htmlentities($input['notes']));
-            }      
+
+			$login_toggle = 0;
+			if (!$get->from_api AND isset($input['login']) AND intval($input['login']) == 1 AND $get->second_factor_toggle == 0) {
+				$login_toggle = 1;
+			}
+			$get->login_toggle = $login_toggle;
+
+			$second_factor = 0;
+			if (!$get->from_api AND isset($input['second_factor']) AND intval($input['second_factor']) == 1 AND $get->login_toggle == 0) {
+				$second_factor = 1;
+			}
+			$get->second_factor_toggle = $second_factor;
+
+			if (isset($input['notes'])) {
+				$get->notes = trim(htmlentities($input['notes']));
+			}
 
 			$save = $get->save();
 
-			if(!$save){
-                return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
-			}
-			else{
-                return $this->ajaxEnabledSuccessResponse('Address updated!', route('inventory.pockets'));
+			if (!$save) {
+				return $this->ajaxEnabledErrorResponse('Error updating address', route('inventory.pockets'), 500);
+			} else {
+				return $this->ajaxEnabledSuccessResponse('Address updated!', route('inventory.pockets'));
 			}
 		}
+	}
+
+	public function toggleAsset($asset)
+	{
+		$output = array('result' => false);
+		$response_code = 200;
+
+		$disabled_tokens = json_decode(UserMeta::getMeta($this->user->id, 'disabled_tokens'), true);
+		if (!is_array($disabled_tokens)) {
+			$disabled_tokens = array();
+		}
+
+		$input = Input::all();
+		if (!isset($input['toggle'])) {
+			$output['error'] = 'Toggle option required';
+			$response_code = 400;
+		} else {
+			$toggle_val = $input['toggle'];
+			if ($toggle_val == 'true' OR $toggle_val === true) {
+				$toggle_val = 1;
+			} else {
+				$toggle_val = 0;
+			}
+
+			if ($toggle_val == 1 AND in_array($asset, $disabled_tokens)) {
+				$k = array_search($asset, $disabled_tokens);
+				unset($disabled_tokens[$k]);
+				$disabled_tokens = array_values($disabled_tokens);
+			} elseif ($toggle_val == 0 AND !in_array($asset, $disabled_tokens)) {
+				$disabled_tokens[] = $asset;
+			}
+			$save = UserMeta::setMeta($this->user->id, 'disabled_tokens', json_encode($disabled_tokens));
+			if (!$save) {
+				$output['error'] = 'Error updating list of disabled tokens';
+				$response_code = 500;
+			} else {
+				$output['result'] = true;
+			}
+		}
+
+		return Response::json($output, $response_code);
 	}
 
 	public function verifyAddressOwnership($address)
