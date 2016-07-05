@@ -110,6 +110,8 @@
     @if(Session::has('message'))
         <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
     @endif
+    <p>A Pocket is a Token Compatible Bitcoin Address that can be used to store and use Access Tokens - Once you've verified your pockets, Tokenpass keeps track of what access tokens you own at any given time and passes that information along to websites, integrations and applications each user chooses to authorize.</p>
+    <p>Need a Token Compatible Wallet? Visit <a href="http://pockets.tokenly.com" target="_blank">http://pockets.tokenly.com</a> to download yours free today.</p>
     <div v-if="pockets.length">
       <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
         <div class="pocket-main">
@@ -194,7 +196,6 @@
         </div> <!-- End Pocket Settings -->
       </div> <!-- End Pocket List -->
     </div>
-    <div v-else>Looks like you don't have any pockets registered. You can do so by clicking the 'Add Pocket' button above!</div>
   </section>
 </div>
 
