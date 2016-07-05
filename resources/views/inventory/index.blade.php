@@ -140,7 +140,7 @@
               </div>
               <div class="pocket-promised-balance">
                 <span class="muted">Total /</span>
-                @{{ formatQuantity(pocket.real + totalProvisional(pocket)) }}
+                @{{ formatQuantity(pocket.total) }}
               </div>
             </div>
 
@@ -216,6 +216,24 @@ var instanceVars = {
   pockets: {!! json_encode($addresses) !!}
 }
 
+Number.prototype.noExponents = function(){
+    var data= String(this).split(/[eE]/);
+    if(data.length== 1) return data[0]; 
+
+    var  z= '', sign= this<0? '-':'',
+    str= data[0].replace('.', ''),
+    mag= Number(data[1])+ 1;
+
+    if(mag<0){
+        z= sign + '0.';
+        while(mag++) z += '0';
+        return z + str.replace(/^\-/,'');
+    }
+    mag -= str.length;  
+    while(mag--) z += '0';
+    return str + z;
+}
+
 // Process tokens for vue consumption
 var data = (function(args){
   var BALANCES = args['balances'], 
@@ -244,11 +262,19 @@ var data = (function(args){
     var balance_addresses_arr = [];
     var balances = BALANCE_ADDRESSES[token]
     for (var key in balances){
+      var real = balances[key]['real'];
+      var provisional = balances[key]['provisional'];
+      if (provisional.length === 0) {
+        provisional = 0;
+      }
+      var total = real + provisional;
+      
       balance_addresses_arr.push({
         address: key,
         label: ADDRESS_LABELS[key],
         provisional: balances[key]['provisional'],
-        real: balances[key]['real']
+        real: balances[key]['real'],
+        total: total
       })
     }
     return balance_addresses_arr;
@@ -283,7 +309,7 @@ var vm = new Vue({
       this.currentToken = token;
     },
   	formatQuantity: function(q){
-  		return this.delimitNumbers((q / 100000000));
+  		return this.delimitNumbers((q / 100000000).noExponents());
   	},
     totalProvisional: function(balanceAddress){
       var total = 0;
