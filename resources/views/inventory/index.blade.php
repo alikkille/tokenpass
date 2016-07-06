@@ -262,13 +262,13 @@ var data = (function(args){
     var balance_addresses_arr = [];
     var balances = BALANCE_ADDRESSES[token]
     for (var key in balances){
-      var real = balances[key]['real'];
+      var real = parseInt(balances[key]['real']);
       var provisional = balances[key]['provisional'];
 
       // total up provisionals
       var provisional_total = 0;
       for (var i = 0; i < provisional.length; i++){
-        provisional_total += provisional[i].quantity;
+        provisional_total += parseInt(provisional[i].quantity);
       }
       var total = real + provisional_total;
       
