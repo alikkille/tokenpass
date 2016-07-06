@@ -89,6 +89,24 @@ class InventoryTest extends TestCase
         PHPUnit::assertContains('Address updated!', Session::get('message'));
     }
 
+    public function testToggleAsset() {
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $address = $address_helper->createNewAddress($user);
+
+        // toggle an entry correctly
+        $response = $this->call('POST', '/inventory/asset/1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD/toggle', array(
+                'address' => '1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD',
+                'toggle' => true
+                ) , array());
+
+        PHPUnit::assertEquals(200, $response->getStatusCode());;
+    }
+
     public function testRefreshBalance() {
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);

@@ -140,7 +140,7 @@
               </div>
               <div class="pocket-promised-balance">
                 <span class="muted">Total /</span>
-                @{{ formatQuantity(pocket.real + totalProvisional(pocket)) }}
+                @{{ formatQuantity(pocket.total) }}
               </div>
             </div>
 
@@ -155,7 +155,7 @@
                 <!-- <div class="detail-subheading">Promised Transactions</div> -->
                 <div class="pocket-promised-balance">
                   <span class="muted">Promised Balance /</span>
-                  @{{ formatQuantity(totalProvisional(pocket)) }}
+                  @{{ formatQuantity(pocket.provisional_total) }}
                 </div>
                 <div class="pocket-promised-table-wrapper">
                   <table class="table">
@@ -185,13 +185,21 @@
 
   		</div>
     </div>
-    <div v-else>
-<!--       <p v-if="instanceVars.pockets.length > 0">
-        Buy some tokens with @{{ Object.keys(instanceVars.pockets[0] }} and they'll show up here.
+    <div v-else>  
+      <p v-if="getVerifiedPocket()">
+        Buy some tokens with pocket
+        <span v-if="getVerifiedPocket().label">
+          <strong>@{{ getVerifiedPocket().label }}</strong>
+          (<span class="muted">@{{ getVerifiedPocket().address }}</span>)
+        </span>
+        <span v-else>
+          <strong>@{{ getVerifiedPocket().address }}</strong>
+        </span>
+        and they'll show up here.
       </p>
       <p v-else>
         Add a verified pocket to fill your token inventory <a href="/pockets">here</a>.
-      </p> -->
+      </p>
     </div>
 	</section>
 </div>
@@ -204,7 +212,26 @@ var instanceVars = {
   balances: {!! json_encode($balances) !!}, 
   balanceAddresses: {!! json_encode($balance_addresses) !!}, 
   disabledTokens: {!! json_encode($disabled_tokens) !!},
-  addressLabels: {!! json_encode($address_labels) !!}
+  addressLabels: {!! json_encode($address_labels) !!},
+  pockets: {!! json_encode($addresses) !!}
+}
+
+Number.prototype.noExponents = function(){
+    var data= String(this).split(/[eE]/);
+    if(data.length== 1) return data[0]; 
+
+    var  z= '', sign= this<0? '-':'',
+    str= data[0].replace('.', ''),
+    mag= Number(data[1])+ 1;
+
+    if(mag<0){
+        z= sign + '0.';
+        while(mag++) z += '0';
+        return z + str.replace(/^\-/,'');
+    }
+    mag -= str.length;  
+    while(mag--) z += '0';
+    return str + z;
 }
 
 // Process tokens for vue consumption
@@ -235,11 +262,23 @@ var data = (function(args){
     var balance_addresses_arr = [];
     var balances = BALANCE_ADDRESSES[token]
     for (var key in balances){
+      var real = parseInt(balances[key]['real']);
+      var provisional = balances[key]['provisional'];
+
+      // total up provisionals
+      var provisional_total = 0;
+      for (var i = 0; i < provisional.length; i++){
+        provisional_total += parseInt(provisional[i].quantity);
+      }
+      var total = real + provisional_total;
+      
       balance_addresses_arr.push({
         address: key,
         label: ADDRESS_LABELS[key],
-        provisional: balances[key]['provisional'],
-        real: balances[key]['real']
+        provisional: provisional,
+        provisional_total: provisional_total,
+        real: real,
+        total: total
       })
     }
     return balance_addresses_arr;
@@ -266,22 +305,16 @@ var vm = new Vue({
     search: '',
     tokens: data.tokens,
     instanceVars: instanceVars,
-    currentToken: {}
+    currentToken: {},
+    verifiedPocketIndex: null
   },
   methods: {
     setCurrentToken: function(token){
       this.currentToken = token;
     },
   	formatQuantity: function(q){
-  		return this.delimitNumbers((q / 100000000));
+  		return this.delimitNumbers((q / 100000000).noExponents());
   	},
-    totalProvisional: function(balanceAddress){
-      var total = 0;
-      for (var i = 0; i < balanceAddress.provisional.length; i++){
-        total += balanceAddress.provisional[i].quantity;
-      }
-      return total;
-    },
     toggleSecondaryInfo: function(event){
       var $token = $(event.target).closest('.token');
       var $secondaryInfo = $token.find('.secondary-info');
@@ -306,6 +339,24 @@ var vm = new Vue({
           console.log('' + token.name + ' toggle updated successfully.');
         } 
       });
+    },
+    getVerifiedPocket: function(){
+      if (this.verifiedPocketIndex == null){
+        // Pockets haven't been searched
+        for(var i = 0; i < this.instanceVars.pockets.length; i++){
+          if (this.instanceVars.pockets[i].verified){
+            this.verifiedPocketIndex = i;
+            return this.instanceVars.pockets[this.verifiedPocketIndex];
+          }
+        }
+      } else if (this.verifiedPocketIndex === -1) {
+        // Pockets were searched, no verified pockets found
+        return null;
+      } else {
+        // Pockets already searched, return object with cached index 
+        return this.instanceVars.pockets[this.verifiedPocketIndex]; 
+      }
+      return null;
     }
   },
  ready:function(){
