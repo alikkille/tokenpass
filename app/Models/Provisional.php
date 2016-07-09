@@ -66,10 +66,53 @@ class Provisional extends Model
     
     public static function getAddressPromises($address)
     {
-        $get = DB::table('provisional_tca_txs')->where('destination', $address)->where('pseudo', 0)->get();
+        $get = Provisional::where('destination', $address)->where('pseudo', 0)->get();
         return $get;
     }
     
+    public static function getUserOwnedPromises($user_id)
+    {
+        $get = Provisional::select('provisional_tca_txs.*')
+        ->leftJoin('coin_addresses', 'coin_addresses.address', '=', 'provisional_tca_txs.source')
+        ->where('provisional_tca_txs.user_id', $user_id)->where('pseudo', 0)->where('coin_addresses.active_toggle', 1)->get();
+        return $get;
+    }
+    
+    public function getRefData()
+    {
+        $exp = explode(',', $this->ref);
+        $data = array();
+        foreach($exp as $group){
+            $exp2 = explode(':', $group);
+            if(isset($exp2[1])){
+                $data[$exp2[0]] = $exp2[1];
+            }
+            else{
+                $data[] = $exp2[0];
+            }
+        }
+        return $data;
+    }
+    
+    public static function joinRefData($data)
+    {
+        foreach($data as $k => $row){
+            if(!is_integer($k)){
+                $row = $k.':'.$row;
+            }
+            $data[$k] = $row;
+        }
+        $joined =  join(',', $data);
+        return $joined;
+    }
     
     
+    public function invalidate()
+    {
+        //send notifications that this promise has been invalidated, most likely from not enough real balance
+        if($this->user_id > 0){
+            
+        }
+        return $this->delete();
+    }
 }

@@ -7,6 +7,7 @@ use TKAccounts\Repositories\ProvisionalRepository;
 use TKAccounts\Models\OAuthClient;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
+use TKAccounts\Models\User;
 
 class PromisesController extends ResourceController
 {
@@ -30,7 +31,9 @@ class PromisesController extends ResourceController
             'ref'    => 'max:255',
             'txid'    => 'max:255',
             'fingerprint'    => 'max:255',
-            'client_id'    => 'exists:oauth_clients,id',
+            'client_id'    => '',
+            'user_id'    => 'integer',
+            'note'    => 'max:255',
         ];
     }    
 
@@ -63,6 +66,10 @@ class PromisesController extends ResourceController
         if(!$view_data['clients']){
             $view_data['clients'] = array();
         }
+        $view_data['users'] = User::all();
+        if(!$view_data['users']){
+            $view_data['users'] = array();
+        }        
         
         return $view_data;
     }
@@ -73,6 +80,10 @@ class PromisesController extends ResourceController
         if(!$view_data['clients']){
             $view_data['clients'] = array();
         }
+        $view_data['users'] = User::all();
+        if(!$view_data['users']){
+            $view_data['users'] = array();
+        }             
         
         return $view_data;
     }

@@ -7,7 +7,6 @@
 @section('accounts_content')
 
 <div id="tokensController">
-
   <div id="promiseInfoModal" class="modal-container">
     <div class="modal-bg"></div>
     <div class="modal-content">
@@ -29,53 +28,98 @@
   <div id="lendTokenModal" class="modal-container">
     <div class="modal-bg"></div>
     <div class="modal-content">
-      <h3 class="light">Lend Tokens</h3>
+      <h3 class="light">Lend Token Access Rights</h3>
       <div class="modal-x close-modal">
         <i class="material-icons">clear</i>
       </div>
-
-      <form method="POST">
+      <p>
+        Use this form to lend out your Token Access (TCA) rights to another Tokenpass user for a specified period of time.
+        You may lend out only up to your "Real Balance" in each pocket, and your TCA loans will automatically become invalidated
+        if your balance falls below the loan total. This is a free service.
+      </p>
+      <form method="POST" action="/inventory/lend/@{{ currentPocket.address }}/@{{ currentToken.name }}">
+        <p>
+            <strong>Pocket:</strong> @{{ currentPocket.address }}
+        </p>
         <div class="input-group">
           <label for="lendee">Who would you like to lend to? *</label>
-          <input type="text" id="lendee" name="lendee">
+          <input type="text" id="lendee" name="lendee" required>
           <div class="sublabel">Tokenpass username or bitcoin address</div>
         </div>
 
         <div class="outer-container">
           <div class="input-group span-4">
             <label for="quantity">Quantity *</label>
-            <input type="number" name="quantity" placeholder="10.5">
-            <div class="sublabel">You can lend up to @{{ formatQuantity(currentToken.balance) }} @{{ currentToken.name }}</div>
+            <input type="text" name="quantity" placeholder="10.5" required>
+            <div class="sublabel">You can lend up to @{{ formatQuantity(currentPocket.real) }} @{{ currentToken.name }} in this pocket</div>
           </div>
           <div class="input-group span-8">
-            <label for="token">Token To Lend *</label>
-            <select v-model="currentToken" name="token" id="token">
-              <option v-bind:value="token" v-for="token in tokens | filterBy search">@{{ token.name }}</option>
-            </select>
+            <label for="token">Token To Lend</label>
+            <strong>@{{ currentToken.name }}</strong>
+          </div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-6">
+            <label for="end_date">Expiration Date</label>
+            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
           </div>
         </div>
 
         <div class="input-group">
           <label for="note">Note</label>
-          <input type="text" id="note" placeholder="Check out this new song on Tokenly Music!">
+          <input type="text" id="note" name="note" placeholder="Check out this new song on Tokenly Music!">
           <div class="sublabel">Reason for lending</div>
         </div>
-
-        <div class="outer-container">
-          <div class="input-group span-6">
-            <label for="start_date">Start Date</label>
-            <input type="date" name="start_date" placeholder="DD/MM/YYYY" class="start_date datepicker">
-          </div>
-          <div class="input-group span-6">
-            <label for="end_date">End Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
-          </div>
+        <div class="input-group">
+          <label for="show_as">Show loan source as:</label>
+          <select name="show_as" id="show_as">
+            <option value="username">Username</option>
+            <option value="address">Pocket Address</option>
+          </select>
         </div>
-
         <button type="submit">Submit</button>
       </form>
     </div>
   </div> <!-- End lend token modal  -->
+  
+  
+  <div id="editLoanModal" class="modal-container">
+    <div class="modal-bg"></div>
+    <div class="modal-content">
+      <h3 class="light">Modify TCA Loan</h3>
+      <p>
+        <strong>ID:</strong> #@{{ currentLoan.id }}<br>
+        <strong>Created:</strong> @{{ currentLoan.created_at }}<br>
+        <strong>Updated:</strong> @{{ currentLoan.updated_at }}<br>
+        <strong>Source Pocket:</strong> @{{ currentLoan.source }}<br>
+        <strong>Lendee:</strong> @{{ currentLoan.destination }}<br>
+        <strong>Amount: </strong> @{{ formatQuantity(currentLoan.quantity) }} @{{ currentLoan.asset }}
+      </p>
+      <p v-if="currentLoan.note != ''">
+        <strong>Note:</strong> @{{ currentLoan.note }}
+      </p>
+      <div class="modal-x close-modal">
+        <i class="material-icons">clear</i>
+      </div>
+      <form method="POST" action="/inventory/lend/@{{ currentLoan.id }}/edit">
+        <div class="outer-container">
+          <div class="input-group span-6">
+            <label for="end_date">Expiration Date</label>
+            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker" v-model="currentLoan.date">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="show_as">Show loan source as:</label>
+          <select name="show_as" id="show_as" v-model="currentLoan.show_as">
+            <option value="username">Username</option>
+            <option value="address">Pocket Address</option>
+          </select>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div> <!-- End edit tca loan modal  -->  
 
 	<section class="title">
 		<span class="heading">Inventory</span>
@@ -88,6 +132,9 @@
 		</a>
 	</section>
 	<section class="tokens" v-cloak>
+    @if(Session::has('message'))
+        <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
+    @endif
     <p class="reveal-modal click-me" data-modal="promiseInfoModal">
       * contains promised tokens
     </p>
@@ -108,7 +155,12 @@
                 <em>* @{{ formatQuantity(token.balance) }}</em>
               </div>
               <div v-else>
+                <div v-if="token.hasLoanedTokens">
+                   <em>* @{{ formatQuantity(token.balance) }}</em>
+                </div>
+                <div v-else>
                 @{{ formatQuantity(token.balance) }}
+                </div>
               </div>
         		</span>
 
@@ -117,10 +169,6 @@
         		</span>
           </div>
           <div class="token-actions">
-            <!-- TODO: Lend tokens functionality -->
-            <!--  <a v-on:click="setCurrentToken(token)" class="detail-toggle reveal-modal" data-modal="lendTokenModal">
-              Lend This Token
-            </a> -->
             <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
               Balance Breakdown
               <i class="material-icons">keyboard_arrow_down</i>
@@ -136,7 +184,7 @@
               <!-- Heading -->
               <div class="pocket-heading">
                 <span class="muted">Address /</span>
-                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>              
               </div>
               <div class="pocket-promised-balance">
                 <span class="muted">Total /</span>
@@ -149,13 +197,19 @@
               <div class="pocket-real-balance">
                 <span class="muted">Real Balance /</span>
                 @{{ formatQuantity(pocket.real) }}
+                <span v-if="pocket.real > 0">
+                    <a v-on:click="setCurrentToken(token, pocket)" class="detail-toggle reveal-modal" data-modal="lendTokenModal" style="cursor: pointer;">
+                       Lend
+                       <i class="material-icons">share</i>
+                    </a>
+                </span>                  
               </div>
               <!-- Promised transactions -->
               <div v-if="pocket.provisional.length > 0">
                 <!-- <div class="detail-subheading">Promised Transactions</div> -->
                 <div class="pocket-promised-balance">
                   <span class="muted">Promised Balance /</span>
-                  @{{ formatQuantity(pocket.provisional_total) }}
+                  <span class="text-success">@{{ formatQuantity(pocket.provisional_total) }}</span>
                 </div>
                 <div class="pocket-promised-table-wrapper">
                   <table class="table">
@@ -163,21 +217,44 @@
                       <tr>
                         <th>Source</th>
                         <th>Amount</th>
+                        <th>Expires</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="promise in pocket.provisional">
                         <td class="muted">@{{ promise.source }}</td>
                         <td>@{{ formatQuantity(promise.quantity) }}</td>
+                        <td><span title="@{{ formatDate(promise.expiration) }}">@{{ relativeTime(promise.expiration) }}</span></td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-              <div v-else>
-                <div class="pocket-promised-balance">
-                  <span class="muted">Promised Balance / None</span>
+              <div v-if="pocket.loans.length > 0">
+                <div class="pocket-loaned-balance">
+                    <span class="muted">Loaned Balance /</span>
+                    <span class="text-danger">@{{ formatQuantity(pocket.loan_total) }}</span>
                 </div>
+                <div class="pocket-loaned-table-wrapper pocket-promised-table-wrapper">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Lendee</th>
+                        <th>Amount</th>
+                        <th>Expires</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="loan in pocket.loans">
+                        <td class="muted">@{{ loan.destination }}</td>
+                        <td>@{{ formatQuantity(loan.quantity) }}</td>
+                        <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span>
+                            <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>                        
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>                
               </div>
             </div>
           </div>
@@ -202,18 +279,59 @@
       </p>
     </div>
 	</section>
+    <section v-if="loans.length">
+        <h4>Token Access Loans</h4>
+        <p>
+            <strong>Active loans:</strong> @{{ loans.length }}
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Source Pocket</th>
+                    <th>Lendee</th>
+                    <th>Amount</th>
+                    <th>Expires</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="loan" v-for="loan in loans">
+                    <td>@{{ loan.source }}</td>
+                    <td>@{{ loan.destination }}</td>
+                    <td>@{{ formatQuantity(loan.quantity) }} @{{ loan.asset }}</td>
+                    <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span></td>
+                    <td>
+                        <a href="#" class="edit-loan reveal-modal click-me" data-modal="editLoanModal" v-on:click="setCurrentLoan(loan)"><i class="material-icons text-success" title="Modify TCA loan">edit</i></a>
+                        <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 </div>
 @endsection
 
 @section('page-js')
 <script>
 
+$('body').delegate('.edit-loan', 'click', function(e){
+    e.preventDefault();
+});
+
+$('body').delegate('.delete-loan', 'click', function(e){
+   var check = confirm('Are you sure you want to remove this loan?');
+   if(!check || check == null){
+       e.preventDefault();
+   }
+});
+
 var instanceVars = {
   balances: {!! json_encode($balances) !!}, 
   balanceAddresses: {!! json_encode($balance_addresses) !!}, 
   disabledTokens: {!! json_encode($disabled_tokens) !!},
   addressLabels: {!! json_encode($address_labels) !!},
-  pockets: {!! json_encode($addresses) !!}
+  pockets: {!! json_encode($addresses) !!},
+  loans: {!! json_encode($loans) !!}
 }
 
 Number.prototype.noExponents = function(){
@@ -239,7 +357,8 @@ var data = (function(args){
   var BALANCES = args['balances'], 
       BALANCE_ADDRESSES = args['balanceAddresses'], 
       DISABLED_TOKENS = args['disabledTokens'], 
-      ADDRESS_LABELS = args['addressLabels']
+      ADDRESS_LABELS = args['addressLabels'],
+      LOANS = args['loans']
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
@@ -253,8 +372,14 @@ var data = (function(args){
       balance: BALANCES[key],
       balanceAddresses: balanceAddress,
       hasPromisedTokens: hasPromisedTokens(balanceAddress),
+      hasLoanedTokens: hasLoanedTokens(balanceAddress),
       toggle: !DISABLED_TOKENS.includes(key)
     });
+  }
+  
+  var loans_arr = [];
+  for(var key in LOANS){
+      loans_arr.push(LOANS[key]);
   }
 
   // Get array of address balances of each token
@@ -264,18 +389,25 @@ var data = (function(args){
     for (var key in balances){
       var real = parseInt(balances[key]['real']);
       var provisional = balances[key]['provisional'];
+      var loans = balances[key]['loans'];
 
       // total up provisionals
       var provisional_total = 0;
       for (var i = 0; i < provisional.length; i++){
         provisional_total += parseInt(provisional[i].quantity);
       }
-      var total = real + provisional_total;
+      var loan_total = 0;
+      for (var i = 0; i < loans.length; i++){
+        loan_total += parseInt(loans[i].quantity);
+      }
+      var total = real + provisional_total - loan_total;
       
       balance_addresses_arr.push({
         address: key,
         label: ADDRESS_LABELS[key],
         provisional: provisional,
+        loans: loans,
+        loan_total: loan_total,
         provisional_total: provisional_total,
         real: real,
         total: total
@@ -292,9 +424,20 @@ var data = (function(args){
     }
     return false;
   }
+  
+  function hasLoanedTokens(balanceAddresses){
+    for (var i = 0; i < balanceAddresses.length; i++) {
+      if (balanceAddresses[i]["loans"].length > 0){
+        return true;
+      }
+    }
+    return false;
+  }
+  
 
   return {
-    tokens: tokens_arr
+    tokens: tokens_arr,
+    loans: loans_arr,
   };
 
 })(instanceVars)
@@ -304,17 +447,44 @@ var vm = new Vue({
   data: {
     search: '',
     tokens: data.tokens,
+    loans: data.loans,
     instanceVars: instanceVars,
     currentToken: {},
+    currentPocket: {},
+    currentLoan: {},
     verifiedPocketIndex: null
   },
   methods: {
-    setCurrentToken: function(token){
+    setCurrentToken: function(token, pocket = null){
       this.currentToken = token;
+      this.currentPocket = pocket;
     },
   	formatQuantity: function(q){
   		return this.delimitNumbers((q / 100000000).noExponents());
   	},
+    setCurrentLoan: function(loan){
+      this.currentLoan = loan;  
+    },
+    relativeTime: function(t){
+        if(t == null || t <= 0){
+            return 'n/a';
+        }
+        var d = new Date(t*1000);
+        var m = moment(d).fromNow();
+        return m;
+    },
+    formatDate: function(t){
+        if(t == null || t <= 0){
+            return null;
+        }
+        var d = new Date(t*1000);
+        var full_d = moment(d).format('YYYY/MM/DD H:mm');
+        return full_d;        
+    },
+    formatFormDate: function(t){
+        
+        return null;
+    },
     toggleSecondaryInfo: function(event){
       var $token = $(event.target).closest('.token');
       var $secondaryInfo = $token.find('.secondary-info');
@@ -373,7 +543,13 @@ lendTokenModal.init(document.getElementById(
 var promiseInfoModal = new Modal();
 promiseInfoModal.init(document.getElementById(
   'promiseInfoModal'));
-
+  
+  
+// Initialize edit loan modal
+var editLoanModal = new Modal();
+editLoanModal.init(document.getElementById(
+  'editLoanModal'));
+  
 
 </script>
 @endsection

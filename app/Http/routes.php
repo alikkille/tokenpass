@@ -58,16 +58,17 @@ Route::get('auth/revokeapp/{clientid}',                ['middleware' => 'tls', '
 Route::post('auth/revokeapp/{clientid}',               ['middleware' => 'tls', 'uses' => 'Auth\ConnectedAppsController@postRevokeAppForm']);
 
 //token inventory management
-Route::get('inventory',                                ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@index']);
-Route::post('inventory/address/new',                   ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@registerAddress']);
-Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@editAddress']);
-Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
-Route::post('inventory/address/{address}/toggle',      ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleAddress']);
-Route::post('inventory/address/{address}/toggleLogin', ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleLogin']);
-Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@deleteAddress']);
-Route::get('inventory/refresh',                        ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@refreshBalances']);
-Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
-Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleAsset']);
+Route::get('inventory',                                ['middleware' => 'tls', 'as' => 'inventory', 'uses' => 'Inventory\InventoryController@index']);
+Route::post('inventory/address/new',                   ['middleware' => 'tls', 'as' => 'inventory.pockets.new', 'uses' => 'Inventory\InventoryController@registerAddress']);
+Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'as' => 'inventory.pockets.edit', 'uses' => 'Inventory\InventoryController@editAddress']);
+Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
+Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'as' => 'inventory.pockets.delete', 'uses' => 'Inventory\InventoryController@deleteAddress']);
+Route::get('inventory/refresh',                        ['middleware' => 'tls', 'as' => 'inventory.force-update', 'uses' => 'Inventory\InventoryController@refreshBalances']);
+Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'as' => 'inventory.check-refresh', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
+Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', 'as' => 'inventory.asset.toggle', 'uses' => 'Inventory\InventoryController@toggleAsset']);
+Route::get('inventory/lend/{id}/delete',               ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@deleteLoan']);
+Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@editLoan']);
+Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
 
 // new route/controller for pockets
 Route::get('pockets',                                  ['middleware' => 'tls', 'as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets']);

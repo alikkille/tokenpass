@@ -70,11 +70,29 @@
         <div class="six columns">
             {!! Form::label('client_id', 'Client App ID') !!}
             <select id="client_id" name="client_id">
+                <option value="0">[None]</option>
                 @foreach($clients as $client)
-                    <option value="{{ $client->id }}" @if($client->id == $model['client_id']) selected @endif >{{ $client->name }} - {{ $client->id }}</option>
+                    <option value="{{ $client->id }}" @if($client->id == $model['client_id']) selected @endif >{{ $client->name }} - #{{ $client->id }}</option>
                 @endforeach
             </select>
         </div>
+    </div>
+    <div class="row">        
+        <div class="six columns">
+            {!! Form::label('user_id', 'User ID') !!}
+            <select id="user_id" name="user_id">
+                <option value="0">[None]</option>
+                @foreach($users as $user)
+                    <option value="{{ $user->id }}" @if($user->id == $model['user_id']) selected @endif >{{ $user->username }} - #{{ $user->id }}</option>
+                @endforeach
+            </select>
+        </div>        
+    </div>
+    <div class="row">
+        <div class="six columns">
+            {!! Form::label('note', 'Custom Note') !!}
+            {!! Form::text('note', $model['note'], ['class' => 'u-full-width']) !!}
+        </div>    
     </div>
 
     <div class="row" style="margin-top: 3%;">
