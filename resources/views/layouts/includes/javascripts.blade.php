@@ -5,6 +5,9 @@
 
 <!-- Render in dev environments -->
 <script type="text/javascript" src="/vendor/vue.js"></script>
+<script type="text/javascript" src="/vendor/vue-file-upload-component/vue.file-upload.js"></script>
+<script type="text/javascript" src="/vendor/vue-file-upload-component/vue.pretty-bytes.js"></script>
+
 
 <!-- Render in staging/production environments -->
 <!-- <script type="text/javascript" src="/vendor/vue.min.js" /></script> -->

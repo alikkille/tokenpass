@@ -69,6 +69,11 @@ Route::get('inventory/refresh',                        ['middleware' => 'tls', '
 Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
 Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleAsset']);
 
+// Image routes
+Route::post('image/update/{username}',                 ['middleware' => 'tls', 'uses' => 'Image\ImageController@update']);
+Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
+Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
+
 // new route/controller for pockets
 Route::get('pockets',                                  ['middleware' => 'tls', 'as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets']);
 

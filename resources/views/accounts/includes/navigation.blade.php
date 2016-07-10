@@ -21,7 +21,13 @@
     <div class="user">
       <div class="avatar">
         <a href="/auth/update" title="My account">
-          <i class="material-icons">person</i>
+          @if(Auth::user()->getUserImageDirectory())
+          <div>
+            <img src="https://s3.amazonaws.com/{{ env('S3_BUCKET') }}/{{ hash('sha256',Auth::user()->uuid) }}/avatar.png">
+          </div>
+          @else
+            <i class="material-icons">person</i>
+          @endif
         </a>
       </div>
       <i class="logout">
