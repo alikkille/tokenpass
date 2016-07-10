@@ -50,14 +50,6 @@ class ImageController extends Controller {
         return response()->json('Avatar defined.');
     }
 
-    public function show($id, Guard $auth, ImageRepository $repository, APIControllerHelper $api_helper)
-    {
-        
-        $resource = $api_helper->requireResourceOwnedByUser($id, $auth->getUser(), $repository);
-        return $api_helper->transformResourceForOutput($resource);
-    }
-
-
     /**
      * Get the failed message.
      *
