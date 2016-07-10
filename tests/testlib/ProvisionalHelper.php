@@ -22,7 +22,7 @@ class ProvisionalHelper
         return [
             'source'      => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
             'destination' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU',
-            'quantity'    => '15',
+            'quantity'    => 15,
             'asset'       => 'TOKENLY',
             'created_at'  => $date,
             'updated_at'  => $date,
@@ -32,7 +32,9 @@ class ProvisionalHelper
             'txid'        => null,
             'expiration'  => null,
             'ref'         => null,
-            'client_id'   => null,
+            'client_id'   => 'AAAAAAAAAAAAAAAAAAAAAA',
+            'user_id' => 0,
+            'note' => null,
 
         ];
     }
