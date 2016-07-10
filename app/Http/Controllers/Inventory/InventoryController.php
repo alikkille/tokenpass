@@ -561,7 +561,7 @@ class InventoryController extends Controller
             return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
         }
         else{
-            return $this->ajaxEnabledSuccessResponse($asset.' succesfully lended!', route('inventory'));
+            return $this->ajaxEnabledSuccessResponse($asset.' succesfully lent!', route('inventory'));
         }
     }
     
