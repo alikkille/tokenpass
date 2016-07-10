@@ -11,5 +11,6 @@
 
 <!-- Render in staging/production environments -->
 <!-- <script type="text/javascript" src="/vendor/vue.min.js" /></script> -->
+<script type="text/javascript" src="/js/moment.js" ></script>
 <script type="text/javascript" src="/js/application.js" ></script>
 @yield('page-js')
