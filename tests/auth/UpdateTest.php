@@ -112,6 +112,41 @@ class UpdateTest extends TestCase {
         $user_helper->loginWithForm($this->app, ['password' => 'theskyisfalling', ]);
     }
 
+    public function testStore() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $incorrect = '.deploy.sh';
+        $file = new \Symfony\Component\HttpFoundation\File\UploadedFile($incorrect, null, 'application/nonsense', null, null, true);
+
+        // Attempt to upload an incompatible file
+        $response = $this->call('POST',
+            '/image/store',
+            array($file),
+            array(),
+            array('file' => $file),
+            ['CONTENT_TYPE' => 'application/nonsense'],
+            ['Content-Type' =>'application/nonsense']);
+
+        PHPUnit::assertContains('Only image type files are accepted as an avatar.', $response->getContent());
+
+        $image = 'public/img/landing_hero.png';
+
+        $file = new \Symfony\Component\HttpFoundation\File\UploadedFile($image, null, 'image/png', null, null, true);
+
+        // Attempt upload a real image, requires cont
+        $response = $this->call('POST',
+            '/image/store',
+            array($file),
+            array(),
+            array('file' => $file),
+            ['CONTENT_TYPE' => 'image/png'],
+            ['Content-Type' =>'image/png']);
+
+        PHPUnit::assertContains('Avatar defined.', $response->getContent());
+    }
+
     ////////////////////////////////////////////////////////////////////////
 
     protected function setupUserTest() {

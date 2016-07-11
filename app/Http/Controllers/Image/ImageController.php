@@ -35,7 +35,7 @@ class ImageController extends Controller {
 
     public function store(Request $request){
 
-        $type = substr($request->get('Content-Type'), 0, 5);
+        $type = substr($request->file('file')->getClientMimeType(), 0, 5);
         try {
             if ($type == 'image') {
                 $result = Image::store($request);

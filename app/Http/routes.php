@@ -71,8 +71,7 @@ Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', '
 Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
 
 // Image routes
-Route::post('image/store', ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
-
+Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
 //Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
 
 
