@@ -54,13 +54,14 @@ class Image extends Model {
 
     public static function show($path = null, $avatar = true) {
 
+        // Use for private access files, not require yet.
         $filesystem = Image::getS3Client();
         $response_code = 200;
         if(is_null($path)) {
             $path = hash('sha256', Facades\Auth::user()->getUuid());
         }
 
-        $filesystem->get($path);
+        return $filesystem->get($path);
     }
 
     private static function storeAvatar($image) {

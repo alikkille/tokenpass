@@ -52,7 +52,7 @@
                 <li v-for="file in uploadedFiles">Name: <em>@{{ file.name }}</em> Size: <em>@{{ file.size | prettyBytes }}</em></li>
             </ul>
             <!-- only show when ready, fileProgress is a percent -->
-            <div class="progress-bar" v-bind:style="width: @{{ fileProgress }}%" v-show="fileProgress > 0" ></div>
+            <div class="progress-bar" :style="{ width: fileProgress + '%'}" v-show="fileProgress > 0" ></div>
             <!-- message for all uploads completing -->
             <p v-if="allFilesUploaded"><strong>File Uploaded</strong></p>
             <!-- full usage example -->

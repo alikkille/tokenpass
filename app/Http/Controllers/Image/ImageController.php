@@ -35,19 +35,22 @@ class ImageController extends Controller {
 
     public function store(Request $request){
 
-        $result = Image::store($request);
-
+        $type = substr($request->get('Content-Type'), 0, 5);
         try {
-            $result = Image::store($request);
+            if ($type == 'image') {
+                $result = Image::store($request);
+            } else {
+                return response()->json('Only image type files are accepted as an avatar.', 400);
+            }
         } catch (Exception $e) {
-            return response()->json($e->getMessage(), route('auth.update'));
+            return response()->json($e->getMessage(), 400);
         }
 
         if (!$result OR !$result['message']) {
-            return response()->json('Please enter a valid bitcoin address', route('auth.update'));
+            return response()->json('There has been an error', 400);
+        } else {
+            return response()->json('Avatar defined.');
         }
-
-        return response()->json('Avatar defined.');
     }
 
     /**

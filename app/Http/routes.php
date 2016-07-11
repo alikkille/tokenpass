@@ -36,7 +36,7 @@ Route::get('auth/register',                            ['middleware' => 'tls', '
 Route::post('auth/register',                           ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postRegister']);
 
 // Update routes...
-Route::get('auth/update',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getUpdate']);
+Route::get('auth/update',                              ['middleware' => 'tls', 'as' => 'auth.update', 'uses' => 'Auth\AuthController@getUpdate']);
 Route::post('auth/update',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postUpdate']);
 
 // Email confirmations...
@@ -71,9 +71,10 @@ Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', '
 Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
 
 // Image routes
-Route::post('image/update/{username}',                 ['middleware' => 'tls', 'uses' => 'Image\ImageController@update']);
-Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
-Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
+Route::post('image/store', ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
+
+//Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
+
 
 // new route/controller for pockets
 Route::get('pockets',                                  ['middleware' => 'tls', 'as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets']);
