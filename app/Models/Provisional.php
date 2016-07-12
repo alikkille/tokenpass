@@ -59,6 +59,9 @@ class Provisional extends Model
                 $valid_balance = true;
             }
         }
+        else{
+            $balances[$asset] = 0;
+        }
         
         $output = array('valid' => $valid_balance, 'balance' => $balances[$asset]);
         return $output;
