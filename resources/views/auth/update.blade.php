@@ -46,6 +46,7 @@
         </div>
 
         <div class="input-group" id="app">
+            <label for="avatar_upload">Profile Image</label>
             <!-- only show the menu when ready -->
             <ul v-show="uploadedFiles.length > 0">
                 <!-- loop through the completed files -->
@@ -56,7 +57,7 @@
             <!-- message for all uploads completing -->
             <p v-if="allFilesUploaded"><strong>File Uploaded</strong></p>
             <!-- full usage example -->
-            <file-upload class="my-file-uploader" name="myFile" id="myCustomId" action="/image/store"></file-upload>
+            <file-upload class="my-file-uploader" name="myFile" id="avatarUpload" action="/image/store"></file-upload>
         </div>
         <hr>
         <div class="input-group">
