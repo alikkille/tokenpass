@@ -13,6 +13,9 @@ class PlatformAdminPromisesTest extends TestCase {
     protected $use_database = true;
 
     public function testPlatformAdminPromisesRoutes() {
+        $this->markTestIncomplete();
+        return;
+
         $helper = $this->setupPlatformAdminHelper();
         $helper->beAuthorizedUser();
         
