@@ -139,6 +139,7 @@
       * contains promised tokens
     </p>
     <div v-if="tokens.length">
+      <div class="panel-pre-heading">My Tokens</div>
   	  <div class="token" v-for="token in tokens | filterBy search">
   	    <!-- TODO: Token's have avatars
       	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
@@ -279,35 +280,36 @@
       </p>
     </div>
 	</section>
-    <section v-if="loans.length">
-        <h4>Token Access Loans</h4>
-        <p>
-            <strong>Active loans:</strong> @{{ loans.length }}
-        </p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Source Pocket</th>
-                    <th>Lendee</th>
-                    <th>Amount</th>
-                    <th>Expires</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="loan" v-for="loan in loans">
-                    <td>@{{ loan.source }}</td>
-                    <td>@{{ loan.destination }}</td>
-                    <td>@{{ formatQuantity(loan.quantity) }} @{{ loan.asset }}</td>
-                    <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span></td>
-                    <td>
-                        <a href="#" class="edit-loan reveal-modal click-me" data-modal="editLoanModal" v-on:click="setCurrentLoan(loan)"><i class="material-icons text-success" title="Modify TCA loan">edit</i></a>
-                        <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+
+  <section v-if="loans.length" v-cloak>
+    <div class="panel-pre-heading">Token Access Loans / <span class="muted">Active Loans:</span> @{{ loans.length }}</div>
+    <div class="panel">
+      
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Source Pocket</th>
+            <th>Lendee</th>
+            <th>Amount</th>
+            <th>Expires</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="loan" v-for="loan in loans">
+            <td>@{{ loan.source }}</td>
+            <td>@{{ loan.destination }}</td>
+            <td>@{{ formatQuantity(loan.quantity) }} @{{ loan.asset }}</td>
+            <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span></td>
+            <td>
+              <a href="#" class="edit-loan reveal-modal click-me" data-modal="editLoanModal" v-on:click="setCurrentLoan(loan)"><i class="material-icons text-success" title="Modify TCA loan">edit</i></a>
+              <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
 @endsection
 
