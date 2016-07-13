@@ -21,41 +21,41 @@ Route::get('/', [
 // User login and registration
 
 // Authentication routes...
-Route::get('auth/login',                               ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogin']);
-Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postLogin']);
-Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
+Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthController@getLogin']);
+Route::post('auth/login',                              ['middleware' => 'tls', 'as' => 'auth.login.post', 'uses' => 'Auth\AuthController@postLogin']);
+Route::get('auth/logout',                              ['middleware' => 'tls', 'as' => 'auth.logout', 'uses' => 'Auth\AuthController@getLogout']);
 
 // Bitcoin Authentication routes...
-Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
-Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
+Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'as' => 'auth.login.bitcoin', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
+Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'as' => 'auth.login.bitcoin.post', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
 Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement']);
 Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned']);
 
 // Registration routes...
-Route::get('auth/register',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getRegister']);
-Route::post('auth/register',                           ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postRegister']);
+Route::get('auth/register',                            ['middleware' => 'tls', 'as' => 'auth.register', 'uses' => 'Auth\AuthController@getRegister']);
+Route::post('auth/register',                           ['middleware' => 'tls', 'as' => 'auth.register.post', 'uses' => 'Auth\AuthController@postRegister']);
 
 // Update routes...
 Route::get('auth/update',                              ['middleware' => 'tls', 'as' => 'auth.update', 'uses' => 'Auth\AuthController@getUpdate']);
-Route::post('auth/update',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postUpdate']);
+Route::post('auth/update',                             ['middleware' => 'tls', 'as' => 'auth.update.post', 'uses' => 'Auth\AuthController@postUpdate']);
 
 // Email confirmations...
-Route::get('auth/sendemail',                           ['middleware' => 'tls', 'uses' => 'Auth\EmailConfirmationController@getSendEmail']);
-Route::post('auth/sendemail',                          ['middleware' => 'tls', 'uses' => 'Auth\EmailConfirmationController@postSendEmail']);
+Route::get('auth/sendemail',                           ['middleware' => 'tls', 'as' => 'auth.sendemail', 'uses' => 'Auth\EmailConfirmationController@getSendEmail']);
+Route::post('auth/sendemail',                          ['middleware' => 'tls', 'as' => 'auth.sendemail.post', 'uses' => 'Auth\EmailConfirmationController@postSendEmail']);
 Route::get('auth/verify/{token}',                      ['middleware' => 'tls', 'as' => 'auth.verify', 'uses' => 'Auth\EmailConfirmationController@verifyEmail']);
 
 // Password reset link request routes...
-Route::get('password/email',                           ['middleware' => 'tls', 'uses' => 'Auth\PasswordController@getEmail']);
-Route::post('password/email',                          ['middleware' => 'tls', 'uses' => 'Auth\PasswordController@postEmail']);
+Route::get('password/email',                           ['middleware' => 'tls', 'as' => 'auth.forgot-pass', 'uses' => 'Auth\PasswordController@getEmail']);
+Route::post('password/email',                          ['middleware' => 'tls', 'as' => 'auth.forgot-pass.post', 'uses' => 'Auth\PasswordController@postEmail']);
 
 // Password reset routes...
-Route::get('password/reset/{token}',                   ['middleware' => 'tls', 'uses' => 'Auth\PasswordController@getReset']);
-Route::post('password/reset',                          ['middleware' => 'tls', 'uses' => 'Auth\PasswordController@postReset']);
+Route::get('password/reset/{token}',                   ['middleware' => 'tls', 'as' => 'auth.reset', 'uses' => 'Auth\PasswordController@getReset']);
+Route::post('password/reset',                          ['middleware' => 'tls', 'as' => 'auth.reset.post', 'uses' => 'Auth\PasswordController@postReset']);
 
 // Connected apps routes...
-Route::get('auth/connectedapps',                       ['middleware' => 'tls', 'uses' => 'Auth\ConnectedAppsController@getConnectedApps']);
-Route::get('auth/revokeapp/{clientid}',                ['middleware' => 'tls', 'uses' => 'Auth\ConnectedAppsController@getRevokeAppForm']);
-Route::post('auth/revokeapp/{clientid}',               ['middleware' => 'tls', 'uses' => 'Auth\ConnectedAppsController@postRevokeAppForm']);
+Route::get('auth/connectedapps',                       ['middleware' => 'tls', 'as' => 'account.connections', 'uses' => 'Auth\ConnectedAppsController@getConnectedApps']);
+Route::get('auth/revokeapp/{clientid}',                ['middleware' => 'tls', 'as' => 'account.connections.revoke', 'uses' => 'Auth\ConnectedAppsController@getRevokeAppForm']);
+Route::post('auth/revokeapp/{clientid}',               ['middleware' => 'tls', 'as' => 'account.connections.revoke.post', 'uses' => 'Auth\ConnectedAppsController@postRevokeAppForm']);
 
 //token inventory management
 Route::get('inventory',                                ['middleware' => 'tls', 'as' => 'inventory', 'uses' => 'Inventory\InventoryController@index']);
@@ -71,7 +71,7 @@ Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', '
 Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
 
 // Image routes
-Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
+Route::post('image/store',                             ['middleware' => 'tls', 'as' => 'account.image.store', 'uses' => 'Image\ImageController@store']);
 //Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
 
 
@@ -80,10 +80,10 @@ Route::get('pockets',                                  ['middleware' => 'tls', '
 
 //client applications / API keys
 Route::get('auth/apps',                                ['middleware' => 'tls', 'as' => 'auth.apps', 'uses' => 'Auth\AppsController@index']);
-Route::post('auth/apps/new',                           ['middleware' => 'tls', 'uses' => 'Auth\AppsController@registerApp']);
-Route::post('auth/apps/{app}/edit',                    ['middleware' => 'tls', 'uses' => 'Auth\AppsController@updateApp']);
-Route::patch('auth/apps/{app}/regen',                  ['middleware' => 'tls', 'uses' => 'Auth\AppsController@regenerateApp']);
-Route::get('auth/apps/{app}/delete',                   ['middleware' => 'tls', 'uses' => 'Auth\AppsController@deleteApp']);
+Route::post('auth/apps/new',                           ['middleware' => 'tls', 'as' => 'auth.apps.new', 'uses' => 'Auth\AppsController@registerApp']);
+Route::post('auth/apps/{app}/edit',                    ['middleware' => 'tls', 'as' => 'auth.apps.edit', 'uses' => 'Auth\AppsController@updateApp']);
+Route::patch('auth/apps/{app}/regen',                  ['middleware' => 'tls', 'as' => 'auth.apps.regen', 'uses' => 'Auth\AppsController@regenerateApp']);
+Route::get('auth/apps/{app}/delete',                   ['middleware' => 'tls', 'as' => 'auth.apps.delete', 'uses' => 'Auth\AppsController@deleteApp']);
 
 // -------------------------------------------------------------------------
 // User routes
