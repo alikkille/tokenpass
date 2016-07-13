@@ -442,10 +442,13 @@ class InventoryController extends Controller
         $input = Input::all();
         
         //get quantity
-        if(!isset($input['quantity']) OR intval($input['quantity']) <= 0){
+        if(!isset($input['quantity'])){
             return $this->ajaxEnabledErrorResponse('Quantity required', route('inventory'), 400);
         }
         $quantity = round(floatval($input['quantity']) * 100000000); //quantity in satoshis
+        if($quantity <= 0){
+            return $this->ajaxEnabledErrorResponse('Invalid quantity', route('inventory'), 400);
+        }
         
         //get valid asset
         $asset_db = DB::table('address_balances')->where('address_id', $get_address->id)->where('asset', $asset)->first();
@@ -584,7 +587,7 @@ class InventoryController extends Controller
         $destination = $get->destination;
         $delete = $get->delete();
         if(!$delete){
-            return $this->ajaxEnabledErrorResponse('Error removing TCA loan', route('inventory'), 500);
+            return $this->ajaxEnabledErrorResponse('Error cancelling TCA loan', route('inventory'), 500);
         }
         else{
             $get_user = Address::where('address', $destination)->where('verified', 1)->first();
@@ -595,7 +598,7 @@ class InventoryController extends Controller
                 $notify_data = array('promise' => $get, 'lender' => $user);
                 $get_user->notify('emails.loans.delete-loan', 'TCA loan for '.$get->asset.' cancelled '.date('Y/m/d'), $notify_data);
             }
-            return $this->ajaxEnabledSuccessResponse('TCA loan removed', route('inventory'));
+            return $this->ajaxEnabledSuccessResponse('TCA loan cancelled', route('inventory'));
         }
     }
     

@@ -224,7 +224,7 @@ class Address extends Model
         }
     }
 
-    public static function getSecureCodeGeneration($entropy=null, $language=null)
+    public static function getSecureCodeGeneration($entropy=null, $language=null, $no_prefix=false)
     {
         if(is_null($language)) {
             $file_content = file_get_contents(base_path() . "/database/wordlists/english.txt");
@@ -252,9 +252,12 @@ class Address extends Model
 
             return (string) trim($response);
         }
-        $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
-        if($verify_prefix){
-            $verify_prefix .= ' ';
+        $verify_prefix = null;
+        if(!$no_prefix){
+            $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
+            if($verify_prefix){
+                $verify_prefix .= ' ';
+            }
         }
         return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
