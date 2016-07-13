@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 use Tokenly\LaravelApiProvider\Model\APIUser;
 use Tokenly\LaravelApiProvider\Model\Traits\Permissioned;
-use DB;
+use DB, Mail;
 
 class User extends APIUser implements AuthenticatableContract, CanResetPasswordContract, APIPermissionedUserContract
 {
@@ -89,5 +89,19 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
 		}
 		return array('user' => $get_user, 'session' => $get_sesh, 'access_token' => $find_sesh);
 	}
+    
+    public static function notifyUser($userId, $view, $subject, $data)
+    {
+        $user = self::find($userId);
+        $data['user'] = $user;
+        return Mail::send($view, $data, function($message) use($user, $subject) {
+            $message->to($user->email, $user->name)->subject($subject);
+        });
+    }
+    
+    public function notify($view, $subject, $data)
+    {
+        return self::notifyUser($this->id, $view, $subject, $data);
+    }
 
 }

@@ -114,8 +114,37 @@ class Provisional extends Model
     {
         //send notifications that this promise has been invalidated, most likely from not enough real balance
         if($this->user_id > 0){
-            
+            $this->sendInvalidationNotifications();
         }
         return $this->delete();
+    }
+    
+    public function sendInvalidationNotifications()
+    {
+        $lender = User::find($this->user_id);
+        if($lender){
+            $lendee = Address::where('address', $this->destination)->where('verified', 1)->first();
+            if($lendee){
+                $lendee = $lendee->user();
+            }                                 
+            $notify_data = array('promise' => $this, 'lender' => $lender, 'lendee' => $lendee);
+            //notify lender
+            $lender->notify('emails.loans.invalidated-lender', 'TCA loan for '.$this->asset.' invalidated '.date('Y/m/d'), $notify_data);                        
+            //notify lendee
+            if($lendee){
+                $lendee->notify('emails.loans.invalidated-lendee', 'TCA loan for '.$this->asset.' invalidated '.date('Y/m/d'), $notify_data);
+            }
+        }        
+    }
+    
+    public function formatQuantity()
+    {
+        $q = $this->convertQuantity();
+        return rtrim(rtrim(number_format($q, 8), "0"), ".");
+    }
+    
+    public function convertQuantity()
+    {
+        return round($this->quantity / 100000000, 8);
     }
 }
