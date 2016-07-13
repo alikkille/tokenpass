@@ -50,19 +50,34 @@
         <div class="outer-container">
           <div class="input-group span-4">
             <label for="quantity">Quantity *</label>
-            <input type="text" name="quantity" placeholder="10.5" required>
+            <input type="text" name="quantity" data-inputmask="'mask': '9.99999999'" placeholder="10.5" required>
             <div class="sublabel">You can lend up to @{{ formatQuantity(currentPocket.real) }} @{{ currentToken.name }} in this pocket</div>
           </div>
           <div class="input-group span-8">
             <label for="token">Token To Lend</label>
-            <strong>@{{ currentToken.name }}</strong>
+            <input type="text" value="@{{ currentToken.name }}" disabled readonly>
           </div>
         </div>
 
         <div class="outer-container">
-          <div class="input-group span-6">
-            <label for="end_date">Expiration Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
+          <div class="input-group span-3">
+            <label for="start_time">Start Time</label>
+            <input type="hh:mm t" name="start_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="start_time">
+          </div>
+          <div class="input-group span-9">
+            <label for="start_date">Start Date</label>
+            <input type="date" name="start_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="start_date">
+          </div>
+        </div>
+
+        <div class="outer-container">
+          <div class="input-group span-3">
+            <label for="end_time">End Tme</label>
+            <input type="hh:mm t" name="end_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="end_time">
+          </div>
+          <div class="input-group span-9">
+            <label for="end_date">End Date</label>
+            <input type="date" name="end_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="end_date">
           </div>
         </div>
 
@@ -106,7 +121,7 @@
         <div class="outer-container">
           <div class="input-group span-6">
             <label for="end_date">Expiration Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker" v-model="currentLoan.date">
+            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date" data-inputmask="'alias': 'date'" v-model="currentLoan.date">
           </div>
         </div>
         <div class="input-group">
@@ -551,7 +566,9 @@ promiseInfoModal.init(document.getElementById(
 var editLoanModal = new Modal();
 editLoanModal.init(document.getElementById(
   'editLoanModal'));
-  
+
+// Invokes input masking
+$(":input").inputmask();
 
 </script>
 @endsection
