@@ -59,7 +59,8 @@
           </div>
         </div>
 
-        <div class="outer-container">
+<!-- TODO: Start datetime setting on loans -->
+<!--         <div class="outer-container">
           <div class="input-group span-3">
             <label for="start_time">Start Time</label>
             <input type="hh:mm t" name="start_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="start_time">
@@ -68,7 +69,7 @@
             <label for="start_date">Start Date</label>
             <input type="date" name="start_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="start_date">
           </div>
-        </div>
+        </div> -->
 
         <div class="outer-container">
           <div class="input-group span-3">
