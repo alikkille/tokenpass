@@ -460,6 +460,9 @@ class InventoryController extends Controller
         $time = time();
         $expiration = null;
         if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }
             $expiration = strtotime($input['end_date']);
             if($expiration <= $time){
                 return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
@@ -614,6 +617,9 @@ class InventoryController extends Controller
         $time = time();
         $expiration = null;
         if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }            
             $expiration = strtotime($input['end_date']);
             if($expiration <= $time){
                 return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
