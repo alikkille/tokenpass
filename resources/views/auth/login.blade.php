@@ -8,7 +8,7 @@
 <div class="everything">
 	<div class="logo"><a href="/">token<strong>pass</strong></a></div>
 		<div class="form-wrapper">
-			@include('partials.errors', ['errors' => $errors])
+			@include('partials.alerts')
 
 			@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 				<div>
