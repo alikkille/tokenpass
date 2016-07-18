@@ -146,9 +146,6 @@
 		</a>
 	</section>
 	<section class="tokens" v-cloak>
-    @if(Session::has('message'))
-        <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-    @endif
     <p class="reveal-modal click-me" data-modal="promiseInfoModal">
       * contains promised tokens
     </p>

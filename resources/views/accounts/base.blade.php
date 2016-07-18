@@ -3,6 +3,10 @@
 @section('body')
 
   @include('accounts.includes.navigation')
+  
+  <section>
+    @include('partials.alerts')
+  </section>
 
   @yield('accounts_content')
 

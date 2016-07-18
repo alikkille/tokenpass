@@ -11,12 +11,6 @@
 </section>
 
 <section>
-    @include('partials.errors', ['errors' => $errors])
-
-    @if(Session::has('message'))
-        <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-    @endif	
-
     <form method="POST" action="/auth/update">
 
         {!! csrf_field() !!}

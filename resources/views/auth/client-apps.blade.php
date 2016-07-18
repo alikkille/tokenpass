@@ -13,10 +13,6 @@
 
 <section id="appsController">
 	<div class="panel with-padding">
-		@if(Session::has('message'))
-			<p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-		@endif	
-		
 		<p>
 			Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
 			in your own website or service. 
