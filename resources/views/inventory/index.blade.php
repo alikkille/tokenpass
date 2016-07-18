@@ -72,13 +72,10 @@
         </div> -->
 
         <div class="outer-container">
-          <div class="input-group span-3">
-            <label for="end_time">End Tme</label>
-            <input type="hh:mm t" name="end_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="end_time">
-          </div>
-          <div class="input-group span-9">
-            <label for="end_date">End Date</label>
-            <input type="date" name="end_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="end_date">
+          <div class="input-group span-12">
+            <label for="end_date">Expiration Date + Time</label>
+            <input type="text" name="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" class="end_date">
+            <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
 
@@ -120,9 +117,10 @@
       </div>
       <form method="POST" action="/inventory/lend/@{{ currentLoan.id }}/edit">
         <div class="outer-container">
-          <div class="input-group span-6">
-            <label for="end_date">Expiration Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date" data-inputmask="'alias': 'date'" v-model="currentLoan.date">
+          <div class="input-group span-12">
+            <label for="end_date">Expiration Date + Time</label>
+            <input type="text" name="end_date" class="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" v-model="currentLoan.expiration_datetime">
+            <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
         <div class="input-group">
@@ -397,7 +395,9 @@ var data = (function(args){
   
   var loans_arr = [];
   for(var key in LOANS){
-      loans_arr.push(LOANS[key]);
+      var loan = LOANS[key];
+      loan.expiration_datetime = moment(new Date(loan.expiration * 1000)).format('DD/MM/YYYY HH:MM');
+      loans_arr.push(loan);
   }
 
   // Get array of address balances of each token
@@ -496,7 +496,7 @@ var vm = new Vue({
             return null;
         }
         var d = new Date(t*1000);
-        var full_d = moment(d).format('YYYY/MM/DD H:mm');
+        var full_d = moment(d).format('DD/MM/YYYY HH:MM');
         return full_d;        
     },
     formatFormDate: function(t){
