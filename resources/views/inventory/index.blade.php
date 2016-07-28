@@ -50,7 +50,7 @@
         <div class="outer-container">
           <div class="input-group span-4">
             <label for="quantity">Quantity *</label>
-            <input type="text" name="quantity" data-inputmask="'mask': '9.99999999'" placeholder="10.5" required>
+            <input type="text" name="quantity" data-inputmask="'alias': 'numeric', 'groupSeparator': ',', 'autoGroup': true, 'digits': 8, 'digitsOptional': false, 'placeholder': '0'" placeholder="10.5" required>
             <div class="sublabel">You can lend up to @{{ formatQuantity(currentPocket.real) }} @{{ currentToken.name }} in this pocket</div>
           </div>
           <div class="input-group span-8">
