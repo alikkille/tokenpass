@@ -132,7 +132,6 @@ class AuthController extends Controller
         return $response;
     }
 
-
     public function postLogin(Request $request, UserRepository $user_repository) {
         $this->validate($request, [
             $this->loginUsername() => 'required', 'password' => 'required',
@@ -154,7 +153,7 @@ class AuthController extends Controller
         } catch(Exception $e) {}
 
         list($login_error, $was_logged_in) = $this->performLoginLogic($credentials, $request->has('remember'));
-        
+
         if ($was_logged_in) {
             return $this->handleUserWasAuthenticated($request, true);
         }
@@ -165,7 +164,17 @@ class AuthController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
-    // ------------------------------------------------------------------------
+    public function getOneClick() {
+        $sigval = Address::getSecureCodeGeneration(4);
+        Session::flash('sigval', $sigval);;
+        $total = [];
+        $total['scheme'] = 'pockets://';
+        $total['filename'] = '$sigval';
+        $total['callback'] = 'https://token.pass/api/onelick';
+
+        return redirect(implode($total));
+    }
+        // ------------------------------------------------------------------------
     
     public function performLoginLogic($credentials, $remember) {
         $login_error = null;
@@ -299,255 +308,255 @@ class AuthController extends Controller
             return redirect('/auth/update');
 
         } catch (InvalidArgumentException $e) {
-            throw new HttpResponseException($this->buildFailedValidationResponse($request, [0 => $e->getMessage()]));
-        }
+throw new HttpResponseException($this->buildFailedValidationResponse($request, [0 => $e->getMessage()]));
+}
 
+}
+public function toggleSecondFactor()
+{
+    $output = array('result' => false);
+    $response_code = 200;
+    $total_addresses = Address::getAddressList($this->user->id, null,1,1,1);
+
+    $second_factor_addresses = [];
+    foreach ($total_addresses as $address) {
+        if ($address->second_factor_toggle) {
+            array_push($second_factor_addresses, $address);
+        }
     }
-    public function toggleSecondFactor()
-    {
-        $output = array('result' => false);
-        $response_code = 200;
-        $total_addresses = Address::getAddressList($this->user->id, null,1,1,1);
 
-        $second_factor_addresses = [];
-        foreach ($total_addresses as $address) {
-            if ($address->second_factor_toggle) {
-                array_push($second_factor_addresses, $address);
-            }
-        }
+    if (empty($second_factor_addresses)) {
+        $output['error'] = 'Please allow at minimum one address before switching on Second Factor Authentication';
+        $response_code = 400;
+    }
 
-        if (empty($second_factor_addresses)) {
-            $output['error'] = 'Please allow at minimum one address before switching on Second Factor Authentication';
-            $response_code = 400;
-        }
-
-        $input = Input::all();
-        if(!isset($input['toggle'])){
-            $output['error'] = 'Toggle option required';
-            $response_code = 400;
+    $input = Input::all();
+    if(!isset($input['toggle'])){
+        $output['error'] = 'Toggle option required';
+        $response_code = 400;
+    }
+    else{
+        $toggle_val = $input['toggle'];
+        if($toggle_val == 'true' OR $toggle_val === true){
+            $toggle_val = 1;
         }
         else{
-            $toggle_val = $input['toggle'];
-            if($toggle_val == 'true' OR $toggle_val === true){
-                $toggle_val = 1;
-            }
-            else{
-                $toggle_val = 0;
-            }
-            $get->second_factor_toggle = $toggle_val;
-            $save = $get->save();
-            if(!$save){
-                $output['error'] = 'Error updating address';
-                $response_code = 500;
-            }
-            else{
-                $output['result'] = true;
-            }
+            $toggle_val = 0;
         }
-
-        return Response::json($output, $response_code);
+        $get->second_factor_toggle = $toggle_val;
+        $save = $get->save();
+        if(!$save){
+            $output['error'] = 'Error updating address';
+            $response_code = 500;
+        }
+        else{
+            $output['result'] = true;
+        }
     }
 
+    return Response::json($output, $response_code);
+}
 
-    public function getSignRequirement(Request $request, $user = null) {
-        if (session()->has('user')) {
-            $user = session()->get('user');
-            $request->session()->reflash();
-        } else {
-            $user = Auth::user();
-        }
-        
-        if(!$user){
-            return redirect('auth/login');
-        }
 
-        $sigval = Address::getUserVerificationCode($user, 'simple');
-        return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
+public function getSignRequirement(Request $request, $user = null) {
+    if (session()->has('user')) {
+        $user = session()->get('user');
+        $request->session()->reflash();
+    } else {
+        $user = Auth::user();
     }
 
-    public function setSigned(Request $request) {
-        if (session()->has('user')) {
-            $user = session()->get('user');
-        } else {
-            $user = Auth::user();
-        }
-        
-        if(!$user){
-            return redirect('auth/login');
-        }        
+    if(!$user){
+        return redirect('auth/login');
+    }
 
-        $sigval = Address::getUserVerificationCode($user, 'simple');
-        $sig = Address::extract_signature($request->request->get('signed_message'));
+    $sigval = Address::getUserVerificationCode($user, 'simple');
+    return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
+}
+
+public function setSigned(Request $request) {
+    if (session()->has('user')) {
+        $user = session()->get('user');
+    } else {
+        $user = Auth::user();
+    }
+
+    if(!$user){
+        return redirect('auth/login');
+    }
+
+    $sigval = Address::getUserVerificationCode($user, 'simple');
+    $sig = Address::extract_signature($request->request->get('signed_message'));
+    try {
+        $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
+    } catch(Exception $e) {
+        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+        ]);
+    }
+
+    //verify signed message on xchain
+    $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
+    if($verify) {
+        UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
+        if (empty($request['redirect'])) {
+            Auth::loginUsingId($user->id);
+            return $this->handleUserWasAuthenticated($request, true);
+        }
+        return redirect(urldecode($request['redirect']));
+    } else {
+        return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+    }
+}
+
+public function getBitcoinLogin() {
+
+    // Generate message for signing and flash for POST results
+    $sigval = Address::getSecureCodeGeneration();
+    Session::flash('sigval', $sigval);
+    return view('auth.bitcoin', ['sigval' => $sigval]);
+}
+
+public function postBitcoinLogin(Request $request) {
+    $sigval = Session::get('sigval');
+    $sig = Address::extract_signature($request->request->get('signed_message'));
+
+    try {
+        $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
+    } catch(Exception $e) {
+        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+        ]);
+    }
+
+    $data = [
+        'sigval'  => $sigval,
+        'address' => $address,
+        'sig'     => $sig];
+
+    if($this->verifySigniture($data)) {
         try {
-            $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
+            $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()
             ]);
         }
-
-        //verify signed message on xchain
-        $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
-        if($verify) {
-            UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
-            if (empty($request['redirect'])) {
-                Auth::loginUsingId($user->id);
-                return $this->handleUserWasAuthenticated($request, true);
-            }
-            return redirect(urldecode($request['redirect']));
-        } else {
+    }
+    if(isset($result) && !false) {
+        try {
+            Auth::loginUsingId($result->user_id);
+        } catch (Exception $e)
+        {
             return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
         }
-    }
-
-    public function getBitcoinLogin() {
-
-        // Generate message for signing and flash for POST results
-        $sigval = Address::getSecureCodeGeneration();
-        Session::flash('sigval', $sigval);
-        return view('auth.bitcoin', ['sigval' => $sigval]);
-    }
-
-    public function postBitcoinLogin(Request $request) {
-        $sigval = Session::get('sigval');
-        $sig = Address::extract_signature($request->request->get('signed_message'));
-        
-        try {
-            $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
-        } catch(Exception $e) {
-            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
-            ]);
-        }
-
-        $data = [
-            'sigval'  => $sigval,
-            'address' => $address,
-            'sig'     => $sig];
-
-        if($this->verifySigniture($data)) {
-            try {
-                $result = User::getByVerifiedAddress($address);
-            } catch(Exception $e) {
-                return redirect()->back()->withErrors([$this->getFailedLoginMessage()
-                ]);
-            }
-        }
-        if(isset($result) && !false) {
-            try {
-                Auth::loginUsingId($result->user_id);
-            } catch (Exception $e)
-            {
-                return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
-            }
-            return $this->handleUserWasAuthenticated($request, true);
-        } else {
-            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
-            ]);
-        }
-    }
-
-    protected function verifySigniture($data) {
-        $sig = Address::extract_signature($data['sig']);
-        $xchain = app('Tokenly\XChainClient\Client');
-
-        $verify_message = $xchain->verifyMessage($data['address'], $sig, $data['sigval']);
-        if($verify_message AND $verify_message['result']){
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    protected function handleUserWasAuthenticated(Request $request, $throttles) {
-        // if the email was not confirmed, require confirmation before continuing
-
-        return $this->trait_handleUserWasAuthenticated($request, $throttles);
-    }
-
-
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name'     => 'max:255',
-            'username' => 'required|max:255|unique:users',
-            'slug'     => 'sometimes|max:255|unique:users',
-            'email'    => 'required|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:6',
+        return $this->handleUserWasAuthenticated($request, true);
+    } else {
+        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
         ]);
     }
+}
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function updateValidator(array $data)
-    {
-        return Validator::make($data, [
-            'name'         => 'max:255',
-            // 'username'     => 'sometimes|max:255|unique:users',
-            'email'        => 'sometimes|email|max:255|unique:users',
-            'new_password' => 'sometimes|confirmed|min:6',
-            'password'     => 'required',
-            'second_factor'     => 'integer',
+protected function verifySigniture($data) {
+    $sig = Address::extract_signature($data['sig']);
+    $xchain = app('Tokenly\XChainClient\Client');
+
+    $verify_message = $xchain->verifyMessage($data['address'], $sig, $data['sigval']);
+    if($verify_message AND $verify_message['result']){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+protected function handleUserWasAuthenticated(Request $request, $throttles) {
+    // if the email was not confirmed, require confirmation before continuing
+
+    return $this->trait_handleUserWasAuthenticated($request, $throttles);
+}
+
+
+/**
+ * Get a validator for an incoming registration request.
+ *
+ * @param  array  $data
+ * @return \Illuminate\Contracts\Validation\Validator
+ */
+protected function validator(array $data)
+{
+    return Validator::make($data, [
+        'name'     => 'max:255',
+        'username' => 'required|max:255|unique:users',
+        'slug'     => 'sometimes|max:255|unique:users',
+        'email'    => 'required|email|max:255|unique:users',
+        'password' => 'required|confirmed|min:6',
+    ]);
+}
+
+/**
+ * Get a validator for an incoming registration request.
+ *
+ * @param  array  $data
+ * @return \Illuminate\Contracts\Validation\Validator
+ */
+protected function updateValidator(array $data)
+{
+    return Validator::make($data, [
+        'name'         => 'max:255',
+        // 'username'     => 'sometimes|max:255|unique:users',
+        'email'        => 'sometimes|email|max:255|unique:users',
+        'new_password' => 'sometimes|confirmed|min:6',
+        'password'     => 'required',
+        'second_factor'     => 'integer',
+    ]);
+}
+
+/**
+ * Create a new user instance after a valid registration.
+ *
+ * @param  array  $data
+ * @return User
+ */
+protected function create(array $data)
+{
+    try {
+        return $this->user_repository->create([
+            'name'     => $data['name'],
+            'username' => $data['username'],
+            'email'    => $data['email'],
+            'password' => $data['password'],
         ]);
+    } catch (Exception $e) {
+        throw $e;
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return User
-     */
-    protected function create(array $data)
-    {
-        try {
-            return $this->user_repository->create([
-                'name'     => $data['name'],
-                'username' => $data['username'],
-                'email'    => $data['email'],
-                'password' => $data['password'],
-            ]);
-        } catch (Exception $e) {
-            throw $e;            
-        }
+}
 
+/**
+ * Get the failed login message.
+ *
+ * @return string
+ */
+protected function getGenericFailedMessage()
+{
+    return Lang::has('auth.generic.fail')
+        ? Lang::get('auth.generic.fail')
+        : 'There has been an error, please check your input.';
+}
+
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// Desc
+
+protected function importCMSAccount($username, $password) {
+    return $this->dispatch(new ImportCMSAccount($username, $password));
+}
+
+protected function syncCMSAccountData($credentials)
+{
+    $user = Auth::user();
+    if(!$user){
+        return false;
     }
+    return $this->dispatch(new SyncCMSAccount($user, $credentials));
+}
 
-    /**
-     * Get the failed login message.
-     *
-     * @return string
-     */
-    protected function getGenericFailedMessage()
-    {
-        return Lang::has('auth.generic.fail')
-            ? Lang::get('auth.generic.fail')
-            : 'There has been an error, please check your input.';
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////
-    // Desc
-    
-    protected function importCMSAccount($username, $password) {
-        return $this->dispatch(new ImportCMSAccount($username, $password));
-    }
-    
-    protected function syncCMSAccountData($credentials)
-    {
-		$user = Auth::user();
-		if(!$user){
-			return false;
-		}
-		return $this->dispatch(new SyncCMSAccount($user, $credentials));
-	}
-    
 }

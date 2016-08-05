@@ -28,6 +28,7 @@ Route::get('auth/logout',                              ['middleware' => 'tls', '
 // Bitcoin Authentication routes...
 Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
 Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
+Route::get('auth/oneclick',                            ['middleware' => 'tls', 'as' => 'auth.oneclick', 'uses' => 'Auth\AuthController@getOneClick']);
 Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement']);
 Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned']);
 
@@ -158,9 +159,10 @@ Route::get('api/v1/lookup/address/{address}',              ['middleware' => 'tls
 Route::post('api/v1/lookup/address/{address}',             ['middleware' => 'tls', 'as' => 'api.lookup.address.post', 'uses' => 'API\APIController@lookupUserByAddress']);
 Route::get('api/v1/lookup/user/{username}',                ['middleware' => 'tls', 'as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser']);
 Route::post('api/v1/instant-verify/{username}',            ['middleware' => 'tls', 'as' => 'api.instant-verify', 'uses' => 'API\APIController@instantVerifyAddress']);
-
-// ------------------------------------------------------------------------
+//Route:get('api/v1/oneclick',                               ['middlware' => 'tls', 'as' => 'api.one.click','uses' => 'API\APIConroller@OneCliCk']);
 // XChain Receiver
+
+// webhook notifications
 
 // webhook notifications
 Route::post('_xchain_client_receive', ['as' => 'xchain.receive', 'uses' => 'XChain\XChainWebhookController@receive']);

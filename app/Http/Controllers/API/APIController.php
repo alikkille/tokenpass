@@ -2080,10 +2080,17 @@ class APIController extends Controller
         
         $output['result'] = true;
         return Response::json($output);
-    }    
+    }
+
+    public function oneClick() {
+        $output = array();
+        $output['result'] = false;
+        $input = Input::all();
+    };
     
     public function getProvisionalTCATransactionList()
     {
+
 		$output = array();
 		$output['result'] = false;
 		$input = Input::all();
