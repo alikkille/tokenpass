@@ -4,7 +4,7 @@
 
 @if ($errors and count($errors) > 0)
     <h1>Email Confirmation Failed</h1>
-    @include('partials.errors', ['errors' => $errors])
+    @include('partials.alerts')
 @else
 
     <h1>Tokenly Account Email Confirmed</h1>

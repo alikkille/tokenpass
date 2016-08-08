@@ -1,18 +1,50 @@
-.text-danger, .alert-danger, .panel-danger
-  color: $brand-red
-
-.text-success, .alert-success, .panel-success
-  color: $brand-green-contrast
-
-.text-warning, .alert-warning, .panel-warning
-  color: $brand-yellow
-
-body.dashboard
-  .text-danger, .alert-danger, .panel-danger, .text-success, .alert-success, .panel-success
-    display: inline-block
+.alert
+  padding: 18px
+  display: block
+  color: #ffffff
+  background-color: $gray-light
+  box-shadow: 0 1px 2px 0 rgba(158, 158, 158, 0.7)
+  margin-bottom: 15px
+  overflow: hidden
+  &::before
     font-weight: bold
+    display: inline-block
+  .alert-body
+    display: inline-block
+  ul
+    margin: 0
+
+.alert-danger
+  background-color: $brand-red
+  &::before
+    content: 'Uh, oh.\00a0'
+
+.alert-success
+  background-color: $brand-green-contrast
+  &::before
+    content: 'Success!\00a0'
+
+.alert-warning
+  background-color: $brand-yellow
+  &::before
+    content: 'Warning!\00a0'
+
   
 .error-heading
   color: $gray
   font-weight: bold
   text-transform: uppercase
+
+.alert-close
+  padding-left: 12px
+  color: white
+  padding-top: 5px
+  top: -2px
+  position: relative
+  float: right
+  font-size: 24px !important
+  line-height: 13px !important
+  cursor: pointer
+  transition: 0.3s
+  &:hover
+    color: $gray-lightest

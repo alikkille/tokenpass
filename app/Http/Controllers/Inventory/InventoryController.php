@@ -442,10 +442,13 @@ class InventoryController extends Controller
         $input = Input::all();
         
         //get quantity
-        if(!isset($input['quantity']) OR intval($input['quantity']) <= 0){
+        if(!isset($input['quantity'])){
             return $this->ajaxEnabledErrorResponse('Quantity required', route('inventory'), 400);
         }
         $quantity = round(floatval($input['quantity']) * 100000000); //quantity in satoshis
+        if($quantity <= 0){
+            return $this->ajaxEnabledErrorResponse('Invalid quantity', route('inventory'), 400);
+        }
         
         //get valid asset
         $asset_db = DB::table('address_balances')->where('address_id', $get_address->id)->where('asset', $asset)->first();
@@ -457,6 +460,9 @@ class InventoryController extends Controller
         $time = time();
         $expiration = null;
         if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }
             $expiration = strtotime($input['end_date']);
             if($expiration <= $time){
                 return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
@@ -500,6 +506,11 @@ class InventoryController extends Controller
             if (!$validate_address OR !$validate_address['result']) {
                 return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory'), 400);
             }
+            
+            $get_address = Address::where('address', $destination)->where('verified', 1)->first();
+            if($get_address){
+                $get_user = User::find($get_address->user_id);
+            }
         }
         if($destination == $address){
             return $this->ajaxEnabledErrorResponse('Cannot lend to source address', route('inventory'), 400);
@@ -507,8 +518,8 @@ class InventoryController extends Controller
         
         
         //decide if they want to reveeal source pocket address or show as username
+        $show_as = null;
         if(isset($input['show_as'])){
-            $show_as = null;
             switch($input['show_as']){
                 case 'address':
                     $show_as = 'address';
@@ -561,6 +572,10 @@ class InventoryController extends Controller
             return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
         }
         else{
+            if($get_user){
+                $notify_data = array('promise' => $promise, 'lender' => $user, 'show_as' => $show_as);
+                $get_user->notify('emails.loans.new-loan', 'New TCA loan for '.$promise->asset.' received '.date('Y/m/d'), $notify_data);
+            }
             return $this->ajaxEnabledSuccessResponse($asset.' succesfully lent!', route('inventory'));
         }
     }
@@ -572,12 +587,21 @@ class InventoryController extends Controller
         if(!$user OR !$get OR $get->user_id != $user->id){
             return $this->ajaxEnabledErrorResponse('TCA loan not found', route('inventory'), 404);
         }
+        $destination = $get->destination;
         $delete = $get->delete();
         if(!$delete){
-            return $this->ajaxEnabledErrorResponse('Error removing TCA loan', route('inventory'), 500);
+            return $this->ajaxEnabledErrorResponse('Error cancelling TCA loan', route('inventory'), 500);
         }
         else{
-            return $this->ajaxEnabledSuccessResponse('TCA loan removed', route('inventory'));
+            $get_user = Address::where('address', $destination)->where('verified', 1)->first();
+            if($get_user){
+                $get_user = $get_user->user();
+            }
+            if($get_user){
+                $notify_data = array('promise' => $get, 'lender' => $user);
+                $get_user->notify('emails.loans.delete-loan', 'TCA loan for '.$get->asset.' cancelled '.date('Y/m/d'), $notify_data);
+            }
+            return $this->ajaxEnabledSuccessResponse('TCA loan cancelled', route('inventory'));
         }
     }
     
@@ -593,6 +617,9 @@ class InventoryController extends Controller
         $time = time();
         $expiration = null;
         if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }            
             $expiration = strtotime($input['end_date']);
             if($expiration <= $time){
                 return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
@@ -614,7 +641,7 @@ class InventoryController extends Controller
             $ref_data['show_as'] = $show_as;
         }          
         $join_ref = Provisional::joinRefData($ref_data);
-        
+        $old_expiration = $get->expiration;
         $get->expiration = $expiration;
         $get->ref = $join_ref;
         $get->updated_at = date('Y-m-d H:i:s');
@@ -624,6 +651,17 @@ class InventoryController extends Controller
             return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
         }
         else{
+            if($old_expiration != $expiration){
+                //send notification if expiration date has been changed
+                $get_user = Address::where('address', $get->destination)->where('verified', 1)->first();
+                if($get_user){
+                    $get_user = $get_user->user();
+                }
+                if($get_user){
+                    $notify_data = array('promise' => $get, 'lender' => $user, 'old_expiration' => $old_expiration);
+                    $get_user->notify('emails.loans.edit-loan', 'TCA loan for '.$get->asset.' updated '.date('Y/m/d'), $notify_data);
+                }
+            }
             return $this->ajaxEnabledSuccessResponse('Loan successfully modified!', route('inventory'));
         }        
     }

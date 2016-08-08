@@ -1,6 +1,7 @@
 <?php
 
 use TKAccounts\Models\User;
+use TKAccounts\Models\Address;
 use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
@@ -306,6 +307,17 @@ class UserHelper
             'username'        => 'janedoe',
             'email'           => 'janedoe@tokenly.com',
             'confirmed_email' => 'janedoe@tokenly.com',
+            'password'        => 'abc123456',
+        ];
+    }
+    
+    public function randomUserVars() {
+        $username = str_replace(' ', '_', Address::getSecureCodeGeneration(null, null, true));
+        return [
+            'name'            => '',
+            'username'        => $username,
+            'email'           => $username.'@tokenly.com',
+            'confirmed_email' => $username.'@tokenly.com',
             'password'        => 'abc123456',
         ];
     }

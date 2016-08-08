@@ -10,7 +10,7 @@
         <div class="logo"><a href="/">token<strong>pass</strong></a></div>
         <h1 class="login-heading">BTC Two Factor Authentication</h1>
         <div class="form-wrapper">
-            @include('partials.errors', ['errors' => $errors])
+            @include('partials.alerts')
 			@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 				<div>
                     <p class="alert-info">

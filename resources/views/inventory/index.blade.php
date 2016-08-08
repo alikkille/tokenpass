@@ -50,19 +50,32 @@
         <div class="outer-container">
           <div class="input-group span-4">
             <label for="quantity">Quantity *</label>
-            <input type="text" name="quantity" placeholder="10.5" required>
+            <input type="text" name="quantity" data-inputmask="'alias': 'numeric', 'groupSeparator': ',', 'autoGroup': true, 'digits': 8, 'digitsOptional': false, 'placeholder': '0'" placeholder="10.5" required>
             <div class="sublabel">You can lend up to @{{ formatQuantity(currentPocket.real) }} @{{ currentToken.name }} in this pocket</div>
           </div>
           <div class="input-group span-8">
             <label for="token">Token To Lend</label>
-            <strong>@{{ currentToken.name }}</strong>
+            <input type="text" value="@{{ currentToken.name }}" disabled readonly>
           </div>
         </div>
 
+<!-- TODO: Start datetime setting on loans -->
+<!--         <div class="outer-container">
+          <div class="input-group span-3">
+            <label for="start_time">Start Time</label>
+            <input type="hh:mm t" name="start_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="start_time">
+          </div>
+          <div class="input-group span-9">
+            <label for="start_date">Start Date</label>
+            <input type="date" name="start_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="start_date">
+          </div>
+        </div> -->
+
         <div class="outer-container">
-          <div class="input-group span-6">
-            <label for="end_date">Expiration Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker">
+          <div class="input-group span-12">
+            <label for="end_date">Expiration Date + Time</label>
+            <input type="text" name="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" class="end_date">
+            <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
 
@@ -104,9 +117,10 @@
       </div>
       <form method="POST" action="/inventory/lend/@{{ currentLoan.id }}/edit">
         <div class="outer-container">
-          <div class="input-group span-6">
-            <label for="end_date">Expiration Date</label>
-            <input type="date" name="end_date" placeholder="DD/MM/YYYY" class="end_date datepicker" v-model="currentLoan.date">
+          <div class="input-group span-12">
+            <label for="end_date">Expiration Date + Time</label>
+            <input type="text" name="end_date" class="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" v-model="currentLoan.expiration_datetime">
+            <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
         <div class="input-group">
@@ -132,13 +146,11 @@
 		</a>
 	</section>
 	<section class="tokens" v-cloak>
-    @if(Session::has('message'))
-        <p class="alert {{ Session::get('message-class') }}">{{ Session::get('message') }}</p>
-    @endif
     <p class="reveal-modal click-me" data-modal="promiseInfoModal">
       * contains promised tokens
     </p>
     <div v-if="tokens.length">
+      <div class="panel-pre-heading">My Tokens</div>
   	  <div class="token" v-for="token in tokens | filterBy search">
   	    <!-- TODO: Token's have avatars
       	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
@@ -279,35 +291,36 @@
       </p>
     </div>
 	</section>
-    <section v-if="loans.length">
-        <h4>Token Access Loans</h4>
-        <p>
-            <strong>Active loans:</strong> @{{ loans.length }}
-        </p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Source Pocket</th>
-                    <th>Lendee</th>
-                    <th>Amount</th>
-                    <th>Expires</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="loan" v-for="loan in loans">
-                    <td>@{{ loan.source }}</td>
-                    <td>@{{ loan.destination }}</td>
-                    <td>@{{ formatQuantity(loan.quantity) }} @{{ loan.asset }}</td>
-                    <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span></td>
-                    <td>
-                        <a href="#" class="edit-loan reveal-modal click-me" data-modal="editLoanModal" v-on:click="setCurrentLoan(loan)"><i class="material-icons text-success" title="Modify TCA loan">edit</i></a>
-                        <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+
+  <section v-if="loans.length" v-cloak>
+    <div class="panel-pre-heading">Token Access Loans / <span class="muted">Active Loans:</span> @{{ loans.length }}</div>
+    <div class="panel">
+      
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Source Pocket</th>
+            <th>Lendee</th>
+            <th>Amount</th>
+            <th>Expires</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="loan" v-for="loan in loans">
+            <td>@{{ loan.source }}</td>
+            <td>@{{ loan.destination }}</td>
+            <td>@{{ formatQuantity(loan.quantity) }} @{{ loan.asset }}</td>
+            <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span></td>
+            <td>
+              <a href="#" class="edit-loan reveal-modal click-me" data-modal="editLoanModal" v-on:click="setCurrentLoan(loan)"><i class="material-icons text-success" title="Modify TCA loan">edit</i></a>
+              <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
 @endsection
 
@@ -379,7 +392,9 @@ var data = (function(args){
   
   var loans_arr = [];
   for(var key in LOANS){
-      loans_arr.push(LOANS[key]);
+      var loan = LOANS[key];
+      loan.expiration_datetime = moment(new Date(loan.expiration * 1000)).format('DD/MM/YYYY HH:MM');
+      loans_arr.push(loan);
   }
 
   // Get array of address balances of each token
@@ -478,7 +493,7 @@ var vm = new Vue({
             return null;
         }
         var d = new Date(t*1000);
-        var full_d = moment(d).format('YYYY/MM/DD H:mm');
+        var full_d = moment(d).format('DD/MM/YYYY HH:MM');
         return full_d;        
     },
     formatFormDate: function(t){
@@ -549,7 +564,9 @@ promiseInfoModal.init(document.getElementById(
 var editLoanModal = new Modal();
 editLoanModal.init(document.getElementById(
   'editLoanModal'));
-  
+
+// Invokes input masking
+$(":input").inputmask();
 
 </script>
 @endsection

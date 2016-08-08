@@ -862,8 +862,8 @@ class APIController extends Controller
 			return Response::json($output, 400);
 		}	
 		
-		$first_bits = substr($address, 0, 10);
-		$check_sig = $xchain->verifyMessage($address, $input['sig'], $first_bits);
+		$message = $address.' '.date('Y/m/d');
+		$check_sig = $xchain->verifyMessage($address, $input['sig'], $message);
 		if(!$check_sig['result']){
 			$output['error'] = 'Invalid proof-of-ownership signature';
 			$output['result'] = false;
@@ -1687,7 +1687,7 @@ class APIController extends Controller
         }
         
         //check basic required fields
-        $req = array('source', 'destination', 'asset', 'quantity', 'expiration');
+        $req = array('source', 'destination', 'asset', 'quantity');
         foreach($req as $required){
             if(!isset($input[$required]) OR trim($input[$required]) == ''){
                 $output['error'] = $required.' required';
@@ -1813,12 +1813,15 @@ class APIController extends Controller
         
         //check valid expiration
         $time = time();
-        if(!is_int($input['expiration'])){
-            $input['expiration'] = strtotime($input['expiration']);
-        }
-        if($input['expiration'] <= $time){
-            $output['error'] = 'Invalid expiration, must be set to the future';
-            return Response::json($output, 400);
+        $expiration = null;
+        if(isset($input['expiration'])){
+            if(!is_int($input['expiration'])){
+                $input['expiration'] = strtotime($input['expiration']);
+            }
+            if($input['expiration'] <= $time){
+                $output['error'] = 'Invalid expiration, must be set to the future';
+                return Response::json($output, 400);
+            }
         }
         
         //check for custom note
@@ -1852,7 +1855,7 @@ class APIController extends Controller
         $tx_data['fingerprint'] = $fingerprint;
         $tx_data['txid'] = $txid;
         $tx_data['ref'] = $ref;
-        $tx_data['expiration'] = $input['expiration'];
+        $tx_data['expiration'] = $expiration;
         $tx_data['created_at'] = $date;
         $tx_data['updated_at'] = $date;
         $tx_data['pseudo'] = 0; //implement pseudo-tokens later
@@ -2022,6 +2025,9 @@ class APIController extends Controller
             $update_data['ref'] = $input['ref'];
         }        
         
+        if(isset($input['note'])){
+            $update_data['note'] = trim(htmlentities($input['note']));
+        }
         
         if(count($update_data) == 0){
             $output['error'] = 'Nothing to update';
