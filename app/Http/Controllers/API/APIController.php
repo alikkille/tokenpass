@@ -2092,7 +2092,7 @@ class APIController extends Controller
         $output = array();
         $output['result'] = false;
         $input = Input::all();
-    };
+    }
     
     public function getProvisionalTCATransactionList()
     {
