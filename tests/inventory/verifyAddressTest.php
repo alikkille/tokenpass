@@ -108,6 +108,7 @@ class InventoryTest extends TestCase
     }
 
     public function testRefreshBalance() {
+        $this->setupXChainMock();
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);
 
