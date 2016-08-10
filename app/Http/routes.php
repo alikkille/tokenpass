@@ -21,7 +21,7 @@ Route::get('/', [
 // User login and registration
 
 // Authentication routes...
-Route::get('auth/login',                               ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogin']);
+Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthController@getLogin']);
 Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postLogin']);
 Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
 
