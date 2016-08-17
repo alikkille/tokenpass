@@ -164,16 +164,6 @@ class AuthController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
-    public function getOneClick() {
-        $sigval = Address::getSecureCodeGeneration(4);
-        Session::flash('sigval', $sigval);;
-        $total = [];
-        $total['scheme'] = 'pockets://';
-        $total['filename'] = '$sigval';
-        $total['callback'] = 'https://token.pass/api/onelick';
-
-        return redirect(implode($total));
-    }
         // ------------------------------------------------------------------------
     
     public function performLoginLogic($credentials, $remember) {
@@ -408,9 +398,13 @@ public function setSigned(Request $request) {
     }
 }
 
-public function getBitcoinLogin() {
+public function getBitcoinLogin(Request $request) {
 
     // Generate message for signing and flash for POST results
+    if(Input::get('signature')){
+		$request->request->set('signed_message', Input::get('signature'));
+		return $this->postBitcoinLogin($request);
+	}
     $sigval = Address::getSecureCodeGeneration();
     Session::flash('sigval', $sigval);
     return view('auth.bitcoin', ['sigval' => $sigval]);
@@ -419,12 +413,15 @@ public function getBitcoinLogin() {
 public function postBitcoinLogin(Request $request) {
     $sigval = Session::get('sigval');
     $sig = Address::extract_signature($request->request->get('signed_message'));
-
+    
+    if($sigval == null){
+		return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+	}
+    
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
     } catch(Exception $e) {
-        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
-        ]);
+        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
     }
 
     $data = [
@@ -436,20 +433,29 @@ public function postBitcoinLogin(Request $request) {
         try {
             $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
-            return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
             ]);
         }
     }
     if(isset($result) && !false) {
+
+        try {
+			$user = User::find($result->user_id);
+            if(Address::checkUser2FAEnabled($user)) {
+                Session::flash('user', $user);
+                return redirect()->action('Auth\AuthController@getSignRequirement');
+            }
+        } catch(Exception $e) {}		
+		
         try {
             Auth::loginUsingId($result->user_id);
         } catch (Exception $e)
         {
-            return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
         }
         return $this->handleUserWasAuthenticated($request, true);
     } else {
-        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
+        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
         ]);
     }
 }

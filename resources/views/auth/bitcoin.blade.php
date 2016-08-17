@@ -31,6 +31,9 @@
         </div>
         <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
         <button type="submit" class="login-btn">Login</button>
+        <p>
+			<strong><a href="web+pockets:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.bitcoin')) }}">Sign with Pockets</a></strong>
+		</p>
       </form>
     </div>
     <div class="login-subtext">

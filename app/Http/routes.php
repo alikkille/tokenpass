@@ -26,9 +26,8 @@ Route::post('auth/login',                              ['middleware' => 'tls', '
 Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
 
 // Bitcoin Authentication routes...
-Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
-Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
-Route::get('auth/oneclick',                            ['middleware' => 'tls', 'as' => 'auth.oneclick', 'uses' => 'Auth\AuthController@getOneClick']);
+Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'as' => 'auth.bitcoin', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
+Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'as' => 'auth.bitcoin.post', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
 Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement']);
 Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned']);
 
