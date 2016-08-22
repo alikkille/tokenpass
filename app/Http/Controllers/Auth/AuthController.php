@@ -147,7 +147,7 @@ class AuthController extends Controller
 
         try {
             if(Address::checkUser2FAEnabled($user)) {
-                Session::flash('user', $user);
+                Session::set('user', $user);
                 return redirect()->action('Auth\AuthController@getSignRequirement');
             }
         } catch(Exception $e) {}
@@ -349,22 +349,26 @@ public function toggleSecondFactor()
 
 
 public function getSignRequirement(Request $request, $user = null) {
+    $sig = Input::get('signature');
+    if(trim($sig) != ''){
+        $request->request->set('signed_message', str_replace(' ', '+', urldecode($sig)));
+        return $this->setSigned($request);
+    }
     if (session()->has('user')) {
         $user = session()->get('user');
         $request->session()->reflash();
     } else {
         $user = Auth::user();
     }
-
     if(!$user){
         return redirect('auth/login');
     }
-
     $sigval = Address::getUserVerificationCode($user, 'simple');
     return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
 }
 
 public function setSigned(Request $request) {
+    
     if (session()->has('user')) {
         $user = session()->get('user');
     } else {
@@ -375,17 +379,19 @@ public function setSigned(Request $request) {
         return redirect('auth/login');
     }
 
+    Session::set('user', null);
+
     $sigval = Address::getUserVerificationCode($user, 'simple');
     $sig = Address::extract_signature($request->request->get('signed_message'));
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
     } catch(Exception $e) {
-        return redirect()->back()->withErrors([$this->getFailedLoginMessage()
-        ]);
+        
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 
     //verify signed message on xchain
-    $verify = $this->verifySigniture(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
+    $verify = $this->verifySignature(['address' => $address, 'sig' => $sig, 'sigval' =>  $sigval['user_meta']]);
     if($verify) {
         UserMeta::setMeta($user->id,'sign_auth',$sigval['user_meta'],0,0,'signed');
         if (empty($request['redirect'])) {
@@ -394,7 +400,7 @@ public function setSigned(Request $request) {
         }
         return redirect(urldecode($request['redirect']));
     } else {
-        return redirect()->back()->withErrors([$this->getFailedLoginMessage()]);
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 }
 
@@ -429,7 +435,7 @@ public function postBitcoinLogin(Request $request) {
         'address' => $address,
         'sig'     => $sig];
 
-    if($this->verifySigniture($data)) {
+    if($this->verifySignature($data)) {
         try {
             $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
@@ -460,7 +466,7 @@ public function postBitcoinLogin(Request $request) {
     }
 }
 
-protected function verifySigniture($data) {
+protected function verifySignature($data) {
     $sig = Address::extract_signature($data['sig']);
     $xchain = app('Tokenly\XChainClient\Client');
 
