@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Storage;
 use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
@@ -110,6 +111,42 @@ class UpdateTest extends TestCase {
 
         // login
         $user_helper->loginWithForm($this->app, ['password' => 'theskyisfalling', ]);
+    }
+
+    public function testStore() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user = $user_helper->createNewUser();
+        $user_helper->loginWithForm($this->app);
+
+        $incorrect = '.deploy.sh';
+        $file = new \Symfony\Component\HttpFoundation\File\UploadedFile($incorrect, null, 'application/nonsense', null, null, true);
+
+        // Attempt to upload an incompatible file
+        $response = $this->call('POST',
+            '/image/store',
+            array($file),
+            array(),
+            array('file' => $file),
+            ['CONTENT_TYPE' => 'application/nonsense'],
+            ['Content-Type' =>'application/nonsense']);
+
+        PHPUnit::assertContains('Only image type files are accepted as an avatar.', $response->getContent());
+
+        $image = 'public/img/landing_hero.png';
+
+        $file = new \Symfony\Component\HttpFoundation\File\UploadedFile($image, null, 'image/png', null, null, true);
+
+        // Attempt upload a real image,
+        $response = $this->call('POST',
+            '/image/store',
+            array($file),
+            array(),
+            array('file' => $file),
+            ['CONTENT_TYPE' => 'image/png'],
+            ['Content-Type' =>'image/png']);
+
+        // Removed until built mock for  S3
+        //PHPUnit::assertContains('Avatar defined.', $response->getContent());
     }
 
     ////////////////////////////////////////////////////////////////////////

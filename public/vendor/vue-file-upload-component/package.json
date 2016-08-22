@@ -1,0 +1,79 @@
+{
+  "_args": [
+    [
+      "vue-file-upload-component",
+      "/var/www/tokenpass/resources/assets"
+    ]
+  ],
+  "_from": "vue-file-upload-component@latest",
+  "_id": "vue-file-upload-component@1.4.0",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/vue-file-upload-component",
+  "_nodeVersion": "5.4.1",
+  "_npmUser": {
+    "email": "james2doyle@gmail.com",
+    "name": "james2doyle"
+  },
+  "_npmVersion": "3.3.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "vue-file-upload-component",
+    "raw": "vue-file-upload-component",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/vue-file-upload-component/-/vue-file-upload-component-1.4.0.tgz",
+  "_shasum": "bd0be2a007ed5afd37d0b00e9e5d8370a7980831",
+  "_shrinkwrap": null,
+  "_spec": "vue-file-upload-component",
+  "_where": "/var/www/tokenpass/resources/assets",
+  "author": {
+    "email": "james2doyle@gmail.com",
+    "name": "James Doyle",
+    "url": "http://ohdoylerules.com/"
+  },
+  "bugs": {
+    "url": "https://github.com/james2doyle/vue-file-upload-component/issues"
+  },
+  "dependencies": {},
+  "description": "A simple file upload component for Vue.js. Emits events for XHR Upload Progress for nice progress bars.",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-livereload": "^3.8.1"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "bd0be2a007ed5afd37d0b00e9e5d8370a7980831",
+    "tarball": "https://registry.npmjs.org/vue-file-upload-component/-/vue-file-upload-component-1.4.0.tgz"
+  },
+  "gitHead": "b90b068cb258bd0dbbe5d66f456c61cf857763b1",
+  "homepage": "http://ohdoylerules.com",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "main": "vue.file-upload.js",
+  "maintainers": [
+    {
+      "email": "james2doyle@gmail.com",
+      "name": "james2doyle"
+    }
+  ],
+  "name": "vue-file-upload-component",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/james2doyle/vue-file-upload-component.git"
+  },
+  "scripts": {},
+  "version": "1.4.0"
+}

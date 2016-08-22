@@ -10,10 +10,7 @@
   <span class="heading">Confirm Tokenly Account Email</span>
 </section>
 
-
 <section>
-  @include('partials.errors', ['errors' => $errors])
-
   <form method="POST" action="/auth/sendemail">
 
     {!! csrf_field() !!}

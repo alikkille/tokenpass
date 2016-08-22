@@ -9,6 +9,8 @@ use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\Provisional;
 use TKAccounts\Models\UserMeta;
+use TKAccounts\Models\User;
+use DB;
 
 class InventoryController extends Controller
 {
@@ -29,46 +31,120 @@ class InventoryController extends Controller
 	{
 
 		$addresses = Address::getAddressList($this->user->id, null, true);
+        foreach($addresses as $address){
+            //remove some fields that the view doesnt need to know about
+            unset($address->user_id);
+            unset($address->xchain_address_id);
+            unset($address->receive_monitor_id);
+            unset($address->send_monitor_id);
+        }
 		$balances = Address::getAllUserBalances($this->user->id);
 		ksort($balances);
 		$disabled_tokens = Address::getDisabledTokens($this->user->id);
+        $loans = Provisional::getUserOwnedPromises($this->user->id);
 		$balance_addresses = array();
 		$address_labels = array();
-		foreach ($addresses as $address) {
+        if($addresses){
+            foreach ($addresses as $address) {
+                $bals = Address::getAddressBalances($address->id, false, false);
+                if (!$bals OR count($bals) == 0) {
+                    continue;
+                }
 
-			$bals = Address::getAddressBalances($address->id, false, false);
-			if (!$bals OR count($bals) == 0) {
-				continue;
-			}
-			foreach ($bals as $asset => $amnt) {
-				if ($amnt <= 0) {
-					continue;
-				}
-				if (!isset($balance_addresses[$asset])) {
-					$balance_addresses[$asset] = array();
-				}
-				$balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array());
-			}
-			$promises = Provisional::getAddressPromises($address->address);
-			foreach ($promises as $promise) {
-				if (!isset($balance_addresses[$promise->asset])) {
-					$balance_addresses[$promise->asset] = array();
-				}
-				if (!isset($balance_addresses[$promise->asset][$address->address])) {
-					$balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array());
-				}
-				$balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
-			}
-
-			$address_labels[$address->address] = trim($address->label);
-		}
-
+                foreach ($bals as $asset => $amnt) {
+                    if ($amnt <= 0) {
+                        continue;
+                    }
+                    if (!isset($balance_addresses[$asset])) {
+                        $balance_addresses[$asset] = array();
+                    }
+                    $balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array(), 'loans' => array());
+                }
+                $promises = Provisional::getAddressPromises($address->address);
+                foreach ($promises as $promise) {
+                    if (!isset($balance_addresses[$promise->asset])) {
+                        $balance_addresses[$promise->asset] = array();
+                    }
+                    if (!isset($balance_addresses[$promise->asset][$address->address])) {
+                        $balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array(), 'loans' => array());
+                    }
+                    $ref_data = $promise->getRefData();
+                    if(isset($ref_data['show_as'])){
+                        if($ref_data['show_as'] == 'username' AND $promise->user_id > 0){
+                            $promise_user = User::find($promise->user_id);
+                            if($promise_user){
+                                $promise->source = $promise_user->username;
+                            }
+                        }
+                    }
+                    if(isset($ref_data['user'])){
+                        unset($ref_data['user']);
+                    }
+                    $promise->ref_data = $ref_data;
+                    unset($promise->user_id);
+                    unset($promise->ref);
+                    $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
+                }
+                if($loans){
+                    foreach($loans as $loan){
+                        if($loan->source == $address->address){
+                            if (!isset($balance_addresses[$loan->asset])) {
+                                $balance_addresses[$loan->asset] = array();
+                            }
+                            if (!isset($balance_addresses[$loan->asset][$address->address])) {
+                                $balance_addresses[$loan->asset][$address->address] = array('real' => 0, 'provisional' => array(), 'loans' => array());
+                            }
+                            $ref_data = $loan->getRefData();
+                            if(isset($ref_data['user'])){
+                                $get_user = User::find($ref_data['user']);
+                                if($get_user){
+                                    $loan->destination = $get_user->username;
+                                }
+                            }
+                            $balance_addresses[$loan->asset][$address->address]['loans'][] = $loan;
+                        }
+                    }
+                }
+                $address_labels[$address->address] = trim($address->label);
+            }
+        }
+        if($loans){
+            foreach($loans as $k => $loan){
+                if(isset($balances[$loan->asset])){
+                    $balances[$loan->asset] -= $loan->quantity;
+                }
+                else{
+                    $balances[$loan->asset] = 0 - $loan->quantity;
+                }
+                $ref_data = $loan->getRefdata();
+                if(isset($ref_data['user'])){
+                    unset($ref_data['user']);
+                }
+                if(!isset($ref_data['show_as'])){
+                    $ref_data['show_as'] = 'address';
+                }
+                $loans[$k]->ref_data = $ref_data;
+                $loans[$k]->date = null;
+                if($loan->expiration > 0){
+                    $loans[$k]->date = date('Y-m-d', $loan->expiration);
+                }
+                $loans[$k]->show_as = 'username';
+                if(isset($ref_data['show_as'])){
+                    $loans[$k]->show_as = $ref_data['show_as'];
+                }
+                unset($loans[$k]->ref);
+                unset($loans[$k]->user_id);
+            }
+        }
+        
 		$vars = [
 			'addresses' => $addresses,
 			'address_labels' => $address_labels,
 			'balances' => $balances,
 			'balance_addresses' => $balance_addresses,
-			'disabled_tokens' => $disabled_tokens];
+			'disabled_tokens' => $disabled_tokens,
+            'loans' => $loans,
+            ];
 
 		return view('inventory.index', $vars);
 	}
@@ -266,13 +342,21 @@ class InventoryController extends Controller
 		}
 		else{
 			$input = Input::all();
+            if(isset($input['signature'])){
+                $input['sig'] = str_replace(' ', '+', urldecode($input['signature']));
+            }
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
                 return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
 			}
 			else{
 				$sig = Address::extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
-				$verify_message = $xchain->verifyMessage($get->address, $sig, Session::get($address));
+                $message = Session::get($address);
+                Session::set($address, '');
+                if(trim($message) == ''){
+                    return $this->ajaxEnabledErrorResponse('Verification message not found', route('inventory.pockets'), 400);
+                }
+				$verify_message = $xchain->verifyMessage($get->address, $sig, $message);
 				$verified = false;
 				if($verify_message AND $verify_message['result']){
 					$verified = true;
@@ -297,6 +381,11 @@ class InventoryController extends Controller
 		}
 		return redirect(route('inventory.pockets'));
 	}
+    
+    public function clickVerifyAddress($address)
+    {
+        return $this->verifyAddressOwnership($address);
+    }
 
 	public function refreshBalances()
 	{
@@ -339,13 +428,255 @@ class InventoryController extends Controller
 			// Generate message for signing and flash for POST results
 			if ($address->verified == 0) {
 				$address['secure_code'] = Address::getSecureCodeGeneration();
-				Session::flash($address->address, $address['secure_code']);
+				Session::set($address->address, $address['secure_code']);
 			}
+            //remove some fields that the view doesnt need to know about
+            unset($address->user_id);
+            unset($address->xchain_address_id);
+            unset($address->receive_monitor_id);
+            unset($address->send_monitor_id);
 		}
 		
 		return view('inventory.pockets', array(
 			'addresses' => $addresses,
 		));
+    }
+    
+    public function lendAsset($address, $asset)
+    {
+        //check valid verified address owned by user
+        $user = Auth::user();
+        $get_address = Address::where('address', $address)->where('verified', 1)->first();
+        if(!$user OR !$get_address OR $get_address->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Address not found', route('inventory'), 404);
+        }
+        
+        //get input
+        $input = Input::all();
+        
+        //get quantity
+        if(!isset($input['quantity'])){
+            return $this->ajaxEnabledErrorResponse('Quantity required', route('inventory'), 400);
+        }
+        $quantity = round(floatval($input['quantity']) * 100000000); //quantity in satoshis
+        if($quantity <= 0){
+            return $this->ajaxEnabledErrorResponse('Invalid quantity', route('inventory'), 400);
+        }
+        
+        //get valid asset
+        $asset_db = DB::table('address_balances')->where('address_id', $get_address->id)->where('asset', $asset)->first();
+        if(!$asset_db){
+            return $this->ajaxEnabledErrorResponse('Invalid asset', route('inventory'), 400);
+        }
+        
+        //get expiration
+        $time = time();
+        $expiration = null;
+        if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }
+            $expiration = strtotime($input['end_date']);
+            if($expiration <= $time){
+                return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
+            }
+        }
+        
+        //get custom note
+        $note = null;
+        if(isset($input['note'])){
+            $note = trim(htmlentities($input['note']));
+        }
+        
+        //get valid destination
+        if(!isset($input['lendee']) OR trim($input['lendee']) == ''){
+            return $this->ajaxEnabledErrorResponse('Lendee required', route('inventory'), 400);
+        }
+        $destination = trim($input['lendee']);
+        $ref = null;
+        //check first if user, then if bitcoin address
+        $get_user = User::where('username', $destination)->first();
+        if($get_user){
+            if($get_user->id == $user->id){
+                return $this->ajaxEnabledErrorResponse('Cannot lend to self', route('inventory'), 400);
+            }
+            //use their first active verified address
+            $first_address = Address::where('user_id', $get_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
+            if(!$first_address){
+                return $this->ajaxEnabledErrorResponse('Lendee does not have any verified addresses', route('inventory'), 400);
+            }
+            $destination = $first_address->address;
+            $ref = 'user:'.$get_user->id;
+        }
+        else{
+            //check if valid bitcoin address
+            try {
+                $xchain = app('Tokenly\XChainClient\Client');
+                $validate_address = $xchain->validateAddress($destination);
+            } catch (Exception $e) {
+                return $this->ajaxEnabledErrorResponse($e->getMessage(), route('inventory'), 500);
+            }
+            if (!$validate_address OR !$validate_address['result']) {
+                return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory'), 400);
+            }
+            
+            $get_address = Address::where('address', $destination)->where('verified', 1)->first();
+            if($get_address){
+                $get_user = User::find($get_address->user_id);
+            }
+        }
+        if($destination == $address){
+            return $this->ajaxEnabledErrorResponse('Cannot lend to source address', route('inventory'), 400);
+        }
+        
+        
+        //decide if they want to reveeal source pocket address or show as username
+        $show_as = null;
+        if(isset($input['show_as'])){
+            switch($input['show_as']){
+                case 'address':
+                    $show_as = 'address';
+                    break;
+                case 'username':
+                default:
+                    $show_as = 'username';
+                    break;
+            }
+            $add_ref = 'show_as:'.$show_as;
+            if($ref != null){
+                $ref .= ','.$add_ref;
+            }
+            else{
+                $ref = $add_ref;
+            }
+        }
+        
+        //get total balance of all promises made including this one
+        $total_promised = Provisional::getTotalPromised($address, $asset, $quantity);
+        
+        //check with crypto backend that the address really has enough tokens
+        $valid_balance = false;
+        try{
+            $valid_balance = Provisional::checkValidPromisedAmount($address, $asset, $total_promised);
+        }
+        catch(Exception $e){
+            return $this->ajaxEnabledErrorResponse('Error validating promise balance: '.$e->getMessage(), route('inventory'), 500);
+        }
+        if(is_array($valid_balance) AND !$valid_balance['valid']){
+            return $this->ajaxEnabledErrorResponse('Not enough real balance to lend this amount', route('inventory'), 500);
+        }
+        elseif(!$valid_balance){
+            return $this->ajaxEnabledErrorResponse('Unknown error validating promise balance', route('inventory'), 500);
+        }
+        
+        //create the provisional/promise transaction
+        $promise = new Provisional;
+        $promise->source = $address;
+        $promise->asset = $asset;
+        $promise->destination = $destination;
+        $promise->quantity = $quantity;
+        $promise->expiration = $expiration;
+        $promise->ref = $ref;
+        $promise->user_id = $user->id;
+        $promise->note = $note;
+        
+        $save = $promise->save();
+        if(!$save){
+            return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
+        }
+        else{
+            if($get_user){
+                $notify_data = array('promise' => $promise, 'lender' => $user, 'show_as' => $show_as);
+                $get_user->notify('emails.loans.new-loan', 'New TCA loan for '.$promise->asset.' received '.date('Y/m/d'), $notify_data);
+            }
+            return $this->ajaxEnabledSuccessResponse($asset.' succesfully lent!', route('inventory'));
+        }
+    }
+    
+    public function deleteLoan($id)
+    {
+        $get = Provisional::find($id);
+        $user = Auth::user();
+        if(!$user OR !$get OR $get->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('TCA loan not found', route('inventory'), 404);
+        }
+        $destination = $get->destination;
+        $delete = $get->delete();
+        if(!$delete){
+            return $this->ajaxEnabledErrorResponse('Error cancelling TCA loan', route('inventory'), 500);
+        }
+        else{
+            $get_user = Address::where('address', $destination)->where('verified', 1)->first();
+            if($get_user){
+                $get_user = $get_user->user();
+            }
+            if($get_user){
+                $notify_data = array('promise' => $get, 'lender' => $user);
+                $get_user->notify('emails.loans.delete-loan', 'TCA loan for '.$get->asset.' cancelled '.date('Y/m/d'), $notify_data);
+            }
+            return $this->ajaxEnabledSuccessResponse('TCA loan cancelled', route('inventory'));
+        }
+    }
+    
+    public function editLoan($id)
+    {
+        $get = Provisional::find($id);
+        $user = Auth::user();
+        if(!$user OR !$get OR $get->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('TCA loan not found', route('inventory'), 404);
+        }
+        $input = Input::all();
+        
+        $time = time();
+        $expiration = null;
+        if(trim($input['end_date']) != ''){
+            if(isset($input['end_time'])){
+                $input['end_date'] .= ' '.$input['end_time'];
+            }            
+            $expiration = strtotime($input['end_date']);
+            if($expiration <= $time){
+                return $this->ajaxEnabledErrorResponse('Expiration date must be sometime in the future', route('inventory'), 400);
+            }
+        }      
+        
+        $ref_data = $get->getRefData();
+        if(isset($input['show_as'])){
+            $show_as = null;
+            switch($input['show_as']){
+                case 'address':
+                    $show_as = 'address';
+                    break;
+                case 'username':
+                default:
+                    $show_as = 'username';
+                    break;
+            }
+            $ref_data['show_as'] = $show_as;
+        }          
+        $join_ref = Provisional::joinRefData($ref_data);
+        $old_expiration = $get->expiration;
+        $get->expiration = $expiration;
+        $get->ref = $join_ref;
+        $get->updated_at = date('Y-m-d H:i:s');
+        
+        $save = $get->save();
+        if(!$save){
+            return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
+        }
+        else{
+            if($old_expiration != $expiration){
+                //send notification if expiration date has been changed
+                $get_user = Address::where('address', $get->destination)->where('verified', 1)->first();
+                if($get_user){
+                    $get_user = $get_user->user();
+                }
+                if($get_user){
+                    $notify_data = array('promise' => $get, 'lender' => $user, 'old_expiration' => $old_expiration);
+                    $get_user->notify('emails.loans.edit-loan', 'TCA loan for '.$get->asset.' updated '.date('Y/m/d'), $notify_data);
+                }
+            }
+            return $this->ajaxEnabledSuccessResponse('Loan successfully modified!', route('inventory'));
+        }        
     }
 
     // ------------------------------------------------------------------------
@@ -372,7 +703,7 @@ class InventoryController extends Controller
         Session::flash('message-class', 'alert-success');
 
 
-        return redirect(route('inventory.pockets'));
+        return redirect($redirect_url);
     }
 
 }

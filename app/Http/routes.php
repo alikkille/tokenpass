@@ -21,13 +21,13 @@ Route::get('/', [
 // User login and registration
 
 // Authentication routes...
-Route::get('auth/login',                               ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogin']);
+Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthController@getLogin']);
 Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postLogin']);
 Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
 
 // Bitcoin Authentication routes...
-Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
-Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
+Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'as' => 'auth.bitcoin', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
+Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'as' => 'auth.bitcoin.post', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
 Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement']);
 Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned']);
 
@@ -36,7 +36,7 @@ Route::get('auth/register',                            ['middleware' => 'tls', '
 Route::post('auth/register',                           ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postRegister']);
 
 // Update routes...
-Route::get('auth/update',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getUpdate']);
+Route::get('auth/update',                              ['middleware' => 'tls', 'as' => 'auth.update', 'uses' => 'Auth\AuthController@getUpdate']);
 Route::post('auth/update',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postUpdate']);
 
 // Email confirmations...
@@ -58,16 +58,23 @@ Route::get('auth/revokeapp/{clientid}',                ['middleware' => 'tls', '
 Route::post('auth/revokeapp/{clientid}',               ['middleware' => 'tls', 'uses' => 'Auth\ConnectedAppsController@postRevokeAppForm']);
 
 //token inventory management
-Route::get('inventory',                                ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@index']);
-Route::post('inventory/address/new',                   ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@registerAddress']);
-Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@editAddress']);
-Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
-Route::post('inventory/address/{address}/toggle',      ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleAddress']);
-Route::post('inventory/address/{address}/toggleLogin', ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleLogin']);
-Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@deleteAddress']);
-Route::get('inventory/refresh',                        ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@refreshBalances']);
-Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
-Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', 'uses' => 'Inventory\InventoryController@toggleAsset']);
+Route::get('inventory',                                ['middleware' => 'tls', 'as' => 'inventory', 'uses' => 'Inventory\InventoryController@index']);
+Route::post('inventory/address/new',                   ['middleware' => 'tls', 'as' => 'inventory.pockets.new', 'uses' => 'Inventory\InventoryController@registerAddress']);
+Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'as' => 'inventory.pockets.edit', 'uses' => 'Inventory\InventoryController@editAddress']);
+Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
+Route::get('inventory/address/{address}/click-verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@clickVerifyAddress']);
+Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'as' => 'inventory.pockets.delete', 'uses' => 'Inventory\InventoryController@deleteAddress']);
+Route::get('inventory/refresh',                        ['middleware' => 'tls', 'as' => 'inventory.force-update', 'uses' => 'Inventory\InventoryController@refreshBalances']);
+Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'as' => 'inventory.check-refresh', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
+Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', 'as' => 'inventory.asset.toggle', 'uses' => 'Inventory\InventoryController@toggleAsset']);
+Route::get('inventory/lend/{id}/delete',               ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@deleteLoan']);
+Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@editLoan']);
+Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
+
+// Image routes
+Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
+//Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);
+
 
 // new route/controller for pockets
 Route::get('pockets',                                  ['middleware' => 'tls', 'as' => 'inventory.pockets', 'uses' => 'Inventory\InventoryController@getPockets']);
@@ -152,9 +159,10 @@ Route::get('api/v1/lookup/address/{address}',              ['middleware' => 'tls
 Route::post('api/v1/lookup/address/{address}',             ['middleware' => 'tls', 'as' => 'api.lookup.address.post', 'uses' => 'API\APIController@lookupUserByAddress']);
 Route::get('api/v1/lookup/user/{username}',                ['middleware' => 'tls', 'as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser']);
 Route::post('api/v1/instant-verify/{username}',            ['middleware' => 'tls', 'as' => 'api.instant-verify', 'uses' => 'API\APIController@instantVerifyAddress']);
-
-// ------------------------------------------------------------------------
+//Route:get('api/v1/oneclick',                               ['middlware' => 'tls', 'as' => 'api.one.click','uses' => 'API\APIConroller@OneCliCk']);
 // XChain Receiver
+
+// webhook notifications
 
 // webhook notifications
 Route::post('_xchain_client_receive', ['as' => 'xchain.receive', 'uses' => 'XChain\XChainWebhookController@receive']);

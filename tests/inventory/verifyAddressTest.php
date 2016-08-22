@@ -108,6 +108,7 @@ class InventoryTest extends TestCase
     }
 
     public function testRefreshBalance() {
+        $this->setupXChainMock();
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);
 
@@ -166,6 +167,7 @@ class InventoryTest extends TestCase
         $address_sig = 'IC8nBnxL1wE8P4jWGkVZI1IVucw4lDAQ3YVK7ZdeQCCbQwCoU+PcQUnEAN5C71pjVVqdyFzbgOJsbp6B0Agwsg8=';
         $sig_message = '4cda873ee9';
         Session::flash('sigval', $sig_message);
+        Session::set('1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp', $sig_message);
 
         // Test with all correct info
         $response = $this->call('POST', '/inventory/address/1sdBCPkJozaAqwLF3mTEgNS8Uu95NMVdp/verify', array(

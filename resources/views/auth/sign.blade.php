@@ -10,7 +10,7 @@
         <div class="logo"><a href="/">token<strong>pass</strong></a></div>
         <h1 class="login-heading">BTC Two Factor Authentication</h1>
         <div class="form-wrapper">
-            @include('partials.errors', ['errors' => $errors])
+            @include('partials.alerts')
 			@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 				<div>
                     <p class="alert-info">
@@ -32,6 +32,9 @@
                 </div>
                 <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
                 <button type="submit" class="login-btn">Authenticate</button>
+                <p>
+                    <strong><a href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Tokenpass Two Factor Authentication')) }}&callback={{ urlencode(route('auth.sign')) }}">Sign with Pockets</a></strong>
+                </p>                
             </form>
         </div>
     </div>
