@@ -343,7 +343,7 @@ class InventoryController extends Controller
 		else{
 			$input = Input::all();
             if(isset($input['signature'])){
-                $input['sig'] = $input['signature'];
+                $input['sig'] = str_replace(' ', '+', urldecode($input['signature']));
             }
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
                 return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
