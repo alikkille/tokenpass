@@ -44,7 +44,7 @@
 
         <button type="submit">Verify</button>
         <p>
-			<strong><a href="web+pockets:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify') }}">Sign with Pockets</a></strong>
+			<strong><a href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify') }}">Sign with Pockets</a></strong>
 		</p>        
       </form>
     </div>
