@@ -342,13 +342,21 @@ class InventoryController extends Controller
 		}
 		else{
 			$input = Input::all();
+            if(isset($input['signature'])){
+                $input['sig'] = $input['signature'];
+            }
 			if(!isset($input['sig']) OR trim($input['sig']) == ''){
                 return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
 			}
 			else{
 				$sig = Address::extract_signature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
-				$verify_message = $xchain->verifyMessage($get->address, $sig, Session::get($address));
+                $message = Session::get($address);
+                Session::set($address, '');
+                if(trim($message) == ''){
+                    return $this->ajaxEnabledErrorResponse('Verification message not found', route('inventory.pockets'), 400);
+                }
+				$verify_message = $xchain->verifyMessage($get->address, $sig, $message);
 				$verified = false;
 				if($verify_message AND $verify_message['result']){
 					$verified = true;
@@ -373,6 +381,11 @@ class InventoryController extends Controller
 		}
 		return redirect(route('inventory.pockets'));
 	}
+    
+    public function clickVerifyAddress($address)
+    {
+        return $this->verifyAddressOwnership($address);
+    }
 
 	public function refreshBalances()
 	{
@@ -415,7 +428,7 @@ class InventoryController extends Controller
 			// Generate message for signing and flash for POST results
 			if ($address->verified == 0) {
 				$address['secure_code'] = Address::getSecureCodeGeneration();
-				Session::flash($address->address, $address['secure_code']);
+				Session::set($address->address, $address['secure_code']);
 			}
             //remove some fields that the view doesnt need to know about
             unset($address->user_id);

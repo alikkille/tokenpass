@@ -43,6 +43,9 @@
         <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
 
         <button type="submit">Verify</button>
+        <p>
+			<strong><a href="web+pockets:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify') }}">Sign with Pockets</a></strong>
+		</p>        
       </form>
     </div>
   </div> <!-- End Verify Modal  -->
@@ -202,7 +205,7 @@
 <script>
 
 var pockets = {!! json_encode($addresses) !!};
-
+window.click_origin = window.location.protocol + '//' + window.location.hostname;
 var vm = new Vue({
   el: '#pocketsController',
   data: {
@@ -228,6 +231,7 @@ var vm = new Vue({
     },
 
     setCurrentPocket: function(pocket){
+      pocket.click_origin = window.click_origin;
       vm.currentPocket = pocket;
     },
     startLoading: function(pocket){
