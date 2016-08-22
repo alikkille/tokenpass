@@ -45,7 +45,7 @@ class Address extends Model
         return $get->orderBy('id', 'asc')->get();
     }
     
-    public static function getAddressBalances($address_id, $filter_disabled = false, $and_provisional = true)
+    public static function getAddressBalances($address_id, $filter_disabled = false, $and_provisional = true, $subtract_loans = false)
     {
         $address = Address::find($address_id);
         if(!$address OR $address->verified != 1 OR $address->active_toggle != 1){
@@ -55,7 +55,7 @@ class Address extends Model
         $get = DB::table('address_balances')->where('address_id', '=', $address->id)->get();
         if($get AND count($get) > 0){
             foreach($get as $row){
-                $balances[$row->asset] = $row->balance;
+                $balances[$row->asset] = intval($row->balance);
             }
         }
         if($and_provisional){
@@ -63,6 +63,18 @@ class Address extends Model
             $get_provisional = DB::table('provisional_tca_txs')->where('destination', $address->address)->get();
             if($get_provisional){
                 foreach($get_provisional as $prov_tx){
+                    if($prov_tx->user_id > 0){
+                        $prov_address = Address::where('address', $prov_tx->source)->first();
+                        if($prov_address){
+                            if($prov_address->active_toggle == 0){
+                                continue;
+                            }
+                        }
+                        $disabled = Address::getDisabledTokens($prov_tx->user_id);
+                        if(in_array($prov_tx->asset, $disabled)){
+                            continue;
+                        }
+                    }
                     if(isset($balances[$prov_tx->asset])){
                         $balances[$prov_tx->asset] += $prov_tx->quantity;
                     }
@@ -72,6 +84,18 @@ class Address extends Model
                 }
             }
         }
+        if($subtract_loans){
+            $loans = Provisional::getUserOwnedPromises($address->user_id);
+            if($loans){
+                foreach($loans as $loan){
+                    if($loan->source == $address->address){
+                        if(isset($balances[$loan->asset])){
+                            $balances[$loan->asset] -= intval($loan->quantity);
+                        }
+                    }
+                }
+            }
+        }        
         if($filter_disabled){
             $disabled = Address::getDisabledTokens($address->user_id);
             foreach($disabled as $asset){
@@ -94,15 +118,17 @@ class Address extends Model
     }
 
 
-    public static function getAllUserBalances($user_id, $filter_disabled = false, $and_provisional = true)
+    public static function getAllUserBalances($user_id, $filter_disabled = false, $and_provisional = true, $subtract_loans = false)
     {
         $address_list = Address::getAddressList($user_id, null, true);
         if(!$address_list OR count($address_list) == 0){
             return array();
         }
         $balances = array();
+        $owned_addresses = array();
         foreach($address_list as $address){
             $addr_balances = Address::getAddressBalances($address->id, false, $and_provisional);
+            $owned_addresses[] = $address->address;
             if(is_array($addr_balances)){
                 foreach($addr_balances as $asset => $val){
                     if(!isset($balances[$asset])){
@@ -110,6 +136,18 @@ class Address extends Model
                     }
                     else{
                         $balances[$asset] += intval($val);
+                    }
+                }
+            }
+        }
+        if($subtract_loans){
+            $loans = Provisional::getUserOwnedPromises($user_id);
+            if($loans){
+                foreach($loans as $loan){
+                    if(!in_array($loan->destination, $owned_addresses)){
+                        if(isset($balances[$loan->asset])){
+                            $balances[$loan->asset] -= intval($loan->quantity);
+                        }
                     }
                 }
             }
@@ -186,7 +224,7 @@ class Address extends Model
         }
     }
 
-    public static function getSecureCodeGeneration($entropy=null, $language=null)
+    public static function getSecureCodeGeneration($entropy=null, $language=null, $no_prefix=false)
     {
         if(is_null($language)) {
             $file_content = file_get_contents(base_path() . "/database/wordlists/english.txt");
@@ -214,9 +252,12 @@ class Address extends Model
 
             return (string) trim($response);
         }
-        $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
-        if($verify_prefix){
-            $verify_prefix .= ' ';
+        $verify_prefix = null;
+        if(!$no_prefix){
+            $verify_prefix = Config::get('tokenpass.sig_verify_prefix');
+            if($verify_prefix){
+                $verify_prefix .= ' ';
+            }
         }
         return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
@@ -238,6 +279,7 @@ class Address extends Model
                     return false;
                 }
             }
+            $row->invalidateOverdrawnPromises();
         }
         return true;        
         
@@ -306,6 +348,9 @@ class Address extends Model
 
         // always sync the balances with XChain, even if the address isn't new
         $this->syncAccountBalancesWithXChain();
+        
+        //invalidate any loans/promises they don't have correct balance for
+        $this->invalidateOverdrawnPromises();
     }
 
     public function syncAccountBalancesWithXChain() {
@@ -408,6 +453,26 @@ class Address extends Model
             return false;
         }
         return true;
+    }
+    
+    public function invalidateOverdrawnPromises()
+    {
+        $promises = Provisional::where('source', $this->address)->get();
+        $balances = $this->balances();
+        if($promises AND $balances){
+            $promise_totals = array();
+            foreach($promises as $promise){
+                if(!isset($promise_totals[$promise->asset])){
+                    $promise_totals[$promise->asset] = 0;
+                }
+                $new_total = $promise_totals[$promise->asset] + $promise->quantity;
+                if(!isset($balances[$promise->asset]) OR $new_total > $balances[$promise->asset]){
+                    $promise->invalidate();
+                    continue;
+                }
+                $promise_totals[$promise->asset] = $new_total;
+            }
+        }
     }
 
 }

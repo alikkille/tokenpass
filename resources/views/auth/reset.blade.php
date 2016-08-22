@@ -10,7 +10,7 @@
   <div class="logo"><a href="/">token<strong>pass</strong></a></div>
     <h1 class="login-heading">Reset your password</h1>
     <div class="form-wrapper">
-      @include('partials.errors', ['errors' => $errors])
+      @include('partials.alerts')
 
       @if (session('status'))
         <div class="alert alert-success">

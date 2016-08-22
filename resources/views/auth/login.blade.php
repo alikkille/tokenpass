@@ -8,7 +8,7 @@
 <div class="everything">
 	<div class="logo"><a href="/">token<strong>pass</strong></a></div>
 		<div class="form-wrapper">
-			@include('partials.errors', ['errors' => $errors])
+			@include('partials.alerts')
 
 			@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 				<div>
@@ -38,9 +38,10 @@
 			<br/>
 		</div>
 		<div class="or-divider-module">
-			<div class="divider">.</div><span class="or">or</span>
-			<div class="divider">.</div>
-		</div><a class="signin-with-btc-btn" href="/auth/bitcoin">Sign In With Bitcoin</a>
+			<div class="divider">.</div><span class="or">or</span><div class="divider">.</div>
+		</div>
+		<a class="signin-with-btc-btn" href="/auth/bitcoin">Sign In With Bitcoin</a>
+		
 </div>
 
 @endsection

@@ -21,7 +21,7 @@
     <div class="user">
       <div class="avatar">
         <a href="/auth/update" title="My account">
-          <i class="material-icons">person</i>
+          <img src="https://s3.amazonaws.com/{{ env('S3_BUCKET') }}/{{ hash('sha256',Auth::user()->uuid) }}/avatar.png" onError="this.onerror=null;this.src='/img/default-avatar.jpg'">
         </a>
       </div>
       <i class="logout">

@@ -20,6 +20,7 @@ use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
 use TKAccounts\Models\Provisional;
 use Tokenly\TCA\Access;
+use Log;
 
 class APIController extends Controller
 {
@@ -144,7 +145,7 @@ class APIController extends Controller
 				}
 				$full_stack[] = $stack_item;
 			}
-			$balances = Address::getAllUserBalances($getUser->id, true, $include_provisional);
+			$balances = Address::getAllUserBalances($getUser->id, true, $include_provisional, true);
 			$output['result'] = $tca->checkAccess($full_stack, $balances);
 		}
 		return Response::json($output, $http_code);
@@ -332,7 +333,7 @@ class APIController extends Controller
 		else{
 			$balances = array();
 			foreach($address_list as $address){
-				$item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true), 'public' => boolval($address->public), 'label' => $address->label);
+				$item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true, true, true), 'public' => boolval($address->public), 'label' => $address->label);
 				if($and_active == null){
 					$item['active'] = boolval($address->active_toggle);
 				}
@@ -861,8 +862,8 @@ class APIController extends Controller
 			return Response::json($output, 400);
 		}	
 		
-		$first_bits = substr($address, 0, 10);
-		$check_sig = $xchain->verifyMessage($address, $input['sig'], $first_bits);
+		$message = $address.' '.date('Y/m/d');
+		$check_sig = $xchain->verifyMessage($address, $input['sig'], $message);
 		if(!$check_sig['result']){
 			$output['error'] = 'Invalid proof-of-ownership signature';
 			$output['result'] = false;
@@ -1126,7 +1127,7 @@ class APIController extends Controller
 		
 		if(!isset($input['token'])){
 			$error = true;
-			$output['error'] = 'Access Token required';
+			$output['error'] = 'OAuth Access Token required';
 		}
 		
 		if(!isset($input['current_password'])){
@@ -1666,6 +1667,12 @@ class APIController extends Controller
 		$output['result'] = false;
 		$input = Input::all();
         
+        $user = self::get_oauth_user();
+        $userId = 0;
+        if($user){
+            $userId = $user->id;
+        }
+        
 		//check if a valid application client_id
 		$valid_client = false;
 		if(isset($input['client_id'])){
@@ -1680,12 +1687,58 @@ class APIController extends Controller
         }
         
         //check basic required fields
-        $req = array('source', 'destination', 'asset', 'quantity', 'expiration');
+        $req = array('source', 'destination', 'asset', 'quantity');
         foreach($req as $required){
             if(!isset($input[$required]) OR trim($input[$required]) == ''){
                 $output['error'] = $required.' required';
                 return Response::json($output, 400);
             }
+        }
+        
+        //check valid destination
+        $destination = trim($input['destination']);
+        $add_ref = null;
+        if(strpos($destination, 'user:') === 0){
+            //use a username as destination
+            $destination = substr($destination, 5);
+            $get_user = User::where('username', $destination)->first();
+            if($get_user){
+                if($user AND $get_user->id == $user->id){
+                    $output['error'] = 'Cannot make promise to self';
+                    return Response::json($output, 400);                    
+                }
+                //use their first active verified address
+                $first_address = Address::where('user_id', $get_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
+                if(!$first_address){
+                    $output['error'] = 'Destination user does not have any verified addresses';
+                    return Response::json($output, 400);                    
+                }
+                $destination = $first_address->address;
+                $add_ref = 'user:'.$get_user->id;
+            }
+            else{
+                $output['error'] = 'User not found';
+                return Response::json($output, 404);        
+            }            
+        }
+        else{
+            //check if valid bitcoin address
+            try {
+                $xchain = app('Tokenly\XChainClient\Client');
+                $validate_address = $xchain->validateAddress($destination);
+            } catch (Exception $e) {
+                $output['error'] = $e->getMessage();
+                return Response::json($output, 500);                    
+            }
+            if (!$validate_address OR !$validate_address['result']) {
+                $output['error'] = 'Please enter a valid bitcoin address';
+                return Response::json($output, 400);                   
+            }
+        }
+        $input['destination'] = $destination;
+        if($input['destination'] == $input['source']){
+            $output['error'] = 'Cannot make promise to source address';
+            return Response::json($output, 400);                   
         }
         
         //make sure this is a already whitelisted source address
@@ -1694,8 +1747,17 @@ class APIController extends Controller
                         ->where('client_id', $input['client_id'])->first();
         
         if(!$get_source){
-            $output['error'] = 'Source address not on provisional whitelist';
-            return Response::json($output, 400);
+            if($user){
+                //attempt to use a regular verified pocket address instead
+                $get_source = Address::where('address', $input['source'])->where('verified', 1)->where('active_toggle', 1)->first();
+                if($get_source AND $get_source->user_id != $user->id){
+                    $get_source = false;
+                }
+            }
+            if(!$get_source){
+                $output['error'] = 'Source address not on provisional whitelist';
+                return Response::json($output, 400);
+            }
         }
         
         //check if whitelisted source address is resricted to specific assets
@@ -1711,6 +1773,7 @@ class APIController extends Controller
         $txid = null;
         $fingerprint = null;
         $ref = null;
+        $set_ref = null;
         $get_existing = DB::table('provisional_tca_txs');
         $check_exist = false;
         if(isset($input['txid']) AND trim($input['txid']) != ''){
@@ -1725,6 +1788,13 @@ class APIController extends Controller
         }
         if(isset($input['ref']) AND trim($input['ref']) != ''){
             $ref = $input['ref'];
+            $set_ref = $ref;
+            if($add_ref != null){
+                $ref .= ','.$add_ref;
+            }
+        }
+        else{
+            $ref = $add_ref;
         }
         if($check_exist){
             $get_existing = $get_existing->first();
@@ -1733,7 +1803,6 @@ class APIController extends Controller
                 return Response::json($output, 400);
             }
         }
-        
         
         //check valid quantity
         $quantity = intval($input['quantity']);
@@ -1744,13 +1813,21 @@ class APIController extends Controller
         
         //check valid expiration
         $time = time();
-        if(!is_int($input['expiration'])){
-            $input['expiration'] = strtotime($input['expiration']);
+        $expiration = null;
+        if(isset($input['expiration'])){
+            if(!is_int($input['expiration'])){
+                $input['expiration'] = strtotime($input['expiration']);
+            }
+            if($input['expiration'] <= $time){
+                $output['error'] = 'Invalid expiration, must be set to the future';
+                return Response::json($output, 400);
+            }
         }
         
-        if($input['expiration'] <= $time){
-            $output['error'] = 'Invalid expiration, must be set to the future';
-            return Response::json($output, 400);
+        //check for custom note
+        $note = null;
+        if(isset($input['note'])){
+            $note = trim(htmlentities($input['note']));
         }
         
         //make sure the source address has sufficient balance to cover all its token promises
@@ -1778,13 +1855,15 @@ class APIController extends Controller
         $tx_data['fingerprint'] = $fingerprint;
         $tx_data['txid'] = $txid;
         $tx_data['ref'] = $ref;
-        $tx_data['expiration'] = $input['expiration'];
+        $tx_data['expiration'] = $expiration;
         $tx_data['created_at'] = $date;
         $tx_data['updated_at'] = $date;
         $tx_data['pseudo'] = 0; //implement pseudo-tokens later
+        $tx_data['note'] = $note;
         
         $insert_data = $tx_data;
         $insert_data['client_id'] = $valid_client->id;
+        $insert_data['user_id'] = $userId;
 
         $insert = DB::table('provisional_tca_txs')->insertGetId($insert_data);
         if(!$insert){
@@ -1796,6 +1875,7 @@ class APIController extends Controller
         
         //output result
         $output['result'] = true;
+        $tx_data['ref'] = $set_ref;
         $output['tx'] = $tx_data;
         return Response::json($output);
     }
@@ -1820,7 +1900,7 @@ class APIController extends Controller
         }
         
         //get tx
-        $query = DB::table('provisional_tca_txs')->where('id', $id)->orWhere('txid', $id)->orWhere('fingerprint', $id);
+        $query = Provisional::where('id', $id)->orWhere('txid', $id)->orWhere('fingerprint', $id);
         $get = $query->first();
         if(!$get){
             $output['error'] = 'Provisional tx not found';
@@ -1832,10 +1912,16 @@ class APIController extends Controller
             return Response::json($output, 400);
         }
         
-        $get = (array)$get;
+        $ref_data = $get->getRefData();
+        if(isset($ref_data['user'])){
+            unset($ref_data['user']);
+        }
+        $get = $get->toArray();
         unset($get['client_id']);
         $get['promise_id'] = $get['id'];
         unset($get['id']);
+        unset($get['user_id']);
+        $get['ref'] = Provisional::joinRefData($ref_data);
         $output['tx'] = $get;
         $output['result'] = true;
         return Response::json($output);
@@ -1939,6 +2025,9 @@ class APIController extends Controller
             $update_data['ref'] = $input['ref'];
         }        
         
+        if(isset($input['note'])){
+            $update_data['note'] = trim(htmlentities($input['note']));
+        }
         
         if(count($update_data) == 0){
             $output['error'] = 'Nothing to update';
@@ -1997,10 +2086,17 @@ class APIController extends Controller
         
         $output['result'] = true;
         return Response::json($output);
-    }    
+    }
+
+    public function oneClick() {
+        $output = array();
+        $output['result'] = false;
+        $input = Input::all();
+    }
     
     public function getProvisionalTCATransactionList()
     {
+
 		$output = array();
 		$output['result'] = false;
 		$input = Input::all();
@@ -2018,20 +2114,45 @@ class APIController extends Controller
 			return Response::json($output, 403);
         }
         
-        $get_promises = DB::table('provisional_tca_txs')->where('client_id', $valid_client->id)->get();
+        $get_promises = Provisional::where('client_id', $valid_client->id)->get();
         $output['list'] = array();
         if($get_promises){
             foreach($get_promises as $promise){
-                $promise = (array)$promise;
+                $ref_data = $promise->getRefData();
+                $promise = $promise->toArray();
                 $promise['promise_id'] = $promise['id'];
                 unset($promise['id']);
                 unset($promise['client_id']);
+                unset($promise['user_id']);
+                if(isset($ref_data['user'])){
+                    unset($ref_data['user']);
+                }
+                $promise['ref'] = Provisional::joinRefData($ref_data);
                 $output['list'][] = $promise;
             }
             $output['result'] = true;
         }
         
         return Response::json($output);
+    }
+    
+    protected static function get_oauth_user()
+    {
+        $input = Input::all();
+		if(!isset($input['client_id']) OR !AuthClient::find($input['client_id'])){
+            return false;
+		}
+		if(!isset($input['oauth_token'])){
+            return false;
+		}
+		$get_token = DB::table('oauth_access_tokens')->where('id', $input['oauth_token'])->first();
+		if($get_token){
+			$get_sesh = DB::table('oauth_sessions')->where('id', $get_token->session_id)->first();
+			if($get_sesh AND $get_sesh->client_id == $input['client_id']){
+				return User::find($get_sesh->owner_id);
+			}
+		}
+        return false;
     }
     
 }

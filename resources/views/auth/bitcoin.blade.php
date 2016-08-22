@@ -9,15 +9,15 @@
 <div class="everything">
   <div class="logo"><a href="/">token<strong>pass</strong></a></div>
     <div class="form-wrapper">
-      @include('partials.errors', ['errors' => $errors])
-        @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
-            <div>
-                <p class="alert-info">
-                    You are about to sign into 
-                    <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
-                </p>
-            </div>
-        @endif
+      @include('partials.alerts')
+      @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
+          <div>
+              <p class="alert-info">
+                  You are about to sign into 
+                  <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
+              </p>
+          </div>
+      @endif
       <form method="POST" action="/auth/bitcoin">
         {!! csrf_field() !!}
 
@@ -31,6 +31,9 @@
         </div>
         <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
         <button type="submit" class="login-btn">Login</button>
+        <p>
+			<strong><a href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.bitcoin')) }}">Sign with Pockets</a></strong>
+		</p>
       </form>
     </div>
     <div class="login-subtext">

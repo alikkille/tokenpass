@@ -74,6 +74,23 @@
             </select>
         </div>
     </div>
+    <div class="row">        
+        <div class="six columns">
+            {!! Form::label('user_id', 'User ID') !!}
+            <select id="user_id" name="user_id">
+                <option value="0">[None]</option>
+                @foreach($users as $user)
+                    <option value="{{ $user->id }}" >{{ $user->username }} - #{{ $user->id }}</option>
+                @endforeach
+            </select>
+        </div>        
+    </div>
+    <div class="row">
+        <div class="six columns">
+            {!! Form::label('note', 'Custom Note') !!}
+            {!! Form::text('note', null, ['class' => 'u-full-width']) !!}
+        </div>    
+    </div>    
 
     <div class="row" style="margin-top: 3%;">
         <div class="three columns">

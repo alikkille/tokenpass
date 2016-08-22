@@ -49,4 +49,11 @@ class AddressHelper
             'login_toggle'       => true,
         ];
     }
+    
+    public function altAddressVars(User $user){
+        $default = $this->defaultAddressVars($user);
+        $default['address'] = '1KFHE7w8BhaENAswwryaoccDb6qcT6DbYY';
+        return $default;
+    }
+    
 }

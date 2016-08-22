@@ -5,7 +5,7 @@
 
 @section('body_content')
 
-@include('partials.errors', ['errors' => $errors])
+@include('partials.alerts')
 
 
 <p>The application <span class="application-name">{{{ $client->getName() }}}</span> has requested the following privileges:</p>
