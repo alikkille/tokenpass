@@ -363,6 +363,10 @@ public function getSignRequirement(Request $request, $user = null) {
     if(!$user){
         return redirect('auth/login');
     }
+    $secondauth_enabled = Address::checkUser2FAEnabled($user);
+    if(!$secondauth_enabled){
+        return redirect('auth/login');
+    }
     $sigval = Address::getUserVerificationCode($user, 'simple');
     return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
 }
@@ -381,13 +385,24 @@ public function setSigned(Request $request) {
 
     Session::set('user', null);
 
+    //check if they actually have 2fa enabled
+    $secondauth_enabled = Address::checkUser2FAEnabled($user);
+    if(!$secondauth_enabled){
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
+    }    
+
     $sigval = Address::getUserVerificationCode($user, 'simple');
     $sig = Address::extract_signature($request->request->get('signed_message'));
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval['user_meta']);
     } catch(Exception $e) {
-        
         return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
+    }
+    
+    //check if this address belongs to the user and they have 2FA enabled
+    $get_address = Address::where('address', $address)->first();
+    if(!$get_address OR $get_address->user_id != $user->id OR $get_address->second_factor_toggle == 0){
+       return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 
     //verify signed message on xchain
