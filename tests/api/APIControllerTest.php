@@ -132,6 +132,10 @@ class APIControllerTest extends TestCase {
             'id'          => 'private-address',
             'description' => 'Private-Address',
         ]);
+        $oauth_scope_ma = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+            'id'          => 'manage-address',
+            'description' => 'manage-Address',
+        ]);        
 
         $oauth_client_id = $oauth_client['id'];
         DB::table('client_connections')->insert([
@@ -150,6 +154,10 @@ class APIControllerTest extends TestCase {
             'connection_id' => $oauth_connection['id'],
             'scope_id'      => $oauth_scope_pa['uuid'],
         ]);
+        DB::table('client_connection_scopes')->insert([
+            'connection_id' => $oauth_connection['id'],
+            'scope_id'      => $oauth_scope_ma['uuid'],
+        ]);        
 
         $vars = [
             'client_id' => $oauth_client_id
@@ -789,9 +797,6 @@ class APIControllerTest extends TestCase {
         $user_helper = $this->buildUserHelper();
         $user = $user_helper->createNewUser();
 
-        // Invalid Sig
-        $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.check-address', ['sig' => 'fakesig']),[],400);
-        PHPUnit::assertContains('Proof-of-ownership signature required (first 10 characters of address)', $response['error']);
 
     }
 
