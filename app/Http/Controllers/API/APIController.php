@@ -293,6 +293,7 @@ class APIController extends Controller
 		try{
 			$tca_scope = AuthClient::connectionHasScope($find_connect->id, 'tca');
 			$priv_scope = AuthClient::connectionHasScope($find_connect->id, 'private-address');
+			$manage_scope = AuthClient::connectionHasScope($find_connect->id, 'manage-address');
 		}
 		catch(\Exception $e){
 			$output['error'] = $e->getMessage();
@@ -308,7 +309,7 @@ class APIController extends Controller
 		
 		$and_active = 1;
 		$and_verified = 1;
-		if(isset($input['oauth_token'])){
+		if(isset($input['oauth_token']) AND $manage_scope){
 			$getUser = User::getByOAuth($input['oauth_token']);
 			if($getUser AND $getUser['user']->id == $user->id){
 				$priv_scope = true;
@@ -848,12 +849,6 @@ class APIController extends Controller
 		$input = Input::all();
 		$output = array();
 		
-		if(!isset($input['sig']) OR trim($input['sig']) == ''){
-			$output['error'] = 'Proof-of-ownership signature required (first 10 characters of address)';
-			$output['result'] = false;
-			return Response::json($output, 400);
-		}
-		
 		$xchain = app('Tokenly\XChainClient\Client');
 		$validate = $xchain->validateAddress($address);	
 		if(!$validate['result']){
@@ -861,17 +856,6 @@ class APIController extends Controller
 			$output['result'] = false;
 			return Response::json($output, 400);
 		}	
-		
-		$message = $address.' '.date('Y/m/d');
-		$check_sig = $xchain->verifyMessage($address, $input['sig'], $message);
-		if(!$check_sig['result']){
-			$output['error'] = 'Invalid proof-of-ownership signature';
-			$output['result'] = false;
-			return Response::json($output, 403);
-		}
-		
-		$sig = $input['sig'];
-		unset($input['sig']);
 		
 		$tca = new Access(true);
 		$ops = array();
