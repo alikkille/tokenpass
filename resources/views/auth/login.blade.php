@@ -7,12 +7,11 @@
 @section('body_content')
 <div class="everything">
 	<div class="logo"><a href="/">token<strong>pass</strong></a></div>
+    <div class="row">@include('partials.alerts')</div>
 	<div class="logins-wrapper">
 		<div class="login-with-email">
 			<h1 class="login-heading">Login with Email</h1>
 			<div class="form-wrapper">
-				@include('partials.alerts')
-
 				@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 					<div>
 	                    <p class="alert-info">
@@ -48,7 +47,6 @@
 	  </div>
 		<div class="login-with-bitcoin">
 	    <div class="form-wrapper">
-	      @include('partials.alerts')
 	      @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
 	          <div>
 	              <p class="alert-info">
@@ -65,14 +63,14 @@
 	        <div class="tooltip-wrapper" data-tooltip="Login quickly and securely by signing todays Word of the Day with a previously verified address.">
 	          <i class="help-icon material-icons">help_outline</i>
 	        </div>
-	        <input name="btc-wotd" type="text" placeholder="btc-wotd" value="TODO" onclick="this.select();" readonly>
+	        <input name="btc-wotd" type="text" placeholder="btc-wotd" value="{{ $sigval }}" onclick="this.select();" readonly>
 
 	        <div class="tooltip-wrapper" data-tooltip="Paste your signed Word of the Day into this window, then click login.">
 	          <i class="help-icon material-icons">help_outline</i>
 	        </div>
 	        <div class="signature__wrapper">
 	          <textarea name="signed_message" placeholder="cryptographic signature" rows="4"></textarea>
-	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode('TODO')) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.bitcoin')) }}">
+	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.login')) }}">
 	            <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
 	            Click To Sign
 	          </a>

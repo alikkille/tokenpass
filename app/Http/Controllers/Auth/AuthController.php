@@ -419,8 +419,21 @@ public function setSigned(Request $request) {
     }
 }
 
-public function getBitcoinLogin(Request $request) {
+public function getLogin(Request $request){
+    // Generate message for signing and flash for POST results
+    if(Input::get('signature')){
+		$request->request->set('signed_message', Input::get('signature'));
+		return $this->postBitcoinLogin($request);
+	}
+    $sigval = Address::getSecureCodeGeneration();
+    Session::flash('sigval', $sigval);
+    return view('auth.login', ['sigval' => $sigval]);
+}
 
+public function getBitcoinLogin(Request $request) {
+    //page depreciated
+    return redirect()->route('auth.login');
+    /*
     // Generate message for signing and flash for POST results
     if(Input::get('signature')){
 		$request->request->set('signed_message', Input::get('signature'));
@@ -429,6 +442,7 @@ public function getBitcoinLogin(Request $request) {
     $sigval = Address::getSecureCodeGeneration();
     Session::flash('sigval', $sigval);
     return view('auth.bitcoin', ['sigval' => $sigval]);
+    */
 }
 
 public function postBitcoinLogin(Request $request) {
@@ -436,13 +450,13 @@ public function postBitcoinLogin(Request $request) {
     $sig = Address::extract_signature($request->request->get('signed_message'));
     
     if($sigval == null){
-		return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+		return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
 	}
     
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
     } catch(Exception $e) {
-        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 
     $data = [
@@ -454,7 +468,7 @@ public function postBitcoinLogin(Request $request) {
         try {
             $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
-            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
+            return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
             ]);
         }
     }
@@ -472,11 +486,11 @@ public function postBitcoinLogin(Request $request) {
             Auth::loginUsingId($result->user_id);
         } catch (Exception $e)
         {
-            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+            return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
         }
         return $this->handleUserWasAuthenticated($request, true);
     } else {
-        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
         ]);
     }
 }
