@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateClientConnectionScopesTable extends Migration
 {
@@ -22,7 +22,6 @@ class CreateClientConnectionScopesTable extends Migration
             $table->foreign('scope_id')
                   ->references('uuid')->on('oauth_scopes')
                   ->onDelete('cascade');
-
         });
     }
 

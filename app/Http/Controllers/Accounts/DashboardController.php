@@ -7,7 +7,6 @@ use TKAccounts\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
-
     /**
      * Create a new authentication controller instance.
      *
@@ -17,11 +16,10 @@ class DashboardController extends Controller
     {
     }
 
-
-    public function getDashboard() {
+    public function getDashboard()
+    {
         return view('accounts/dashboard', [
             'user' => Auth::user(),
         ]);
     }
-
 }

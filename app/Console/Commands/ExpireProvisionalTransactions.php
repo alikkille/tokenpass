@@ -2,8 +2,11 @@
 
 namespace TKAccounts\Console\Commands;
 
+use DB;
 use Illuminate\Console\Command;
-use DB, TKAccounts\Models\Provisional, TKAccounts\Models\User, TKAccounts\Models\Address;
+use TKAccounts\Models\Address;
+use TKAccounts\Models\Provisional;
+use TKAccounts\Models\User;
 
 class ExpireProvisionalTransactions extends Command
 {
@@ -40,49 +43,51 @@ class ExpireProvisionalTransactions extends Command
     {
         $time = time();
         $get = Provisional::all();
-        if($get){
-            $to_delete = array();
-            foreach($get as $row){
-                if($row->expiration == null OR $row->expiration == 0){
+        if ($get) {
+            $to_delete = [];
+            foreach ($get as $row) {
+                if ($row->expiration == null or $row->expiration == 0) {
                     continue;
                 }
-                if(intval($row->expiration) <= $time){
+                if (intval($row->expiration) <= $time) {
                     $to_delete[] = $row->id;
-                    if($row->user_id > 0){
+                    if ($row->user_id > 0) {
                         //send user notifications
                         $lender = User::find($row->user_id);
-                        if($lender){
+                        if ($lender) {
                             $lendee = Address::where('address', $row->destination)->where('verified', 1)->first();
-                            if($lendee){
+                            if ($lendee) {
                                 $lendee = $lendee->user();
-                            }                                 
-                            $notify_data = array('promise' => $row, 'lender' => $lender, 'lendee' => $lendee);
+                            }
+                            $notify_data = ['promise' => $row, 'lender' => $lender, 'lendee' => $lendee];
                             //notify lender
-                            $lender->notify('emails.loans.expire-lender', 'TCA loan for '.$row->asset.' expired '.date('Y/m/d'), $notify_data);                        
+                            $lender->notify('emails.loans.expire-lender', 'TCA loan for '.$row->asset.' expired '.date('Y/m/d'), $notify_data);
                             //notify lendee
-                            if($lendee){
+                            if ($lendee) {
                                 $lendee->notify('emails.loans.expire-lendee', 'TCA loan for '.$row->asset.' expired '.date('Y/m/d'), $notify_data);
                             }
                         }
-                    }                    
+                    }
                 }
             }
-            if(count($to_delete) == 0){
+            if (count($to_delete) == 0) {
                 $this->info('Nothing to expire');
+
                 return false;
             }
             $delete = DB::table('provisional_tca_txs')->whereIn('id', $to_delete)->delete();
-            if(!$delete){
+            if (!$delete) {
                 $this->error('Error expiring provisional transactions');
+
                 return false;
-            }
-            else{
+            } else {
                 $this->info(count($to_delete).' provisional transactions expired');
+
                 return true;
             }
-        }
-        else{
+        } else {
             $this->info('No provisional transactions');
+
             return false;
         }
     }

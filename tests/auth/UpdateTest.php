@@ -1,18 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Storage;
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * UpdateTest
 */
-class UpdateTest extends TestCase {
-
+class UpdateTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testUpdateName() {
+    public function testUpdateName()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -21,23 +21,24 @@ class UpdateTest extends TestCase {
 
         PHPUnit::assertEquals('Chicken Little', $updated_user['name']);
 
-
         // make sure we can still login
         $this->app['auth']->logout();
-        $user_helper->loginWithForm($this->app, ['password' => 'abc123456', ]);
+        $user_helper->loginWithForm($this->app, ['password' => 'abc123456']);
     }
 
     // test empty email
-    public function testEmptyEmailForUpdateUser() {
+    public function testEmptyEmailForUpdateUser()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
         // post form
-        $this->verifyUpdateError($user_helper, ['name' => 'Chicken Little', 'email' => '',], 'Email is requred');
+        $this->verifyUpdateError($user_helper, ['name' => 'Chicken Little', 'email' => ''], 'Email is requred');
     }
 
     // test password don't match
-    public function testPasswordsUnmatchedForUpdateUse() {
+    public function testPasswordsUnmatchedForUpdateUse()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -45,9 +46,9 @@ class UpdateTest extends TestCase {
         $this->verifyUpdateError($user_helper, ['name' => 'Chicken Little', 'password' => 'WRONG_PASSWORD'], 'provide the correct password');
     }
 
-
     // test change email
-    public function testUpdateUserChangeEmail() {
+    public function testUpdateUserChangeEmail()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -57,9 +58,9 @@ class UpdateTest extends TestCase {
         PHPUnit::assertEquals('chickenlittle@tokenly.com', $updated_user['email']);
     }
 
-
     // test change email
-    public function testUpdateUserConflictingEmail() {
+    public function testUpdateUserConflictingEmail()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -73,11 +74,11 @@ class UpdateTest extends TestCase {
 
         // try to change to a conflicting email address
         $this->verifyUpdateError($user_helper, ['email' => 'janedoe@tokenly.com'], 'email has already been taken');
-
     }
 
     // test change username
-    public function testUpdateUserCannotChangeUsername() {
+    public function testUpdateUserCannotChangeUsername()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -87,9 +88,9 @@ class UpdateTest extends TestCase {
         PHPUnit::assertEquals('johndoe', $updated_user['username']);
     }
 
-
     // test empty password
-    public function testUpdateUserEmptyPassword() {
+    public function testUpdateUserEmptyPassword()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
@@ -97,23 +98,24 @@ class UpdateTest extends TestCase {
         $this->verifyUpdateError($user_helper, ['name' => 'Chicken Little', 'password' => null], 'password field is required');
     }
 
-
     // test change password and still logs in
-    public function testUpdateUserChangePasswordAndStillLogsIn() {
+    public function testUpdateUserChangePasswordAndStillLogsIn()
+    {
         // setup
         list($user, $user_helper) = $this->setupUserTest();
 
         // post form
-        $this->getAndPostUpdateForm($user_helper, ['new_password' => 'theskyisfalling', ]);
+        $this->getAndPostUpdateForm($user_helper, ['new_password' => 'theskyisfalling']);
 
         // logout
         $this->app['auth']->logout();
 
         // login
-        $user_helper->loginWithForm($this->app, ['password' => 'theskyisfalling', ]);
+        $user_helper->loginWithForm($this->app, ['password' => 'theskyisfalling']);
     }
 
-    public function testStore() {
+    public function testStore()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
         $user = $user_helper->createNewUser();
         $user_helper->loginWithForm($this->app);
@@ -124,11 +126,11 @@ class UpdateTest extends TestCase {
         // Attempt to upload an incompatible file
         $response = $this->call('POST',
             '/image/store',
-            array($file),
-            array(),
-            array('file' => $file),
+            [$file],
+            [],
+            ['file'         => $file],
             ['CONTENT_TYPE' => 'application/nonsense'],
-            ['Content-Type' =>'application/nonsense']);
+            ['Content-Type' => 'application/nonsense']);
 
         PHPUnit::assertContains('Only image type files are accepted as an avatar.', $response->getContent());
 
@@ -139,11 +141,11 @@ class UpdateTest extends TestCase {
         // Attempt upload a real image,
         $response = $this->call('POST',
             '/image/store',
-            array($file),
-            array(),
-            array('file' => $file),
+            [$file],
+            [],
+            ['file'         => $file],
             ['CONTENT_TYPE' => 'image/png'],
-            ['Content-Type' =>'image/png']);
+            ['Content-Type' => 'image/png']);
 
         // Removed until built mock for  S3
         //PHPUnit::assertContains('Avatar defined.', $response->getContent());
@@ -151,7 +153,8 @@ class UpdateTest extends TestCase {
 
     ////////////////////////////////////////////////////////////////////////
 
-    protected function setupUserTest() {
+    protected function setupUserTest()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a new user and login
@@ -161,7 +164,8 @@ class UpdateTest extends TestCase {
         return [$user, $user_helper];
     }
 
-    protected function getAndPostUpdateForm($user_helper, $vars) {
+    protected function getAndPostUpdateForm($user_helper, $vars)
+    {
         // get the update form
         $response = $this->call('GET', '/auth/update');
         $this->assertEquals(200, $response->getStatusCode());
@@ -172,7 +176,8 @@ class UpdateTest extends TestCase {
         return $updated_user;
     }
 
-    protected function verifyUpdateError($user_helper, $vars, $expected_error_string) {
+    protected function verifyUpdateError($user_helper, $vars, $expected_error_string)
+    {
         // get the update form
         $response = $this->call('GET', '/auth/update');
         $this->assertEquals(200, $response->getStatusCode());
@@ -180,7 +185,4 @@ class UpdateTest extends TestCase {
         // post to the update form
         $user_helper->verifyErrorForUpdateWithForm($this->app, $vars, $expected_error_string);
     }
-
-
-
 }

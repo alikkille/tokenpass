@@ -2,7 +2,6 @@
 
 namespace TKAccounts\Repositories;
 
-use Exception;
 use Tokenly\LaravelApiProvider\Repositories\BaseRepository;
 
 /*
@@ -10,9 +9,5 @@ use Tokenly\LaravelApiProvider\Repositories\BaseRepository;
 */
 class ProvisionalRepository extends BaseRepository
 {
-
     protected $model_type = 'TKAccounts\Models\Provisional';
-
-
-
 }

@@ -160,10 +160,9 @@ return [
         TKAccounts\Providers\RouteServiceProvider::class,
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
         TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
-        
+
         // make sure to call this after all other service providers
         Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
-
 
     ],
 
@@ -217,7 +216,7 @@ return [
         'Html'       => Illuminate\Html\HtmlFacade::class,
 
         'Authorizer' => LucaDegasperi\OAuth2Server\Facades\Authorizer::class,
-        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
+        'QrCode'     => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
 
     ],
 

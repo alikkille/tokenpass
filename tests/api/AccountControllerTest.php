@@ -1,18 +1,17 @@
 <?php
 
 use PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\OAuthClient;
 use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * AccountControllerTest
 */
-class AccountControllerTest extends TestCase {
-
+class AccountControllerTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testLoginWithUsernameAndPassword() {
+    public function testLoginWithUsernameAndPassword()
+    {
         $user_helper = $this->buildUserHelper();
 
         // create a user
@@ -34,7 +33,8 @@ class AccountControllerTest extends TestCase {
         PHPUnit::assertEquals('johndoe@tokenly.com', $response['email']);
     }
 
-    public function testLoginAPIErrors() {
+    public function testLoginAPIErrors()
+    {
         $user_helper = $this->buildUserHelper();
 
         // create a user
@@ -58,14 +58,12 @@ class AccountControllerTest extends TestCase {
         PHPUnit::assertContains('password field is required.', $response['message']);
     }
 
-
     ////////////////////////////////////////////////////////////////////////
 
-
-    protected function buildUserHelper() {
+    protected function buildUserHelper()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
+
         return $user_helper;
     }
-
-
 }

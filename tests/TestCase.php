@@ -11,14 +11,15 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
      */
     protected $baseUrl = 'http://localhost';
 
-
     protected $use_database = false;
 
     public function setUp()
     {
         parent::setUp();
 
-        if ($this->use_database) { $this->setUpDb(); }
+        if ($this->use_database) {
+            $this->setUpDb();
+        }
 
         CMSAccountLoaderMockBuilder::installMockCMSAccountLoader();
     }
@@ -37,7 +38,6 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
         return $app;
     }
 
-
     public function setUpDb()
     {
         $this->app['Illuminate\Contracts\Console\Kernel']->call('migrate');
@@ -46,7 +46,4 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     public function teardownDb()
     {
     }
-
 }
-
-

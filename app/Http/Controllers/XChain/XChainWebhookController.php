@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace TKAccounts\Http\Controllers\XChain;
 
@@ -10,37 +10,41 @@ use TKAccounts\Http\Controllers\Controller;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\WebHookReceiver;
 
-class XChainWebhookController extends Controller {
-
-    public function receive(WebHookReceiver $webhook_receiver, Request $request) {
-        
+class XChainWebhookController extends Controller
+{
+    public function receive(WebHookReceiver $webhook_receiver, Request $request)
+    {
         $use_nonce = env('XCHAIN_CALLBACK_USE_NONCE');
-        if($use_nonce == 'true'){
+        if ($use_nonce == 'true') {
             $env_nonce = env('XCHAIN_CALLBACK_NONCE');
             $nonce = Input::get('nonce');
-            if($nonce != $env_nonce){
+            if ($nonce != $env_nonce) {
                 return false;
             }
         }
+
         try {
             $data = $webhook_receiver->validateAndParseWebhookNotificationFromRequest($request);
             $payload = $data['payload'];
 
             // check block, receive or send
             $this->handleXChainPayload($payload);
-
         } catch (Exception $e) {
             EventLog::logError('webhook.error', $e);
-            if ($e instanceof HttpResponseException) { throw $e; }
-            throw new HttpResponseException(new Response("An error occurred"), 500);
+            if ($e instanceof HttpResponseException) {
+                throw $e;
+            }
+
+            throw new HttpResponseException(new Response('An error occurred'), 500);
         }
 
         return 'ok';
     }
 
     // ------------------------------------------------------------------------
-    
-    protected function handleXChainPayload($payload) {
+
+    protected function handleXChainPayload($payload)
+    {
         switch ($payload['event']) {
             case 'block':
                 // new block event
@@ -62,5 +66,4 @@ class XChainWebhookController extends Controller {
                 EventLog::log('event.unknown', "Unknown event type: {$payload['event']}");
         }
     }
-
 }

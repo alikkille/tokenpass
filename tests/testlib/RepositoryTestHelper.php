@@ -1,26 +1,28 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
 
-class RepositoryTestHelper  {
+class RepositoryTestHelper
+{
+    public $use_uuid = true;
 
-    var $use_uuid = true;
-
-    function __construct($create_model_fn, $repository) {
+    public function __construct($create_model_fn, $repository)
+    {
         $this->create_model_fn = $create_model_fn;
         $this->repository = $repository;
     }
 
-    public function cleanup() {
-        foreach($this->repository->findAll() as $model) {
+    public function cleanup()
+    {
+        foreach ($this->repository->findAll() as $model) {
             $this->repository->delete($model);
         }
 
         return $this;
     }
 
-    public function testLoad() {
+    public function testLoad()
+    {
         $created_model = $this->newModel();
         $loaded_model = $this->repository->findByID($created_model['id']);
         PHPUnit::assertNotEmpty($loaded_model);
@@ -30,7 +32,8 @@ class RepositoryTestHelper  {
         return $loaded_model;
     }
 
-    public function testUpdate($update_attributes) {
+    public function testUpdate($update_attributes)
+    {
         $created_model = $this->newModel();
 
         // update by ID
@@ -44,7 +47,7 @@ class RepositoryTestHelper  {
         }
 
         PHPUnit::assertNotEmpty($loaded_model);
-        foreach($update_attributes as $k => $v) {
+        foreach ($update_attributes as $k => $v) {
             PHPUnit::assertEquals($v, $loaded_model[$k]);
         }
 
@@ -63,7 +66,7 @@ class RepositoryTestHelper  {
         }
 
         PHPUnit::assertNotEmpty($loaded_model);
-        foreach($update_attributes as $k => $v) {
+        foreach ($update_attributes as $k => $v) {
             PHPUnit::assertEquals($v, $loaded_model[$k]);
         }
 
@@ -71,7 +74,8 @@ class RepositoryTestHelper  {
         return $created_model;
     }
 
-    public function testDelete() {
+    public function testDelete()
+    {
         $created_model = $this->newModel();
 
         // delete by ID
@@ -80,7 +84,6 @@ class RepositoryTestHelper  {
         // load from repo
         $loaded_model = $this->repository->findByID($created_model['id']);
         PHPUnit::assertEmpty($loaded_model);
-
 
         // create another one
         $created_model = $this->newModel();
@@ -99,11 +102,10 @@ class RepositoryTestHelper  {
             $loaded_model = $this->repository->findByID($created_model['id']);
         }
         PHPUnit::assertEmpty($loaded_model);
-
     }
 
-
-    public function testFindAll() {
+    public function testFindAll()
+    {
         $created_model = $this->newModel();
         $created_model_2 = $this->newModel();
         $loaded_models = array_values(iterator_to_array($this->repository->findAll()));
@@ -113,9 +115,8 @@ class RepositoryTestHelper  {
         PHPUnit::assertEquals($created_model_2->toArray(), normalize_updated_date($loaded_models[1]->toArray(), $created_model_2->toArray()));
     }
 
-
-    public function newModel() {
+    public function newModel()
+    {
         return call_user_func($this->create_model_fn);
     }
-
 }

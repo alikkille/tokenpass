@@ -3,8 +3,8 @@
 namespace TKAccounts\Console\Commands;
 
 use Illuminate\Console\Command;
-use TKAccounts\Models\User;
 use TKAccounts\Models\Address;
+use TKAccounts\Models\User;
 
 class ListUserAddresses extends Command
 {
@@ -41,38 +41,38 @@ class ListUserAddresses extends Command
     {
         $username = $this->argument('user');
         $all = false;
-        if($username == 'ALL'){
+        if ($username == 'ALL') {
             $get_rows = User::all();
             $all = true;
-        }
-        else{
+        } else {
             $get_rows = User::where('username', $username)->orWhere('confirmed_email', $username)->get();
         }
-        if(!$get_rows OR count($get_rows) == 0){
+        if (!$get_rows or count($get_rows) == 0) {
             $this->error('User not found');
+
             return false;
         }
         $total = 0;
-        foreach($get_rows as $get){
+        foreach ($get_rows as $get) {
             $list = Address::where('user_id', $get->id)->get();
-            if(!$list OR count($list) == 0){
+            if (!$list or count($list) == 0) {
                 $this->error('No addresses registered for user');
+
                 return false;
             }
-        
-            foreach($list as $item){
+
+            foreach ($list as $item) {
                 $text = '';
-                if($all){
+                if ($all) {
                     $text = $get->username.' ';
                 }
                 $text .= '[#'.$item->id.'] '.$item->address;
-                if($item->verified == 1){
+                if ($item->verified == 1) {
                     $text .= ' VERIFIED';
-                }
-                else{
+                } else {
                     $text .= ' *UNVERIFIED*';
                 }
-                if($item->active_toggle == 0){
+                if ($item->active_toggle == 0) {
                     $text .= ' INACTIVE';
                 }
                 $this->info($text);

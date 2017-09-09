@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class UpgradeSessionsTable extends Migration
 {
@@ -14,9 +14,8 @@ class UpgradeSessionsTable extends Migration
     {
         Schema::table('sessions', function (Blueprint $table) {
             $table->integer('user_id')->nullable();
-			$table->string('ip_address', 45)->nullable();
-			$table->text('user_agent')->nullable();
-     ;
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
         });
     }
 

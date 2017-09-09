@@ -1,17 +1,17 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * DashboardTest
 */
-class DashboardTest extends TestCase {
-
-
+class DashboardTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testDashboardShowsName() {
+    public function testDashboardShowsName()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a new user and login
@@ -24,7 +24,4 @@ class DashboardTest extends TestCase {
         $this->assertContains('johndoe', $response->getContent());
         // $this->assertContains('johndoe@tokenly.com', $response->getContent());
     }
-
-
-
 }

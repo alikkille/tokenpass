@@ -36,13 +36,12 @@ class PasswordController extends Controller
         $this->middleware('guest');
     }
 
-
-
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
-     * @param  string  $password
+     * @param \Illuminate\Contracts\Auth\CanResetPassword $user
+     * @param string                                      $password
+     *
      * @return void
      */
     protected function resetPassword($user, $password)
@@ -53,5 +52,4 @@ class PasswordController extends Controller
         // login the user
         Auth::login($user);
     }
-
 }

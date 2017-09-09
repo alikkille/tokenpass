@@ -2,14 +2,12 @@
 
 namespace TKAccounts\Http\Controllers;
 
-use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class WelcomeController extends Controller
 {
-
-
-    public function index() {
+    public function index()
+    {
         $user = Auth::user();
         if ($user) {
             // go to dashboard
@@ -18,5 +16,4 @@ class WelcomeController extends Controller
 
         return view('public-index');
     }
-
 }
