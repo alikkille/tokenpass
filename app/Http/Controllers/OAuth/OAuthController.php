@@ -2,7 +2,6 @@
 
 namespace TKAccounts\Http\Controllers\OAuth;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
@@ -11,20 +10,18 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 use TKAccounts\Http\Controllers\Controller;
+use TKAccounts\Models\OAuthScope;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
-use TKAccounts\Models\OAuthScope;
 
-/**
- */
 class OAuthController extends Controller
 {
     protected $authorizer;
 
     public function __construct(OAuthClientRepository $oauth_client_repository, ClientConnectionRepository $client_connection_repository)
     {
-        $this->oauth_client_repository      = $oauth_client_repository;
+        $this->oauth_client_repository = $oauth_client_repository;
         $this->client_connection_repository = $client_connection_repository;
 
         // $this->beforeFilter('auth', ['only' => ['getAuthorize', 'postAuthorize']]);
@@ -33,12 +30,11 @@ class OAuthController extends Controller
         // $this->middleware('oauth2.check-authorization-params', ['only' => ['getAuthorize', 'postAuthorize']]);
 
         // $this->beforeFilter('oauth', ['only' => ['getUser']]);
-
     }
 
     /**
-     * Issue the Access Token
-     * 
+     * Issue the Access Token.
+     *
      * @return Response
      */
     public function postAccessToken()
@@ -46,14 +42,15 @@ class OAuthController extends Controller
         try {
             return Response::json(Authorizer::issueAccessToken());
         } catch (\Exception $e) {
-            Log::error("Exception: ".get_class($e).' '.$e->getMessage());
+            Log::error('Exception: '.get_class($e).' '.$e->getMessage());
+
             throw $e;
         }
     }
 
     /**
-     * Show the authorization form
-     * 
+     * Show the authorization form.
+     *
      * @return Response
      */
     public function getAuthorizeForm()
@@ -65,32 +62,35 @@ class OAuthController extends Controller
 
         // see if this client is already authorized
         $client = $this->oauth_client_repository->findById($client_id);
-        if (!$client) { throw new Exception("Unable to find oauth client for client ".json_encode($client_id, 192)); }
+        if (!$client) {
+            throw new Exception('Unable to find oauth client for client '.json_encode($client_id, 192));
+        }
         $already_connected = $this->client_connection_repository->isUserConnectedToClient($user, $client);
         if ($already_connected) {
             // we are already connected.  Issue the code and continue
             $params = $authParams;
             $params['user_id'] = $user->id;
             $redirect_uri = Authorizer::issueAuthCode('user', $params['user_id'], $params);
+
             return Redirect::to($redirect_uri);
         }
 
-        $formParams = array_except($authParams,'client');
+        $formParams = array_except($authParams, 'client');
         $formParams['client_id'] = $client_id;
-        $formParams['scopes'] = array();
-        $scope_list = array();
-        foreach($authParams['scopes'] as $scope_k => $scope){
-			$formParams['scopes'][] = $scope_k;
+        $formParams['scopes'] = [];
+        $scope_list = [];
+        foreach ($authParams['scopes'] as $scope_k => $scope) {
+            $formParams['scopes'][] = $scope_k;
             $scope_list[] = OAuthScope::find($scope->getID());
-		}
-		$formParams['scopes'] = join(',', $formParams['scopes']);
+        }
+        $formParams['scopes'] = implode(',', $formParams['scopes']);
 
         return View::make('oauth.authorization-form', ['params'=>$formParams, 'client'=>$authParams['client'], 'scopes'=>$scope_list]);
     }
 
     /**
-     * Process the authorization form
-     * 
+     * Process the authorization form.
+     *
      * @return Response
      */
     public function postAuthorizeForm()
@@ -102,13 +102,13 @@ class OAuthController extends Controller
         $params['user_id'] = $user->id;
         $redirect_uri = '';
         $scope_param = Input::get('scopes');
-        $scopes = array();
-        if(isset($params['scopes'])){
-			$scopes = $params['scopes'];
-		}
-		if($scope_param AND count($scopes) == 0){
-			$scopes = explode(',', $scope_param);
-		}
+        $scopes = [];
+        if (isset($params['scopes'])) {
+            $scopes = $params['scopes'];
+        }
+        if ($scope_param and count($scopes) == 0) {
+            $scopes = explode(',', $scope_param);
+        }
 
         // if the user has allowed the client to access its data, redirect back to the client with an auth code
         if (Input::get('approve') !== null) {
@@ -117,7 +117,7 @@ class OAuthController extends Controller
             // remember this authorization for later
             $client = $this->oauth_client_repository->findById($client_id);
             if (!$client) {
-                throw new Exception("Unable to find oauth client for client ".json_encode($client_id, 192));
+                throw new Exception('Unable to find oauth client for client '.json_encode($client_id, 192));
             }
             if (!$this->client_connection_repository->isUserConnectedToClient($user, $client)) {
                 $this->client_connection_repository->connectUserToClient($user, $client, $scopes);
@@ -133,11 +133,14 @@ class OAuthController extends Controller
     }
 
     /**
-     * get the user
+     * get the user.
+     *
      * @GET("oauth/user", as="oauth.user")
+     *
      * @return Response
      */
-    public function getUser(UserRepository $user_repository) {
+    public function getUser(UserRepository $user_repository)
+    {
         $owner_id = Authorizer::getResourceOwnerId();
 
         $user = $user_repository->findById($owner_id);

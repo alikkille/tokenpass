@@ -1,17 +1,18 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * ClientConnectionTest
 */
-class ClientConnectionTest extends TestCase {
-
+class ClientConnectionTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testConnectUserToClient() {
+    public function testConnectUserToClient()
+    {
         $this->seed('OAuthClientsTableSeeder');
         $this->seed('OAuthScopesTableSeeder');
 
@@ -52,12 +53,7 @@ class ClientConnectionTest extends TestCase {
         // disconnect client
         $connection_repository->disconnectUserFromClient($user_one, $client);
         PHPUnit::assertFalse($connection_repository->isUserConnectedToClient($user_one, $client));
-
     }
 
-
     ////////////////////////////////////////////////////////////////////////
-
-
-
 }

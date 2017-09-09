@@ -4,9 +4,7 @@ namespace TKAccounts\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use TKAccounts\Commands\Command;
 use TKAccounts\Models\User;
 
 class SendUserConfirmationEmail extends Command implements SelfHandling
@@ -32,13 +30,13 @@ class SendUserConfirmationEmail extends Command implements SelfHandling
 
         $this->resetEmailConfirmationCode();
 
-        Mail::send('emails.activate', ['user' => $this->user, 'token' => $this->user['confirmation_code']], function($message) {
+        Mail::send('emails.activate', ['user' => $this->user, 'token' => $this->user['confirmation_code']], function ($message) {
             $message->to($this->user['email'], $this->user['name'])->subject('Verify Your Tokenly Account');
         });
     }
 
-
-    protected function resetEmailConfirmationCode() {
+    protected function resetEmailConfirmationCode()
+    {
         $user_repository = App('TKAccounts\Repositories\UserRepository');
         $token_generator = App('Tokenly\TokenGenerator\TokenGenerator');
 
@@ -47,5 +45,4 @@ class SendUserConfirmationEmail extends Command implements SelfHandling
             'confirmation_code_expires_at' => Carbon::now()->modify('+12 hours'),
         ]);
     }
-
 }

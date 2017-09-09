@@ -3,17 +3,18 @@
 use Illuminate\Http\Request;
 use Mockery as m;
 
-class XChainNotificationHelper {
-
+class XChainNotificationHelper
+{
     protected $web_hook_receiver_is_mocked = null;
 
-    function __construct() {
+    public function __construct()
+    {
     }
 
-    public function receiveNotificationWithWebhookController($notification_data) {
+    public function receiveNotificationWithWebhookController($notification_data)
+    {
         // create($uri, $method = 'GET', $parameters = array(), $cookies = array(), $files = array(), $server = array(), $content = null)
         if (!$this->web_hook_receiver_is_mocked) {
-
             $mock_webhook_receiver = m::mock('Tokenly\XChainClient\WebHookReceiver')->makePartial();
             $mock_webhook_receiver->shouldReceive('validateWebhookNotification')->andReturn(true);
             app()->bind('Tokenly\XChainClient\WebHookReceiver', function ($app) use ($mock_webhook_receiver) {
@@ -23,7 +24,6 @@ class XChainNotificationHelper {
             $this->web_hook_receiver_is_mocked = true;
         }
 
-
         $content = ['payload' => json_encode($notification_data)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
 
@@ -31,34 +31,40 @@ class XChainNotificationHelper {
         $controller->receive(app('Tokenly\XChainClient\WebHookReceiver'), $request);
     }
 
-    public function sampleSendNotificationForAddress($address, $override_vars=[]) {
+    public function sampleSendNotificationForAddress($address, $override_vars = [])
+    {
         $override_vars = array_merge([
             'notifiedAddress'   => $address['address'],
             'notifiedAddressId' => $address['send_monitor_id'],
         ], $override_vars);
+
         return $this->sampleSendNotification($override_vars);
     }
 
-    public function sampleSendNotification($override_vars=[]) {
+    public function sampleSendNotification($override_vars = [])
+    {
         $override_vars = array_merge([
-            "event"        => "send",
-            "sources"      => ["1GHRfqhgC66E8dq2iDMwQsJVWegHV8s2ki"],
-            "destinations" => ["1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD"],
+            'event'        => 'send',
+            'sources'      => ['1GHRfqhgC66E8dq2iDMwQsJVWegHV8s2ki'],
+            'destinations' => ['1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD'],
         ], $override_vars);
 
         return $this->sampleReceiveNotification($override_vars);
     }
 
-    public function sampleReceiveNotificationForAddress($address, $override_vars=[]) {
+    public function sampleReceiveNotificationForAddress($address, $override_vars = [])
+    {
         $override_vars = array_merge([
             'notifiedAddress'   => $address['address'],
             'notifiedAddressId' => $address['receive_monitor_id'],
             'destinations'      => [$address['address']],
         ], $override_vars);
+
         return $this->sampleReceiveNotification($override_vars);
     }
 
-    public function sampleBlockNotification($override_vars=[]) {
+    public function sampleBlockNotification($override_vars = [])
+    {
         $_json = <<<'EOT'
         {
             "notificationId": 10001,
@@ -96,11 +102,12 @@ class XChainNotificationHelper {
 EOT;
         $out = json_decode($_json, true);
         $out = array_replace_recursive($out, $override_vars);
+
         return $out;
     }
 
-
-    public function sampleReceiveNotification($override_vars=[]) {
+    public function sampleReceiveNotification($override_vars = [])
+    {
         $_json = <<<'EOT'
         {
             "asset": "BITCRYSTALS",
@@ -255,8 +262,4 @@ EOT;
 
         return $out;
     }
-
-
-
-
 }

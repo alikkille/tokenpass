@@ -1,19 +1,18 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
 use TKAccounts\Models\OAuthClient;
-
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * OAuthTest
 */
-class OAuthTest extends TestCase {
-
-
+class OAuthTest extends TestCase
+{
     protected $use_database = true;
-    
-    public function testGetOAuthClientDetails() {
+
+    public function testGetOAuthClientDetails()
+    {
         $oauth_helper = app('OAuthHelper')->setTestCase($this);
         $user_helper = app('UserHelper')->setTestCase($this);
 
@@ -29,7 +28,7 @@ class OAuthTest extends TestCase {
         $this->assertInternalType('array', $correct);
         $this->assertContains('client1secret', $correct['secret']);
 
-        $url = "http://token.pass/oauth/autho?no_client_id=83277846823gri3rg";
+        $url = 'http://token.pass/oauth/autho?no_client_id=83277846823gri3rg';
         $incorrect = OAuthClient::getOAuthClientDetailsFromURL($url);
         $this->assertFalse($incorrect);
 
@@ -42,10 +41,10 @@ class OAuthTest extends TestCase {
 
         $incorrect = OAuthClient::getUserClients(5);
         $this->assertFalse($incorrect);
-
     }
 
-    public function testOAuthAuthorizeFormRequest() {
+    public function testOAuthAuthorizeFormRequest()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
         $oauth_helper = app('OAuthHelper')->setTestCase($this);
 
@@ -59,10 +58,10 @@ class OAuthTest extends TestCase {
         // $json = json_decode($response->getContent());
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertContains('<form', $response->getContent());
-
     }
 
-    public function testOAuthAuthorizeFormResponse() {
+    public function testOAuthAuthorizeFormResponse()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
         $oauth_helper = app('OAuthHelper')->setTestCase($this);
 
@@ -80,7 +79,8 @@ class OAuthTest extends TestCase {
         $this->assertContains('&state=somerandomstate', $response->getTargetUrl());
     }
 
-    public function testGetUserFromClient() {
+    public function testGetUserFromClient()
+    {
         $oauth_helper = app('OAuthHelper')->setTestCase($this);
         $auth_code = $oauth_helper->getClientAuthorizationCode($this->app);
         $this->assertNotEmpty($auth_code);
@@ -97,15 +97,11 @@ class OAuthTest extends TestCase {
         $this->assertEquals('johndoe', $user_json['username']);
     }
 
-
     public function setUpDb()
     {
         parent::setUpDb();
 
         $this->seed('OAuthClientsTableSeeder');
         $this->seed('OAuthScopesTableSeeder');
-
-        return;
     }
-
 }

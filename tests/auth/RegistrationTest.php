@@ -1,16 +1,17 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * RegistrationTest
 */
-class RegistrationTest extends TestCase {
-
+class RegistrationTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testRegisterUser() {
+    public function testRegisterUser()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
@@ -21,7 +22,8 @@ class RegistrationTest extends TestCase {
         $this->assertTrue($user_helper->userExistsInDB($user));
     }
 
-    public function testRegistrationLogsInUser() {
+    public function testRegistrationLogsInUser()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
@@ -31,12 +33,11 @@ class RegistrationTest extends TestCase {
         // make sure user is logged in
         $user_id = $this->app['auth']->id();
         $this->assertGreaterThan(0, $user_id);
-
     }
 
-
     // test email conflict
-    public function testRegisterUserConflictingEmail() {
+    public function testRegisterUserConflictingEmail()
+    {
         // setup
         $user_helper = $this->setupUserTest();
 
@@ -50,21 +51,21 @@ class RegistrationTest extends TestCase {
 
         // try to change to a conflicting email address
         $this->verifyRegisterError($user_helper, ['email' => 'janedoe@tokenly.com'], 'email has already been taken');
-
     }
 
     // test empty username
-    public function testEmptyUsernameForRegisterUser() {
+    public function testEmptyUsernameForRegisterUser()
+    {
         // setup
         $user_helper = $this->setupUserTest();
 
         // post form
-        $this->verifyRegisterError($user_helper, ['name' => 'Chicken Little', 'username' => '',], 'username field is required.');
+        $this->verifyRegisterError($user_helper, ['name' => 'Chicken Little', 'username' => ''], 'username field is required.');
     }
 
-
     // test register with conflicting username
-    public function testRegisterUserWithConflictingUsername() {
+    public function testRegisterUserWithConflictingUsername()
+    {
         // setup
         $user_helper = $this->setupUserTest();
 
@@ -78,20 +79,19 @@ class RegistrationTest extends TestCase {
 
         // try to change to a conflicting username address
         $this->verifyRegisterError($user_helper, ['username' => 'janedoe'], 'username has already been taken');
-
     }
-
-
 
     ////////////////////////////////////////////////////////////////////////
 
-
-    protected function setupUserTest() {
+    protected function setupUserTest()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
+
         return $user_helper;
     }
 
-    protected function verifyRegisterError($user_helper, $vars, $expected_error_string) {
+    protected function verifyRegisterError($user_helper, $vars, $expected_error_string)
+    {
         // get the register form
         $response = $this->call('GET', '/auth/register');
         $this->assertEquals(200, $response->getStatusCode());
@@ -99,5 +99,4 @@ class RegistrationTest extends TestCase {
         // post to the register form
         $user_helper->verifyErrorForRegisterWithForm($this->app, $vars, $expected_error_string);
     }
-
 }

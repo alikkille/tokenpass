@@ -1,17 +1,18 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * AddressXChainSyncTest
 */
-class AddressXChainSyncTest extends TestCase {
-
+class AddressXChainSyncTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testSyncAddressWithXChain() {
+    public function testSyncAddressWithXChain()
+    {
         $this->setupXChainMock();
 
         $user = app('UserHelper')->createNewUser();
@@ -34,10 +35,9 @@ class AddressXChainSyncTest extends TestCase {
 
     ////////////////////////////////////////////////////////////////////////
 
-    protected function setupXChainMock() {
+    protected function setupXChainMock()
+    {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
     }
-
-
 }

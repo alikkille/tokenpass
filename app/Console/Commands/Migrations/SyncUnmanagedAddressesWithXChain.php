@@ -4,14 +4,11 @@ namespace TKAccounts\Console\Commands\Migrations;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Swapbot\Swap\Logger\BotEventLogger;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class SyncUnmanagedAddressesWithXChain extends Command {
-
-
+class SyncUnmanagedAddressesWithXChain extends Command
+{
     /**
      * The console command name.
      *
@@ -35,7 +32,6 @@ class SyncUnmanagedAddressesWithXChain extends Command {
     {
         parent::__construct();
     }
-
 
     /**
      * Get the console command arguments.
@@ -61,7 +57,6 @@ class SyncUnmanagedAddressesWithXChain extends Command {
         ];
     }
 
-
     /**
      * Execute the console command.
      *
@@ -74,15 +69,15 @@ class SyncUnmanagedAddressesWithXChain extends Command {
             $all_addresses = app('TKAccounts\Repositories\AddressRepository')->findAll();
             $count = $all_addresses->count();
             foreach ($all_addresses as $offset => $address) {
-                $this->info('Syncing address '.$address['address'].' ('.($offset+1).' of '.$count.')');
+                $this->info('Syncing address '.$address['address'].' ('.($offset + 1).' of '.$count.')');
                 $address->syncWithXChain();
             }
         } catch (Exception $e) {
             $this->error('Error: '.$e->getMessage());
+
             throw $e;
         }
 
         $this->comment('Done. synced '.$count.' addresses.');
     }
-
 }

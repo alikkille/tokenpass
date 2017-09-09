@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateClientConnectionsTable extends Migration
 {
@@ -21,7 +21,6 @@ class CreateClientConnectionsTable extends Migration
 
             $table->timestamps();
 
-
             $table->foreign('client_id')
                   ->references('id')->on('oauth_clients')
                   ->onDelete('cascade');
@@ -31,9 +30,7 @@ class CreateClientConnectionsTable extends Migration
                   ->references('id')->on('users')
                   ->onDelete('cascade');
 
-
             $table->unique(['user_id', 'client_id']);
-
         });
     }
 

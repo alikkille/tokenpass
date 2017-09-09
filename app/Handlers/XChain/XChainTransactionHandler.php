@@ -11,18 +11,20 @@ use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\Client as XChainClient;
 
 /**
- * This is invoked when a new block is received
+ * This is invoked when a new block is received.
  */
-class XChainTransactionHandler {
-
+class XChainTransactionHandler
+{
     const MINIMUM_CONFIRMATIONS = 2;
 
-    public function __construct(AddressRepository $address_repository, XChainClient $xchain_client) {
+    public function __construct(AddressRepository $address_repository, XChainClient $xchain_client)
+    {
         $this->address_repository = $address_repository;
-        $this->xchain_client      = $xchain_client;
+        $this->xchain_client = $xchain_client;
     }
 
-    public function handleTransaction($payload) {
+    public function handleTransaction($payload)
+    {
         // Log::debug("\$payload=".json_encode($payload, 192));
         //EventLog::log('transaction.'.$payload['event'].'.received', $payload, ['network', 'confirmations', 'quantity', 'asset', 'sources', 'destinations']);
 
@@ -40,57 +42,56 @@ class XChainTransactionHandler {
         }
         if (!$address) {
             EventLog::warning('address.notFound', $payload, ['network', 'event', 'notifiedAddressId']);
+
             return;
         }
-        
-        //see if this is an existing provisional tx 
-        $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->orWhere('txid', $payload['txid'])->first();        
+
+        //see if this is an existing provisional tx
+        $find_prov_tx = DB::table('provisional_tca_txs')->where('fingerprint', $payload['transactionFingerprint'])->orWhere('txid', $payload['txid'])->first();
 
         // sync new balance from xchain if this has 2 or more confirmations
         if ($payload['confirmations'] >= self::MINIMUM_CONFIRMATIONS) {
             try {
                 // sync balances
-                EventLog::log('address.sync', $address, ['id','address']);
+                EventLog::log('address.sync', $address, ['id', 'address']);
                 $address->syncWithXChain();
             } catch (Exception $e) {
                 $error_data = [];
                 EventLog::logError('address.sync.failed', $e, ['id' => $address['id'], 'address' => $address['address']]);
             }
-            
-            if($find_prov_tx){
+
+            if ($find_prov_tx) {
                 //remove provisional tx from system
                 DB::table('provisional_tca_txs')->where('id', $find_prov_tx->id)->delete();
             }
-        }
-        else{
+        } else {
             //check to see if this is coming from a provisional TCA source address
-            if(!$find_prov_tx AND !$is_send){ //if provisional tx not already added
+            if (!$find_prov_tx and !$is_send) { //if provisional tx not already added
                 //get list of source addresses
                 $payload_addresses = $payload['sources'];
 
                 //look for matches
                 $find_provisional = DB::table('provisional_tca_addresses')
                                     ->whereIn('address', $payload_addresses)->get();
-                if($find_provisional){
+                if ($find_provisional) {
                     $valid_provisional = false;
                     $provisional_client = null;
-                    foreach($find_provisional as $prov_address){
+                    foreach ($find_provisional as $prov_address) {
                         //make sure asset is valid
-                        if($prov_address->assets == null){
+                        if ($prov_address->assets == null) {
                             $valid_provisional = true;
-                        }
-                        else{
+                        } else {
                             $assets = json_decode($prov_address->assets, true);
-                            if(in_array($payload['asset'], $assets)){
+                            if (in_array($payload['asset'], $assets)) {
                                 $valid_provisional = true;
                             }
                         }
                         $provisional_client = $prov_address->client_id;
                     }
-                    if($valid_provisional){
+                    if ($valid_provisional) {
                         //add provisional tx
                         $time = date('Y-m-d H:i:s');
-                        $tx_data = array();
+                        $tx_data = [];
                         $tx_data['source'] = $payload_addresses[0];
                         $tx_data['destination'] = $payload['destinations'][0];
                         $tx_data['asset'] = $payload['asset'];
@@ -106,12 +107,9 @@ class XChainTransactionHandler {
                 }
             }
         }
-
-        return;
     }
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
     // Checks
-    
 }

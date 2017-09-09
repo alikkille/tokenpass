@@ -1,16 +1,15 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateProvisionalTcaTxsTable extends Migration
 {
-    
     /**
      * Run the migrations.
      *
      * @return void
-     */    
+     */
     public function up()
     {
         Schema::create('provisional_tca_txs', function (Blueprint $table) {

@@ -2,13 +2,10 @@
 
 namespace TKAccounts\Http\Controllers\Auth;
 
-use Exception;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use InvalidArgumentException;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
 use TKAccounts\Repositories\ClientConnectionRepository;
@@ -26,13 +23,13 @@ class ConnectedAppsController extends Controller
         $this->client_connection_repository = $client_connection_repository;
 
         $this->middleware('auth');
-
     }
 
     /**
-     * Shows all connected apps
+     * Shows all connected apps.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function getConnectedApps(Request $request)
@@ -44,8 +41,8 @@ class ConnectedAppsController extends Controller
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function getRevokeAppForm($client_uuid_id, Request $request, OAuthClientRepository $oauth_client_repository)
@@ -53,15 +50,15 @@ class ConnectedAppsController extends Controller
         $user = Auth::user();
         $client = $oauth_client_repository->findByUuid($client_uuid_id);
         if (!$client) {
-            throw new HttpResponseException(new Response("Client not found", 404));
+            throw new HttpResponseException(new Response('Client not found', 404));
         }
 
         return view('auth.revoke-app-form', ['client' => $client]);
     }
 
     /**
+     * @param \Illuminate\Http\Request $request
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function postRevokeAppForm($client_uuid_id, Request $request, OAuthClientRepository $oauth_client_repository)
@@ -69,12 +66,11 @@ class ConnectedAppsController extends Controller
         $user = Auth::user();
         $client = $oauth_client_repository->findByUuid($client_uuid_id);
         if (!$client) {
-            throw new HttpResponseException(new Response("Client not found", 404));
+            throw new HttpResponseException(new Response('Client not found', 404));
         }
 
         $connection_entries = $this->client_connection_repository->disconnectUserFromClient($user, $client);
 
         return view('auth.revoke-app-complete', ['client' => $client]);
     }
-
 }

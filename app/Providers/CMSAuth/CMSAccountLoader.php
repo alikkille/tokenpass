@@ -4,26 +4,24 @@ namespace TKAccounts\Providers\CMSAuth;
 
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Providers\CMSAuth\CMSException;
-use TKAccounts\Providers\CMSAuth\Util;
-use GuzzleHttp\Psr7\Request;
 
-class CMSAccountLoader {
-
+class CMSAccountLoader
+{
     protected $cms_accounts_url;
     protected $enable_account_lookups;
     protected $base_path = '/api/v1';
 
-    function __construct($cms_accounts_url, $enable_account_lookups=true) {
-        $this->cms_accounts_url       = $cms_accounts_url;
+    public function __construct($cms_accounts_url, $enable_account_lookups = true)
+    {
+        $this->cms_accounts_url = $cms_accounts_url;
         $this->enable_account_lookups = $enable_account_lookups;
     }
 
-    public function getFullUserInfoWithLogin($username, $password) {
+    public function getFullUserInfoWithLogin($username, $password)
+    {
         try {
             $authorize_results = $this->fetchFromAPI('POST', '/auth', ['username' => $username, 'password' => $password, 'force_native' => true]);
         } catch (CMSException $e) {
@@ -32,25 +30,27 @@ class CMSAccountLoader {
                 // unauthorized
                 return false;
             }
+
             throw $e;
         }
-        
+
         if (isset($authorize_results['result'])) {
             return $authorize_results['result'];
         }
 
-        Log::error("Unexpected results from auth: ".json_encode($authorize_results, 192));
-        
-        throw new Exception("Unexpected results", 1);
+        Log::error('Unexpected results from auth: '.json_encode($authorize_results, 192));
+
+        throw new Exception('Unexpected results', 1);
     }
 
-    public function usernameExists($username) {
+    public function usernameExists($username)
+    {
         $username_slug = Util::slugify($username);
 
         $usernames_map = Cache::get('cms.usernames');
 
         if ($usernames_map) {
-            Log::debug("\$usernames_map contains ".count($usernames_map)." usernames");
+            Log::debug('$usernames_map contains '.count($usernames_map).' usernames');
             if (isset($usernames_map[$username_slug])) {
                 return true;
             }
@@ -60,73 +60,78 @@ class CMSAccountLoader {
         try {
             $results = $this->fetchFromAPI('GET', '/users/'.$username_slug);
         } catch (CMSException $e) {
-            if ($e->getCode() == 400 OR $e->getCode() == 404) {
+            if ($e->getCode() == 400 or $e->getCode() == 404) {
                 return false;
             }
+
             throw $e;
         }
 
-        if ($results AND isset($results['profile'])) {
+        if ($results and isset($results['profile'])) {
             return true;
         }
 
         return false;
     }
 
-    public function populateUsernamesCache() {
+    public function populateUsernamesCache()
+    {
         $usernames_map = [];
         $public_users = $this->getAllPublicUsers();
-        foreach($public_users as $details) {
+        foreach ($public_users as $details) {
             // save the slug version of the username
             $usernames_map[Util::slugify($details['username'])] = true;
         }
 
         Cache::forever('cms.usernames', $usernames_map);
-
-        return;
     }
 
-    public function getAllPublicUsers($limit=99999) {
+    public function getAllPublicUsers($limit = 99999)
+    {
         $results = $this->fetchFromAPI('GET', '/users', ['limit' => $limit]);
+
         return $results['users'];
     }
-    
+
     public function getUserCoinAddresses($cms_user)
     {
-		$results = $this->fetchFromAPI('GET', 'address/get', ['x-auth' => $cms_user['auth']]);
-		if($results AND isset($results['addresses'])){
-			return $results['addresses'];
-		}
-		return false;
-	}
-	
-	public function checkTokenAccess($username, $params = array())
-	{
-		$result = $this->fetchFromAPI('GET', 'tca/check/'.$username, $params);
-		if($result AND isset($result['result'])){
-			return $result['result'];
-		}
-		return false;
-	}
+        $results = $this->fetchFromAPI('GET', 'address/get', ['x-auth' => $cms_user['auth']]);
+        if ($results and isset($results['addresses'])) {
+            return $results['addresses'];
+        }
 
-    protected function fetchFromAPI($method, $path, $parameters=[]) {
+        return false;
+    }
+
+    public function checkTokenAccess($username, $params = [])
+    {
+        $result = $this->fetchFromAPI('GET', 'tca/check/'.$username, $params);
+        if ($result and isset($result['result'])) {
+            return $result['result'];
+        }
+
+        return false;
+    }
+
+    protected function fetchFromAPI($method, $path, $parameters = [])
+    {
         $api_path = $this->base_path.'/'.ltrim($path, '/');
-		$client = new GuzzleClient(array('base_uri', $this->cms_accounts_url));
-		$request = new Request($method, $this->cms_accounts_url.$api_path);
+        $client = new GuzzleClient(['base_uri', $this->cms_accounts_url]);
+        $request = new Request($method, $this->cms_accounts_url.$api_path);
         if ($method == 'GET') {
             $data = ['query' => $parameters];
-
         } else {
             $data = ['form_params' => $parameters];
         }
-		$method = strtolower($method);
+        $method = strtolower($method);
         // send request
         try {
-			$response = $client->send($request, $data);
+            $response = $client->send($request, $data);
         } catch (Exception $e) {
             if ($response = $e->getResponse()) {
                 // interpret the response and error message
                 $code = $response->getStatusCode();
+
                 try {
                     $json = json_decode($response->getBody(), true);
                 } catch (Exception $parse_json_exception) {
@@ -137,6 +142,7 @@ class CMSAccountLoader {
                 if ($json and isset($json['error'])) {
                     $auth_exception = new CMSException($json['error'], $code);
                     $auth_exception->setJSONResponse($json);
+
                     throw $auth_exception;
                 }
             }
@@ -145,11 +151,14 @@ class CMSAccountLoader {
             throw $e;
         }
         $json = json_decode($response->getBody(), true);
-        if (!is_array($json)) { throw new Exception("Unexpected response", 1); }
+        if (!is_array($json)) {
+            throw new Exception('Unexpected response', 1);
+        }
 
         if ($json and isset($json['error'])) {
             $auth_exception = new CMSException($json['error'], $response->getStatusCode());
             $auth_exception->setJSONResponse($json);
+
             throw $auth_exception;
         }
 

@@ -10,13 +10,14 @@ use TKAccounts\TestHelpers\UserHelper;
 /*
 * ConfirmEmailTest
 */
-class ConfirmEmailTest extends TestCase {
-
+class ConfirmEmailTest extends TestCase
+{
     use DispatchesJobs;
 
     protected $use_database = true;
 
-    public function testConfirmUserEmail() {
+    public function testConfirmUserEmail()
+    {
         $user_helper = $this->setupUserTest();
 
         // create a user
@@ -41,8 +42,8 @@ class ConfirmEmailTest extends TestCase {
         PHPUnit::assertEmpty($user['confirmation_code_expires_at']);
     }
 
-
-    public function testConfirmUserEmailErrors() {
+    public function testConfirmUserEmailErrors()
+    {
         $user_helper = $this->setupUserTest();
 
         // create a user
@@ -75,16 +76,12 @@ class ConfirmEmailTest extends TestCase {
         PHPUnit::assertNotEmpty($user['confirmation_code_expires_at']);
     }
 
-
-
-
     ////////////////////////////////////////////////////////////////////////
 
-
-    protected function setupUserTest() {
+    protected function setupUserTest()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
+
         return $user_helper;
     }
-
-
 }

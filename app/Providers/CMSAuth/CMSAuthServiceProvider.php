@@ -2,13 +2,10 @@
 
 namespace TKAccounts\Providers\CMSAuth;
 
-use Exception;
 use Illuminate\Support\ServiceProvider;
-use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 
-class CMSAuthServiceProvider extends ServiceProvider {
-
-
+class CMSAuthServiceProvider extends ServiceProvider
+{
     /**
      * Register the service provider.
      *
@@ -30,5 +27,4 @@ class CMSAuthServiceProvider extends ServiceProvider {
     {
         return ['TKAccounts\Providers\CMSAuth\CMSAccountLoader'];
     }
-
 }

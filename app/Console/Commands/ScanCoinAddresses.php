@@ -32,22 +32,22 @@ class ScanCoinAddresses extends Command
         $xchain = app('Tokenly\XChainClient\Client');
 
         $address_list = Address::where('verified', '=', 1)->get();
-        if(!$address_list OR count($address_list) == 0){
-			return false;
-		}
-		$stamp = date('Y-m-d H:i:s');
-		foreach($address_list as $row){
-			$balances = $xchain->getBalances($row->address, true);
-			if($balances AND count($balances) > 0){
-				$update = Address::updateAddressBalances($row->id, $balances);
-				if(!$update){
-					$this->error('Failed updating '.$row->address.' ['.$row->id.']');
-				}
-				else{
-					$this->info('Updated '.$row->address.' ['.$row->id.']');
-				}
-			}
-		}
-		return true;
+        if (!$address_list or count($address_list) == 0) {
+            return false;
+        }
+        $stamp = date('Y-m-d H:i:s');
+        foreach ($address_list as $row) {
+            $balances = $xchain->getBalances($row->address, true);
+            if ($balances and count($balances) > 0) {
+                $update = Address::updateAddressBalances($row->id, $balances);
+                if (!$update) {
+                    $this->error('Failed updating '.$row->address.' ['.$row->id.']');
+                } else {
+                    $this->info('Updated '.$row->address.' ['.$row->id.']');
+                }
+            }
+        }
+
+        return true;
     }
 }

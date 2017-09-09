@@ -4,8 +4,8 @@ namespace TKAccounts\Providers\Monitoring;
 
 use Illuminate\Support\ServiceProvider;
 
-class MonitoringServiceProvider extends ServiceProvider {
-
+class MonitoringServiceProvider extends ServiceProvider
+{
     /**
      * Register the service provider.
      *
@@ -15,6 +15,4 @@ class MonitoringServiceProvider extends ServiceProvider {
     {
         $this->app->make('events')->subscribe('TKAccounts\Handlers\Monitoring\MonitoringHandler');
     }
-
-
 }

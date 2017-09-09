@@ -1,22 +1,24 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * XChainCallbackTest
 */
-class XChainCallbackTest extends TestCase {
-
+class XChainCallbackTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testXChainBlockCallback() {
+    public function testXChainBlockCallback()
+    {
         $xchain_notification_helper = app('XChainNotificationHelper');
         $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleBlockNotification());
     }
 
-    public function testXChainSendCallback() {
+    public function testXChainSendCallback()
+    {
         // setup xchain and add some mock balances
         $this->setupXChainMock();
         $this->mock_builder->setBalances(['BTC' => 0.123]);
@@ -32,7 +34,8 @@ class XChainCallbackTest extends TestCase {
         PHPUnit::assertEquals('/accounts/balances/'.$address['xchain_address_id'], $calls[0]['path']);
     }
 
-    public function testXChainReceiveCallback() {
+    public function testXChainReceiveCallback()
+    {
         $xchain_notification_helper = app('XChainNotificationHelper');
         $this->setupXChainMock();
 
@@ -42,13 +45,11 @@ class XChainCallbackTest extends TestCase {
         $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
     }
 
-
     ////////////////////////////////////////////////////////////////////////
 
-    protected function setupXChainMock() {
+    protected function setupXChainMock()
+    {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
     }
-
-
 }

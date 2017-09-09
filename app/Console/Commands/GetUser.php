@@ -40,11 +40,13 @@ class GetUser extends Command
     {
         $username = $this->argument('user');
         $get = User::where('username', $username)->orWhere('confirmed_email', $username)->orWhere('uuid', $username)->first();
-        if(!$get){
+        if (!$get) {
             $this->error('User not found');
+
             return false;
         }
         var_dump($get->toArray());
+
         return true;
     }
 }

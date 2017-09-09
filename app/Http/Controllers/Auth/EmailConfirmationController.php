@@ -3,27 +3,19 @@
 namespace TKAccounts\Http\Controllers\Auth;
 
 use Carbon\Carbon;
-use Exception;
-use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
-use Illuminate\Support\ViewErrorBag;
 use InvalidArgumentException;
 use TKAccounts\Commands\SendUserConfirmationEmail;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\User;
 use TKAccounts\Repositories\UserRepository;
-use Validator;
 
 class EmailConfirmationController extends Controller
 {
-
     use DispatchesJobs;
 
     /**
@@ -36,9 +28,7 @@ class EmailConfirmationController extends Controller
         $this->user_repository = $user_repository;
 
         $this->middleware('auth', ['except' => 'verifyEmail']);
-
     }
-
 
     public function getSendEmail(Request $request)
     {
@@ -49,7 +39,6 @@ class EmailConfirmationController extends Controller
 
     public function postSendEmail(Request $request, UserRepository $user_repository)
     {
-            
         $current_user = Auth::user();
 
         // send the email
@@ -64,12 +53,14 @@ class EmailConfirmationController extends Controller
         $errors = new MessageBag();
 
         try {
-            DB::transaction(function() use ($token) {
+            DB::transaction(function () use ($token) {
                 $user = $this->user_repository->findByConfirmationCode($token);
-                if (!$user) { throw new InvalidArgumentException("This email confirmation link has already been used or was not found.", 1); }
+                if (!$user) {
+                    throw new InvalidArgumentException('This email confirmation link has already been used or was not found.', 1);
+                }
 
                 if (Carbon::now()->gt($user['confirmation_code_expires_at'])) {
-                    throw new InvalidArgumentException("This email confirmation link has expired.  Please send a new confirmation email.", 1);                
+                    throw new InvalidArgumentException('This email confirmation link has expired.  Please send a new confirmation email.', 1);
                 }
 
                 $this->user_repository->update($user, [
@@ -85,6 +76,4 @@ class EmailConfirmationController extends Controller
 
         return view('auth.sendemailverified', ['errors' => $errors]);
     }
-
-
 }

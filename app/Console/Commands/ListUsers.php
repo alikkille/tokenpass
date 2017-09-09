@@ -39,11 +39,12 @@ class ListUsers extends Command
     public function handle()
     {
         $users = User::select('*')->orderBy('id', 'asc')->get();
-        if(!$users){
+        if (!$users) {
             $this->error('Error getting users');
+
             return false;
         }
-        foreach($users as $user){
+        foreach ($users as $user) {
             $text = '[#'.$user->id.'] '.$user->username.' - '.$user->email.' ['.$user->uuid.']';
             $this->info($text);
         }

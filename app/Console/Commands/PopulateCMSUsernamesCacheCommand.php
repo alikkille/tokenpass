@@ -2,7 +2,6 @@
 
 namespace TKAccounts\Console\Commands;
 
-use Exception;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -34,6 +33,7 @@ class PopulateCMSUsernamesCacheCommand extends Command
             // ['username', InputArgument::REQUIRED, 'Username'],
         ];
     }
+
     /**
      * Get the console command options.
      *
@@ -41,12 +41,10 @@ class PopulateCMSUsernamesCacheCommand extends Command
      */
     protected function getOptions()
     {
-
         return [
             // ['dry-run' , 'd',  InputOption::VALUE_NONE, 'Dry Run'],
         ];
     }
-
 
     /**
      * Execute the console command.
@@ -55,13 +53,12 @@ class PopulateCMSUsernamesCacheCommand extends Command
      */
     public function handle()
     {
-        $this->info("begin");
-        
+        $this->info('begin');
+
         $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
 
         $exists = $loader->populateUsernamesCache();
 
-        $this->info("done");
-
+        $this->info('done');
     }
 }

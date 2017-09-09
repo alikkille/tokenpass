@@ -1,19 +1,18 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
-
-use \PHPUnit_Framework_Assert as PHPUnit;
+use PHPUnit_Framework_Assert as PHPUnit;
+use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * LoginTest
 */
-class LoginTest extends TestCase {
-
+class LoginTest extends TestCase
+{
     protected $use_database = true;
 
-    public function testUserLogin() {
+    public function testUserLogin()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
@@ -32,7 +31,8 @@ class LoginTest extends TestCase {
         PHPUnit::assertTrue($user_helper->userExistsInDB($user));
     }
 
-    public function testUserLoginError() {
+    public function testUserLoginError()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
@@ -40,32 +40,31 @@ class LoginTest extends TestCase {
         PHPUnit::assertNotNull($user);
 
         // login
-        $response = $this->call('POST', '/auth/login', ['username' => 'wrong', 'password' => 'wrong', '_token' => true,]);
+        $response = $this->call('POST', '/auth/login', ['username' => 'wrong', 'password' => 'wrong', '_token' => true]);
 
         if ($response instanceof Illuminate\Http\RedirectResponse) {
             $found_error = false;
             if ($errors_bag = $response->getSession()->get('errors')) {
                 $found_error = true;
-                $errors = implode(", ", $errors_bag->all());
+                $errors = implode(', ', $errors_bag->all());
                 PHPUnit::assertContains('credentials do not match our records', $errors);
             }
 
             if (!$found_error) {
-                throw new Exception("Failed to find error", 1);
+                throw new Exception('Failed to find error', 1);
             }
         } else {
-            throw new Exception("Found unexpected response with status code ".$response->getStatusCode(), 1);
+            throw new Exception('Found unexpected response with status code '.$response->getStatusCode(), 1);
         }
     }
 
-
-    public function testLoginRedirectsToPreviousPage() {
+    public function testLoginRedirectsToPreviousPage()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a new user
         $user = $user_helper->createNewUser();
         PHPUnit::assertNotNull($user);
-
 
         // try to hit user dashboard
         $response = $this->call('GET', '/dashboard');
@@ -81,11 +80,10 @@ class LoginTest extends TestCase {
         $response = $user_helper->sendLoginRequest($this->app, $session);
         PHPUnit::assertEquals(302, $response->getStatusCode());
         PHPUnit::assertEquals('http://localhost/dashboard', $response->getTargetUrl());
-
     }
 
-
-    public function testDashboardAccess() {
+    public function testDashboardAccess()
+    {
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // guest should not have access to dashboard
@@ -104,9 +102,5 @@ class LoginTest extends TestCase {
         // can get to dashboard
         $response = $this->call('GET', '/dashboard');
         PHPUnit::assertEquals(200, $response->getStatusCode());
-
     }
-
-
-
 }
